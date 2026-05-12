@@ -15,7 +15,7 @@
   --font-title:'Bangers',cursive;--font-body:'Space Grotesk',sans-serif;
   --sidebar-w:200px;
 }
-body.light{--bg:#F2F0FF;--surface:#FFFFFF;--card:#E8E4FF;--border:#C4BCE8;--text:#180F3A;--muted:#6B60A0;}
+body.light{--bg:#FFFFFF;--surface:#F5F5F7;--card:#EBEBF0;--border:#DDDDE8;--text:#0A0A14;--muted:#6B6B80;}
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
 body{background:var(--bg);color:var(--text);font-family:var(--font-body);height:100svh;overflow:hidden;transition:background .3s,color .3s;}
 @media(max-width:1023px){body{height:auto;overflow-x:hidden;overflow-y:auto;}}
@@ -23,8 +23,31 @@ body{background:var(--bg);color:var(--text);font-family:var(--font-body);height:
 /* ── LAYOUT ── */
 #app{display:flex;height:100svh;overflow:hidden;}
 #sidebar{width:var(--sidebar-w);flex-shrink:0;background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;height:100svh;padding:24px 14px;overflow:hidden;}
-.sidebar-logo{font-family:var(--font-title);font-size:26px;letter-spacing:3px;background:linear-gradient(90deg,var(--c-accent),var(--c-violet));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;padding-bottom:18px;border-bottom:1px solid var(--border);margin-bottom:18px;cursor:default;user-select:none;line-height:1;}
-.sidebar-logo span{display:block;font-family:var(--font-body);font-size:9px;font-weight:700;color:var(--muted);letter-spacing:.12em;text-transform:uppercase;-webkit-text-fill-color:var(--muted);margin-top:4px;}
+/* ── LOGO AREA ── */
+.sidebar-logo{padding-bottom:18px;border-bottom:1px solid var(--border);margin-bottom:18px;cursor:default;user-select:none;display:flex;align-items:center;gap:6px;}
+.logo-img-wrap{display:flex;align-items:center;gap:4px;flex:1;}
+.logo-img{height:36px;width:auto;object-fit:contain;display:block;}
+.logo-img.hidden{display:none;}
+.logo-ai{font-family:'Bangers',cursive;font-size:22px;letter-spacing:1px;line-height:1;
+  background:linear-gradient(180deg,var(--c-accent) 0%,var(--c-violet) 50%,var(--c-accent2) 100%);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+  filter:drop-shadow(1px 2px 0 rgba(91,53,200,.4));
+  position:relative;top:2px;
+}
+/* Mobile logo */
+.mobile-logo-wrap{display:flex;align-items:center;gap:4px;}
+.mobile-logo-img{height:28px;width:auto;object-fit:contain;}
+.mobile-logo-img.hidden{display:none;}
+.mobile-logo-text{font-family:var(--font-title);font-size:22px;letter-spacing:2px;
+  background:linear-gradient(90deg,var(--c-accent),var(--c-violet),var(--c-accent2));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+  cursor:default;user-select:none;
+}
+.mobile-logo-ai{font-family:'Bangers',cursive;font-size:18px;letter-spacing:1px;
+  background:linear-gradient(180deg,var(--c-accent) 0%,var(--c-violet) 60%,var(--c-accent2) 100%);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+  position:relative;top:1px;
+}
 .sidebar-nav{display:flex;flex-direction:column;gap:3px;flex:1;}
 .snav-btn{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:12px;border:none;background:none;color:var(--muted);font-family:var(--font-body);font-size:13px;font-weight:600;cursor:pointer;width:100%;text-align:left;transition:all .15s;}
 .snav-btn:hover{background:var(--card);color:var(--text);}
@@ -322,8 +345,12 @@ body{background:var(--bg);color:var(--text);font-family:var(--font-body);height:
 
 <!-- MOBILE HEADER -->
 <div id="mobile-header">
-  <span class="mobile-logo" id="mobileLogoTitle">ImmaginAI</span>
-  <button id="themeToggle" onclick="toggleTheme()">☀️</button>
+  <div class="mobile-logo-wrap" id="mobileLogoTitle">
+    <img class="mobile-logo-img" id="logoImgMobile" src="WonderSpit_Logo.png" alt="WonderSpit" onerror="this.classList.add('hidden');document.getElementById('logoFallbackMobile').style.display='block'">
+    <span id="logoFallbackMobile" style="display:none;" class="mobile-logo-text">WonderSpit</span>
+    <span class="mobile-logo-ai">.AI</span>
+  </div>
+  <button id="themeToggle" onclick="toggleTheme()">🌙</button>
 </div>
 
 <!-- ADMIN OVERLAY -->
@@ -347,14 +374,14 @@ body{background:var(--bg);color:var(--text);font-family:var(--font-body);height:
         <button class="admin-tab active" onclick="aTab('tema',this)"><span class="admin-tab-icon">🎨</span> Tema</button>
         <button class="admin-tab" onclick="aTab('colori',this)"><span class="admin-tab-icon">🌈</span> Colori</button>
         <button class="admin-tab" onclick="aTab('font',this)"><span class="admin-tab-icon">Aa</span> Font</button>
+        <button class="admin-tab" onclick="aTab('logo',this)"><span class="admin-tab-icon">🖼</span> Logo & Nav</button>
         <button class="admin-tab" onclick="aTab('stili',this)"><span class="admin-tab-icon">✦</span> Stili AI</button>
         <button class="admin-tab" onclick="aTab('api',this)"><span class="admin-tab-icon">🔌</span> API</button>
         <button class="admin-tab" onclick="aTab('utenti',this)"><span class="admin-tab-icon">👤</span> Utenti</button>
         <button class="admin-tab" onclick="aTab('info',this)"><span class="admin-tab-icon">ℹ</span> Info</button>
       </div>
       <div class="admin-content">
-        <div class="admin-section active" id="asec-tema">
-          <div class="a-title">Tema App</div><div class="a-desc">Modalità visiva dell'interfaccia</div>
+        <div class="admin-section active" id="asec-tema"><div class="a-title">Tema App</div><div class="a-desc">Modalità visiva dell'interfaccia</div>
           <div class="a-card"><div class="a-card-title">Modalità</div>
             <div class="a-row"><div class="a-row-label">Tema attuale<div class="a-row-sub">Anteprima live immediata</div></div><select class="a-select" id="aThemeSelect" onchange="adminApplyTheme(this.value)"><option value="dark">🌙 Dark</option><option value="light">☀️ Light</option></select></div>
           </div>
@@ -385,6 +412,31 @@ body{background:var(--bg);color:var(--text);font-family:var(--font-body);height:
             <div class="a-row"><div class="a-row-label">Testo UI<div id="fontBodyPreview" style="font-size:12px;margin-top:6px;color:#ccc;font-family:'Space Grotesk',sans-serif;">Stile · Formato · Galleria</div></div><select class="a-select" id="fontBodySelect" onchange="previewFontBody(this.value)"><option value="Space Grotesk">Space Grotesk (default)</option><option value="Bangers">Bangers</option><option value="Nunito">Nunito</option><option value="Playfair Display">Playfair Display</option></select></div>
           </div>
           <button class="a-btn primary" onclick="saveFonts()">💾 Salva font</button>
+        </div>
+
+        <!-- LOGO & NAV -->
+        <div class="admin-section" id="asec-logo">
+          <div class="a-title">Logo & Nav</div><div class="a-desc">Personalizza logo e bottoni di navigazione.</div>
+          <div class="a-card">
+            <div class="a-card-title">Logo — URL immagine</div>
+            <div class="a-row">
+              <div class="a-row-label">Logo desktop (esteso)<div class="a-row-sub">Carica su GitHub, incolla URL</div></div>
+              <input type="text" id="logoDesktopUrl" class="a-input" placeholder="WonderSpit_Logo_esteso.png" style="width:100%;margin-top:6px;">
+            </div>
+            <div class="a-row">
+              <div class="a-row-label">Logo mobile (icona)<div class="a-row-sub">Versione compatta per smartphone</div></div>
+              <input type="text" id="logoMobileUrl" class="a-input" placeholder="WonderSpit_Logo.png" style="width:100%;margin-top:6px;">
+            </div>
+            <div style="display:flex;gap:7px;margin-top:10px;">
+              <button class="a-btn primary" onclick="saveLogo()">💾 Salva logo</button>
+              <button class="a-btn ghost" onclick="resetLogo()">↺ Reset</button>
+            </div>
+          </div>
+          <div class="a-card" style="margin-top:12px;">
+            <div class="a-card-title">Bottoni navigazione</div>
+            <div id="navBtnList"></div>
+            <button class="a-btn primary" onclick="saveNavBtns()" style="margin-top:12px;">💾 Salva nav</button>
+          </div>
         </div>
         <div class="admin-section" id="asec-stili">
           <div class="a-title">Stili AI</div><div class="a-desc">Attiva/disattiva stili. Aggiungi stili personalizzati.</div>
@@ -440,7 +492,13 @@ body{background:var(--bg);color:var(--text);font-family:var(--font-body);height:
 <!-- APP -->
 <div id="app">
   <aside id="sidebar">
-    <div class="sidebar-logo" id="sidebarLogo">ImmaginAI<span>by WonderSpit</span></div>
+    <div class="sidebar-logo" id="sidebarLogo">
+      <div class="logo-img-wrap">
+        <img class="logo-img" id="logoImgDesktop" src="WonderSpit_Logo_esteso.png" alt="WonderSpit" onerror="this.classList.add('hidden');document.getElementById('logoFallbackDesktop').style.display='block'">
+        <span id="logoFallbackDesktop" style="display:none;font-family:var(--font-title);font-size:20px;letter-spacing:2px;background:linear-gradient(90deg,var(--c-accent),var(--c-violet));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">WonderSpit</span>
+        <span class="logo-ai">.AI</span>
+      </div>
+    </div>
     <nav class="sidebar-nav">
       <button class="snav-btn active" id="snav-create" onclick="switchTab('create')"><span class="snav-icon">✦</span> Crea</button>
       <button class="snav-btn" id="snav-gallery" onclick="switchTab('gallery')"><span class="snav-icon">🖼</span> Galleria</button>
@@ -736,14 +794,15 @@ const BRAND_PALETTES=[
   {name:'Neon Caldo',c:{accent:'#FFE600',accent2:'#F0008C',violet:'#5B35C8'}},
 ];
 
-const ST={style:'',ratio:'1:1',enhance:true,safe:true,gallery:[],currentUrl:'',currentPrompt:'',lastGenTime:0,busy:false,theme:'dark',activeApi:'pollinations',cooldown:16000,timeout:55000};
+const ST={style:'',ratio:'1:1',enhance:true,safe:true,gallery:[],currentUrl:'',currentPrompt:'',lastGenTime:0,busy:false,theme:'light',activeApi:'pollinations',cooldown:16000,timeout:55000};
 let STYLES=[],adminLoggedIn=false,currentAdminUser=null,lpTimer=null,currentPaCat=null;
 const isMobile=()=>window.innerWidth<1024;
 
 /* ── INIT ── */
 document.addEventListener('DOMContentLoaded',()=>{
   detectLayout();
-  loadSaved(); loadStyles(); buildStyles(); buildRatios(); buildPA(); initLongPress();
+  loadSaved(); loadStyles(); loadNavBtns(); buildStyles(); buildRatios(); buildPA(); initLongPress();
+  loadLogoFromStorage(); applyNavBtns();
   window.addEventListener('resize',detectLayout);
 });
 
@@ -765,7 +824,7 @@ function detectLayout(){
 
 function loadSaved(){
   try{ST.gallery=JSON.parse(localStorage.getItem('ig_gallery')||'[]');}catch(e){}
-  const t=localStorage.getItem('ig_theme')||'dark'; applyTheme(t);
+  const t=localStorage.getItem('ig_theme')||'light'; applyTheme(t);
   const c=JSON.parse(localStorage.getItem('ig_colors')||'null'); if(c) applyColors(c);
   const f=JSON.parse(localStorage.getItem('ig_fonts')||'null'); if(f) applyFonts(f);
   ST.activeApi=localStorage.getItem('ig_active_api')||'pollinations';
@@ -830,7 +889,66 @@ function toggleAccordion(){
   b.classList.toggle('open');
 }
 
-/* ── THEME ── */
+/* ── LOGO & NAV ADMIN ── */
+const DEFAULT_NAV_BTNS=[
+  {id:'create',label:'Crea',icon:'✦',bg:null,color:null},
+  {id:'gallery',label:'Galleria',icon:'🖼',bg:null,color:null},
+];
+let NAV_BTNS=[];
+function loadNavBtns(){const s=localStorage.getItem('ig_nav_btns');NAV_BTNS=s?JSON.parse(s):JSON.parse(JSON.stringify(DEFAULT_NAV_BTNS));}
+function applyNavBtns(){
+  NAV_BTNS.forEach(b=>{
+    const sn=document.getElementById('snav-'+b.id);
+    if(sn){
+      if(b.bg){sn.style.background=b.bg;}
+      if(b.color){sn.style.color=b.color;}
+      const icon=sn.querySelector('.snav-icon');if(icon) icon.textContent=b.icon;
+      sn.childNodes.forEach(n=>{if(n.nodeType===3&&n.textContent.trim()) n.textContent=' '+b.label;});
+    }
+    const nb=document.getElementById('nav-'+b.id);
+    if(nb){
+      const lbl=nb.querySelector('.nav-label');if(lbl) lbl.textContent=b.label;
+      const ic=nb.querySelector('.nav-icon');if(ic) ic.textContent=b.icon;
+      if(b.bg) nb.style.background=b.bg;
+    }
+  });
+}
+function buildNavBtnList(){
+  const el=document.getElementById('navBtnList');if(!el) return;
+  el.innerHTML=NAV_BTNS.map((b,i)=>`
+    <div style="padding:12px 0;border-bottom:1px solid #1e1e35;">
+      <div style="font-size:10px;font-weight:700;color:#7a78a0;text-transform:uppercase;margin-bottom:8px;">Bottone: ${b.id}</div>
+      <div style="display:flex;flex-wrap:wrap;gap:8px;align-items:center;">
+        <div style="display:flex;align-items:center;gap:5px;"><span style="font-size:10px;color:#7a78a0;">Icona</span><input type="text" value="${b.icon}" oninput="NAV_BTNS[${i}].icon=this.value" class="a-input" style="width:50px;"></div>
+        <div style="display:flex;align-items:center;gap:5px;"><span style="font-size:10px;color:#7a78a0;">Label</span><input type="text" value="${b.label}" oninput="NAV_BTNS[${i}].label=this.value" class="a-input" style="width:100px;"></div>
+        <div style="display:flex;align-items:center;gap:5px;"><span style="font-size:10px;color:#7a78a0;">Sfondo</span><input type="color" value="${b.bg||'#1a1a2e'}" oninput="NAV_BTNS[${i}].bg=this.value" style="width:36px;height:26px;padding:1px;cursor:pointer;background:none;border:1px solid #2a2050;border-radius:5px;"></div>
+        <div style="display:flex;align-items:center;gap:5px;"><span style="font-size:10px;color:#7a78a0;">Testo</span><input type="color" value="${b.color||'#00E5C8'}" oninput="NAV_BTNS[${i}].color=this.value" style="width:36px;height:26px;padding:1px;cursor:pointer;background:none;border:1px solid #2a2050;border-radius:5px;"></div>
+      </div>
+    </div>`).join('');
+}
+function saveNavBtns(){localStorage.setItem('ig_nav_btns',JSON.stringify(NAV_BTNS));applyNavBtns();msg('✓ Nav salvata');}
+function saveLogo(){
+  const d=document.getElementById('logoDesktopUrl').value.trim();
+  const m=document.getElementById('logoMobileUrl').value.trim();
+  if(d){localStorage.setItem('ig_logo_desktop',d);const el=document.getElementById('logoImgDesktop');if(el) el.src=d;}
+  if(m){localStorage.setItem('ig_logo_mobile',m);const el=document.getElementById('logoImgMobile');if(el) el.src=m;}
+  msg('✓ Logo salvato');
+}
+function resetLogo(){
+  localStorage.removeItem('ig_logo_desktop');localStorage.removeItem('ig_logo_mobile');
+  const d=document.getElementById('logoImgDesktop');if(d) d.src='WonderSpit_Logo_esteso.png';
+  const m=document.getElementById('logoImgMobile');if(m) m.src='WonderSpit_Logo.png';
+  msg('✓ Logo ripristinato');
+}
+function loadLogoFromStorage(){
+  const d=localStorage.getItem('ig_logo_desktop');const m=localStorage.getItem('ig_logo_mobile');
+  const de=document.getElementById('logoImgDesktop');const me=document.getElementById('logoImgMobile');
+  if(d&&de) de.src=d; if(m&&me) me.src=m;
+  // Pre-fill admin inputs
+  const di=document.getElementById('logoDesktopUrl');const mi=document.getElementById('logoMobileUrl');
+  if(d&&di) di.value=d; if(m&&mi) mi.value=m;
+}
+
 function applyTheme(t){
   document.body.classList.toggle('light',t==='light');
   const icon=t==='light'?'🌙':'☀️';
@@ -895,7 +1013,7 @@ function deleteUser(i){const users=loadUsers();if(users[i].username==='WONDERSPI
 function initLongPress(){['sidebarLogo','mobileLogoTitle'].forEach(id=>{const el=document.getElementById(id);if(!el) return;el.addEventListener('mousedown',()=>{lpTimer=setTimeout(openAdmin,3000);});el.addEventListener('touchstart',()=>{lpTimer=setTimeout(openAdmin,3000);},{passive:true});['mouseup','mouseleave','touchend'].forEach(ev=>el.addEventListener(ev,()=>clearTimeout(lpTimer)));});}
 function openAdmin(){document.getElementById('adminOverlay').classList.add('open');if(adminLoggedIn){showAdminPanel(currentAdminUser);}else{document.getElementById('adminLogin').style.display='flex';document.getElementById('adminPanel').classList.remove('open');}}
 function doAdminLogin(){const u=document.getElementById('adminUser').value.trim();const p=document.getElementById('adminPass').value;const users=loadUsers();const found=users.find(x=>x.username===u&&x.password===p);if(found){adminLoggedIn=true;currentAdminUser=found;document.getElementById('loginError').style.display='none';document.getElementById('adminUser').value='';document.getElementById('adminPass').value='';showAdminPanel(found);}else{document.getElementById('loginError').style.display='block';}}
-function showAdminPanel(user){document.getElementById('adminLogin').style.display='none';document.getElementById('adminPanel').classList.add('open');document.getElementById('adminUserLabel').textContent='👤 '+user.username;loadSavedApiKeys();updateApiCards();renderAdminStyleList();renderUserList();document.getElementById('aThemeSelect').value=ST.theme;document.getElementById('infoTheme').textContent=ST.theme==='dark'?'Dark':'Light';document.getElementById('infoGalleryCount').textContent=ST.gallery.length;buildBrandSwatches();}
+function showAdminPanel(user){document.getElementById('adminLogin').style.display='none';document.getElementById('adminPanel').classList.add('open');document.getElementById('adminUserLabel').textContent='👤 '+user.username;loadSavedApiKeys();updateApiCards();renderAdminStyleList();renderUserList();buildNavBtnList();loadLogoFromStorage();document.getElementById('aThemeSelect').value=ST.theme;document.getElementById('infoTheme').textContent=ST.theme==='dark'?'Dark':'Light';document.getElementById('infoGalleryCount').textContent=ST.gallery.length;buildBrandSwatches();}
 function closeAdmin(){document.getElementById('adminOverlay').classList.remove('open');}
 function aTab(n,btn){document.querySelectorAll('.admin-section').forEach(s=>s.classList.remove('active'));document.querySelectorAll('.admin-tab').forEach(b=>b.classList.remove('active'));document.getElementById('asec-'+n).classList.add('active');btn.classList.add('active');}
 function msg(m){const el=document.getElementById('adminSaveMsg');if(!el) return;el.textContent=m;el.classList.add('ok');setTimeout(()=>{el.textContent='Modifica e salva';el.classList.remove('ok');},3000);}
