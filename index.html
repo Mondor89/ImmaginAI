@@ -14,15 +14,15 @@
   --c-accent:#5B35C8;--c-accent2:#3D2F8F;--c-violet:#5B35C8;
   --font-title:'Space Grotesk',sans-serif;--font-body:'Space Grotesk',sans-serif;
   --sidebar-w:200px;
-  /* Bottoni personalizzabili */
-  --btn-style-bg:var(--card);--btn-style-color:var(--muted);--btn-style-border:var(--border);
-  --btn-style-active-bg:rgba(91,53,200,.12);--btn-style-active-color:#5B35C8;--btn-style-active-border:#5B35C8;
-  --btn-ratio-bg:var(--card);--btn-ratio-color:var(--muted);--btn-ratio-border:var(--border);
-  --btn-ratio-active-bg:rgba(91,53,200,.12);--btn-ratio-active-color:#5B35C8;--btn-ratio-active-border:#5B35C8;
-  --btn-pa-bg:var(--card);--btn-pa-color:var(--muted);--btn-pa-border:var(--border);
-  --btn-pa-active-bg:rgba(91,53,200,.12);--btn-pa-active-color:#5B35C8;--btn-pa-active-border:#5B35C8;
-  --btn-prompt-bg:var(--surface);--btn-prompt-color:var(--text);--btn-prompt-border:var(--border);
-  --accordion-bg:var(--card);--accordion-color:var(--muted);--accordion-border:var(--border);
+  /* Bottoni dark default — sempre visibili */
+  --btn-style-bg:#1e1a3a;--btn-style-color:#a09cc0;--btn-style-border:#3a3060;
+  --btn-style-active-bg:rgba(91,53,200,.2);--btn-style-active-color:#9d7fff;--btn-style-active-border:#5B35C8;
+  --btn-ratio-bg:#1e1a3a;--btn-ratio-color:#a09cc0;--btn-ratio-border:#3a3060;
+  --btn-ratio-active-bg:rgba(91,53,200,.2);--btn-ratio-active-color:#9d7fff;--btn-ratio-active-border:#5B35C8;
+  --btn-pa-bg:#1e1a3a;--btn-pa-color:#a09cc0;--btn-pa-border:#3a3060;
+  --btn-pa-active-bg:rgba(91,53,200,.2);--btn-pa-active-color:#9d7fff;--btn-pa-active-border:#5B35C8;
+  --btn-prompt-bg:#141428;--btn-prompt-color:#ccc;--btn-prompt-border:#2a2050;
+  --accordion-bg:#1e1a3a;--accordion-color:#a09cc0;--accordion-border:#3a3060;
   --gen-btn-bg:#5B35C8;--gen-btn-color:#FFFFFF;
 }
 body.light{--bg:#FFFFFF;--surface:#F5F5F7;--card:#EBEBF0;--border:#DDDDE8;--text:#0A0A14;--muted:#6B6B80;
@@ -323,7 +323,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--font-body);height:
   #preview-col{display:none!important;}
   #screen-gallery,#screen-pro{display:none;padding:20px 16px 160px;height:auto;overflow:visible;}
   #screen-gallery.active,#screen-pro.active{display:block;}
-  #controls{width:100%!important;height:auto!important;overflow:visible!important;padding:16px 16px 0!important;border-right:none!important;gap:12px;flex-direction:column;}
+  #controls{width:100%!important;height:auto!important;overflow:visible!important;padding:16px 16px 160px!important;border-right:none!important;gap:12px;flex-direction:column;}
   #controls.tab-hidden{display:none!important;}
   #outputArea{display:none;flex-direction:column;border-radius:16px;margin:12px 16px 0;}
   #outputArea.visible{display:flex;}
@@ -949,7 +949,7 @@ function loadBtnColors(){
   Object.entries(saved).forEach(([k,v])=>document.documentElement.style.setProperty(k,v));
 }
 
-function applyTheme(t){
+/* ── LOGO & NAV ADMIN ── */
 const DEFAULT_NAV_BTNS=[
   {id:'create',label:'Crea',icon:'✦',bg:null,color:null},
   {id:'gallery',label:'Galleria',icon:'🖼',bg:null,color:null},
