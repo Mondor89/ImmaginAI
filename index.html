@@ -33,11 +33,11 @@ body{background:var(--bg);color:var(--text);font-family:var(--font-body);height:
 .sidebar-footer{font-size:10px;color:var(--muted);line-height:1.8;padding-top:16px;border-top:1px solid var(--border);}
 .sidebar-footer strong{color:var(--c-accent);}
 
-#controls{width:380px;flex-shrink:0;display:flex;flex-direction:column;height:100svh;overflow-y:auto;overflow-x:hidden;border-right:1px solid var(--border);padding:20px 20px 24px;gap:10px;}
+#controls{width:500px;flex-shrink:0;display:flex;flex-direction:column;height:100svh;overflow-y:auto;overflow-x:hidden;border-right:1px solid var(--border);padding:20px 24px 24px;gap:10px;}
 #controls::-webkit-scrollbar{width:3px;}
 #controls::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px;}
 
-#preview-col{flex:1;display:flex;flex-direction:column;height:100svh;overflow:hidden;padding:20px 24px;}
+#preview-col{flex:1;min-width:260px;display:flex;flex-direction:column;height:100svh;overflow:hidden;padding:20px 20px;}
 #screen-gallery,#screen-pro{display:none;flex:1;flex-direction:column;height:100svh;overflow-y:auto;padding:32px 40px;}
 #screen-gallery.active,#screen-pro.active{display:flex;flex-direction:column;}
 
@@ -72,14 +72,22 @@ body{background:var(--bg);color:var(--text);font-family:var(--font-body);height:
 
 #errorMsg{padding:0 14px 8px;color:var(--danger);font-size:11px;display:none;font-weight:600;}
 
-/* PROMPT ASSISTANT */
-#promptAssistant{border-top:1px solid var(--border);padding:8px 10px 10px;}
+/* PROMPT ASSISTANT — accordion */
+.pa-accordion{flex-shrink:0;}
+.pa-header{display:flex;align-items:center;justify-content:space-between;padding:7px 12px;background:var(--card);border:1px solid var(--border);border-radius:10px;cursor:pointer;transition:all .15s;user-select:none;margin-top:6px;}
+.pa-header:hover{border-color:var(--c-violet);}
+.pa-header.open{border-color:var(--c-accent);border-bottom-left-radius:0;border-bottom-right-radius:0;}
+.pa-header-label{font-size:10px;font-weight:700;color:var(--muted);display:flex;align-items:center;gap:6px;}
+.pa-arrow{font-size:9px;color:var(--muted);transition:transform .2s;}
+.pa-header.open .pa-arrow{transform:rotate(180deg);}
+.pa-body{display:none;background:var(--card);border:1px solid var(--c-accent);border-top:none;border-radius:0 0 10px 10px;padding:10px;}
+.pa-body.open{display:block;}
 .pa-cats{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:7px;}
-.pa-cat{padding:3px 10px;background:var(--card);border:1px solid var(--border);border-radius:20px;font-size:10px;font-weight:700;color:var(--muted);cursor:pointer;transition:all .15s;}
+.pa-cat{padding:3px 9px;background:var(--surface);border:1px solid var(--border);border-radius:20px;font-size:10px;font-weight:700;color:var(--muted);cursor:pointer;transition:all .15s;}
 .pa-cat:hover,.pa-cat.active{background:rgba(0,229,200,.08);border-color:var(--c-accent);color:var(--c-accent);}
-.pa-prompts{display:flex;gap:5px;flex-wrap:wrap;}
-.pa-prompt{padding:4px 10px;background:var(--card);border:1px solid var(--border);border-radius:10px;font-size:10px;color:var(--text);cursor:pointer;transition:all .15s;font-weight:500;line-height:1.4;}
-.pa-prompt:hover{border-color:var(--c-violet);background:rgba(91,53,200,.1);}
+.pa-prompts{display:flex;flex-direction:column;gap:4px;}
+.pa-prompt{padding:5px 10px;background:var(--surface);border:1px solid var(--border);border-radius:8px;font-size:11px;color:var(--text);cursor:pointer;transition:all .15s;font-weight:500;text-align:left;}
+.pa-prompt:hover{border-color:var(--c-violet);background:rgba(91,53,200,.08);}
 
 /* ── STYLES ── */
 .style-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:5px;flex-shrink:0;}
@@ -457,8 +465,14 @@ body{background:var(--bg);color:var(--text);font-family:var(--font-body);height:
           <button id="diceBtn" onclick="rollDice()" title="Idea casuale">🎲</button>
         </div>
         <div id="errorMsg">⚠ Scrivi cosa vuoi vedere!</div>
-        <!-- PROMPT ASSISTANT -->
-        <div id="promptAssistant">
+      </div>
+      <!-- PROMPT ASSISTANT — accordion separato -->
+      <div class="pa-accordion">
+        <div class="pa-header" id="paHeader" onclick="togglePA()">
+          <span class="pa-header-label">💡 Suggerimenti prompt</span>
+          <span class="pa-arrow">▼</span>
+        </div>
+        <div class="pa-body" id="paBody">
           <div class="pa-cats" id="paCats"></div>
           <div class="pa-prompts" id="paPrompts"></div>
         </div>
@@ -761,11 +775,16 @@ function loadSaved(){
 }
 
 /* ── PROMPT ASSISTANT ── */
+function togglePA(){
+  const h=document.getElementById('paHeader');
+  const b=document.getElementById('paBody');
+  h.classList.toggle('open');
+  b.classList.toggle('open');
+}
 function buildPA(){
   const catsEl=document.getElementById('paCats');
   const cats=Object.keys(PA_DATA);
   catsEl.innerHTML=cats.map(c=>`<button class="pa-cat" onclick="selectPaCat('${c}',this)">${c}</button>`).join('');
-  // mostra prima categoria di default
   selectPaCat(cats[0],catsEl.firstChild);
 }
 function selectPaCat(cat,btn){
@@ -773,7 +792,7 @@ function selectPaCat(cat,btn){
   document.querySelectorAll('.pa-cat').forEach(b=>b.classList.remove('active'));
   if(btn) btn.classList.add('active');
   const prompts=PA_DATA[cat]||[];
-  document.getElementById('paPrompts').innerHTML=prompts.map(p=>`<button class="pa-prompt" onclick="applyPaPrompt('${p.replace(/'/g,"\\'")}')">📝 ${p.substring(0,40)}…</button>`).join('');
+  document.getElementById('paPrompts').innerHTML=prompts.map(p=>`<button class="pa-prompt" onclick="applyPaPrompt('${p.replace(/'/g,"\\'")}')">📝 ${p.substring(0,55)}…</button>`).join('');
 }
 function applyPaPrompt(p){
   document.getElementById('promptInput').value=p;
@@ -787,29 +806,17 @@ function rollDice(){
   const btn=document.getElementById('diceBtn');
   btn.classList.add('rolling');
   setTimeout(()=>btn.classList.remove('rolling'),400);
-
-  const existing=document.getElementById('promptInput').value.trim();
-
-  if(!existing){
-    // Campo vuoto: prompt completo casuale
-    const pick=DICE_FULL[Math.floor(Math.random()*DICE_FULL.length)];
-    document.getElementById('promptInput').value=pick.p;
-    // Cambia stile coerente
-    const matchingStyle=STYLES.find(s=>s.id===pick.s&&s.active);
-    if(matchingStyle){
-      ST.style=matchingStyle.id;
-      document.querySelectorAll('.style-btn').forEach(b=>b.classList.remove('active'));
-      buildStyles(); // rebuild mantiene selezione
-      // re-seleziona
-      const btns=document.querySelectorAll('.style-btn');
-      STYLES.filter(s=>s.active).forEach((s,i)=>{if(s.id===pick.s&&btns[i]) btns[i].classList.add('active');});
-    }
-  } else {
-    // Campo con testo: aggiunge modificatore coerente
-    const add=DICE_ADD[Math.floor(Math.random()*DICE_ADD.length)];
-    document.getElementById('promptInput').value=existing+', '+add;
+  // Sempre prompt completo casuale
+  const pick=DICE_FULL[Math.floor(Math.random()*DICE_FULL.length)];
+  document.getElementById('promptInput').value=pick.p;
+  // Cambia stile coerente
+  const match=STYLES.find(s=>s.id===pick.s&&s.active);
+  if(match){
+    ST.style=match.id;
+    buildStyles();
+    const btns=document.querySelectorAll('.style-btn');
+    STYLES.filter(s=>s.active).forEach((s,i)=>{if(s.id===pick.s&&btns[i]) btns[i].classList.add('active');});
   }
-
   document.getElementById('promptInput').focus();
   document.getElementById('promptBox').classList.remove('err');
   document.getElementById('errorMsg').style.display='none';
