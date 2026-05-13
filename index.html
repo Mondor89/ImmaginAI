@@ -899,7 +899,7 @@ const BRAND_PALETTES=[
   {name:'Neon Caldo',c:{accent:'#FFE600',accent2:'#F0008C',violet:'#5B35C8'}},
 ];
 
-const ST={style:'',ratio:'1:1',enhance:true,safe:true,gallery:[],currentUrl:'',currentPrompt:'',lastGenTime:0,busy:false,theme:'light',activeApi:'pollinations',cooldown:16000,timeout:55000};
+const ST={style:'',ratio:'1:1',enhance:true,safe:true,gallery:[],currentUrl:'',currentPrompt:'',lastGenTime:0,busy:false,theme:'light',activeApi:'pollinations',cooldown:16000,timeout:80000};
 let STYLES=[],adminLoggedIn=false,currentAdminUser=null,lpTimer=null,currentPaCat=null;
 const isMobile=()=>window.innerWidth<1024;
 
@@ -1138,7 +1138,7 @@ function closeAdmin(){document.getElementById('adminOverlay').classList.remove('
 function aTab(n,btn){document.querySelectorAll('.admin-section').forEach(s=>s.classList.remove('active'));document.querySelectorAll('.admin-tab').forEach(b=>b.classList.remove('active'));document.getElementById('asec-'+n).classList.add('active');btn.classList.add('active');}
 function msg(m){const el=document.getElementById('adminSaveMsg');if(!el) return;el.textContent=m;el.classList.add('ok');setTimeout(()=>{el.textContent='Modifica e salva';el.classList.remove('ok');},3000);}
 function clearGallery(){if(!confirm('Svuotare la galleria?')) return;ST.gallery=[];localStorage.removeItem('ig_gallery');document.getElementById('infoGalleryCount').textContent=0;msg('✓ Svuotata');}
-function resetAllAdmin(){if(!confirm('Reset tutto?')) return;['ig_colors','ig_fonts','ig_styles','ig_active_api','ig_cooldown','ig_timeout'].forEach(k=>localStorage.removeItem(k));applyColors({accent:'#00E5C8',accent2:'#F0008C',violet:'#5B35C8'});applyFonts({title:'Bangers',body:'Space Grotesk'});loadStyles();buildStyles();ST.activeApi='pollinations';ST.cooldown=16000;ST.timeout=55000;updateApiInfo();msg('✓ Reset');}
+function resetAllAdmin(){if(!confirm('Reset tutto?')) return;['ig_colors','ig_fonts','ig_styles','ig_active_api','ig_cooldown','ig_timeout'].forEach(k=>localStorage.removeItem(k));applyColors({accent:'#00E5C8',accent2:'#F0008C',violet:'#5B35C8'});applyFonts({title:'Bangers',body:'Space Grotesk'});loadStyles();buildStyles();ST.activeApi='pollinations';ST.cooldown=16000;ST.timeout=80000;updateApiInfo();msg('✓ Reset');}
 
 /* ── STATUS/COOLDOWN ── */
 function setStatus(m,t){const bar=document.getElementById('statusBar'),sp=document.getElementById('statusSpin'),tx=document.getElementById('statusText');if(!m){bar.className='';return;}bar.className='show '+(t||'');sp.style.display=t==='loading'?'block':'none';tx.textContent=m;}
@@ -1174,7 +1174,13 @@ async function generateImage(){
     document.getElementById('spinnerMsg').innerHTML=`Generando con <strong style="color:var(--c-accent)">${model}</strong>…<br><small style="font-size:11px;opacity:.6">${i+1}/${MODELS.length} · 15–30s</small>`;
     setStatus(`Connessione… (${model})`,'loading');
     try{const url=buildUrl(model);await tryLoad(url);ST.currentUrl=url;ST.currentPrompt=prompt;ST.currentStyle=ST.style;ST.lastGenTime=Date.now();imgEl.src=url;imgEl.onclick=()=>openModal(url);sBox.style.display='none';imgEl.style.display='block';acts.classList.add('visible');document.getElementById('ctaWrap').classList.add('visible');imgEl.classList.remove('img-pop');void imgEl.offsetWidth;imgEl.classList.add('img-pop');setStatus('✓ Immagine generata!','ok');setTimeout(()=>setStatus('',''),3000);ST.gallery.unshift({url,prompt,style:ST.style,ratio:ST.ratio,ts:Date.now()});if(ST.gallery.length>50) ST.gallery.pop();try{localStorage.setItem('ig_gallery',JSON.stringify(ST.gallery));}catch(e){}renderGallery();ok=true;break;}
-    catch(e){console.warn('Fallback',i,e);if(i<MODELS.length-1){document.getElementById('spinnerMsg').innerHTML=`${model} non risponde…<br><small>Attendi 5s</small>`;await new Promise(r=>setTimeout(r,5000));}}
+    catch(e){
+      // retry same model once silently
+      try{await tryLoad(buildUrl(model));} catch(e2){
+        console.warn('Fallback',i,e2);
+        if(i<MODELS.length-1){document.getElementById('spinnerMsg').innerHTML=`${model} non risponde…<br><small>Attendi 10s</small>`;await new Promise(r=>setTimeout(r,10000));}
+      }
+    }
   }
   if(!ok){sBox.innerHTML=`<div style="padding:28px;text-align:center"><div style="font-size:40px;margin-bottom:12px">⚠️</div><p style="color:var(--danger);font-size:15px;font-weight:700;margin-bottom:8px;font-family:var(--font-title)">SERVIZIO NON DISPONIBILE</p><p style="color:var(--muted);font-size:12px;line-height:1.6;margin-bottom:18px">Pollinations sovraccarico. Attendi 30s.</p><button onclick="resetAndRetry()" style="padding:11px 28px;background:linear-gradient(135deg,var(--c-accent),var(--c-violet));color:#FFFFFF;border:none;border-radius:11px;font-size:13px;font-weight:800;cursor:pointer;">🔄 RIPROVA</button></div>`;setStatus('Non disponibile — riprova tra 30s','fail');}
   [btn,btnM].forEach(b=>{if(b){b.disabled=false;b.textContent='✦ GENERA IMMAGINE';}});ST.busy=false;
@@ -1222,7 +1228,11 @@ async function generateModifica(basePrompt, baseStyle, extra){
       document.getElementById('compareOverlay').classList.add('open');
       ST._pendingModifica={url,prompt:basePrompt,extra,style:baseStyle};
       ok=true;break;
-    }catch(e){if(i<MODELS.length-1){document.getElementById('spinnerMsg').innerHTML=`${model} non risponde…<br><small>Attendi 5s</small>`;await new Promise(r=>setTimeout(r,5000));}}
+    }catch(e2){
+      try{await tryLoad(url);} catch(e3){
+        if(i<MODELS.length-1){document.getElementById('spinnerMsg').innerHTML=`${model} non risponde…<br><small>Attendi 10s</small>`;await new Promise(r=>setTimeout(r,10000));}
+      }
+    }
   }
   if(!ok){sBox.innerHTML=`<div style="padding:28px;text-align:center"><div style="font-size:40px;margin-bottom:12px">⚠️</div><p style="color:var(--danger);font-size:15px;font-weight:700;margin-bottom:8px;">SERVIZIO NON DISPONIBILE</p><p style="color:var(--muted);font-size:12px;line-height:1.6;margin-bottom:18px">Pollinations sovraccarico. Attendi 30s.</p><button onclick="resetAndRetry()" style="padding:11px 28px;background:linear-gradient(135deg,var(--c-accent),var(--c-violet));color:#FFFFFF;border:none;border-radius:11px;font-size:13px;font-weight:800;cursor:pointer;">🔄 RIPROVA</button></div>`;}
   ST.busy=false;
@@ -1282,7 +1292,11 @@ async function regenImage(){
       if(ST.gallery.length>50) ST.gallery.pop();
       try{localStorage.setItem('ig_gallery',JSON.stringify(ST.gallery));}catch(e){}
       renderGallery();ok=true;break;
-    }catch(e){if(i<MODELS.length-1){document.getElementById('spinnerMsg').innerHTML=`${model} non risponde…<br><small>Attendi 5s</small>`;await new Promise(r=>setTimeout(r,5000));}}
+    }catch(e2){
+      try{await tryLoad(url);} catch(e3){
+        if(i<MODELS.length-1){document.getElementById('spinnerMsg').innerHTML=`${model} non risponde…<br><small>Attendi 10s</small>`;await new Promise(r=>setTimeout(r,10000));}
+      }
+    }
   }
   if(!ok){sBox.innerHTML=`<div style="padding:28px;text-align:center"><div style="font-size:40px;margin-bottom:12px">⚠️</div><p style="color:var(--danger);font-size:15px;font-weight:700;margin-bottom:8px;">SERVIZIO NON DISPONIBILE</p><p style="color:var(--muted);font-size:12px;line-height:1.6;margin-bottom:18px">Pollinations sovraccarico. Attendi 30s.</p><button onclick="resetAndRetry()" style="padding:11px 28px;background:linear-gradient(135deg,var(--c-accent),var(--c-violet));color:#FFFFFF;border:none;border-radius:11px;font-size:13px;font-weight:800;cursor:pointer;">🔄 RIPROVA</button></div>`;}
   [btn,btnM].forEach(b=>{if(b){b.disabled=false;b.textContent='✨ GENERA IMMAGINE';}});ST.busy=false;
