@@ -219,7 +219,7 @@ body:not(.light) .adv-input{background:#1e1a3a;color:var(--text);}
 .img-actions.visible{display:flex;}
 .img-btn{flex:1;padding:9px 6px;border-radius:10px;font-size:11px;font-weight:700;font-family:var(--font-body);cursor:pointer;border:1px solid var(--border);background:var(--surface);color:var(--text);transition:all .15s;}
 .img-btn:hover{border-color:var(--c-violet);}
-.img-btn.primary{background:linear-gradient(135deg,var(--c-accent),var(--c-violet));color:var(--black);border:none;font-weight:800;}
+.img-btn.primary{background:linear-gradient(135deg,var(--c-accent),var(--c-violet));color:#FFFFFF;border:none;font-weight:800;}
 #ctaWrap{display:none;padding:10px 12px;flex-shrink:0;border-top:1px solid var(--border);}
 #ctaWrap.visible{display:block;}
 .ctaB-inner{background:linear-gradient(135deg,rgba(91,53,200,.15),rgba(0,229,200,.08));border:1px solid rgba(91,53,200,.35);border-radius:12px;padding:12px 14px;display:flex;align-items:center;justify-content:space-between;gap:12px;}
@@ -653,7 +653,6 @@ body:not(.light) .adv-input{background:#1e1a3a;color:var(--text);}
       <img id="generatedImg" src="" alt="">
       <div class="img-actions" id="imgActions">
         <button class="img-btn primary" onclick="downloadImg()">⬇ Scarica</button>
-        <button class="img-btn" id="copyBtn" onclick="copyPromptText()">📋 Prompt</button>
         <button class="img-btn" onclick="regenImage()">🔀 Varia</button>
       </div>
       <div id="ctaWrap">
@@ -1147,7 +1146,7 @@ function delItem(i){ST.gallery.splice(i,1);try{localStorage.setItem('ig_gallery'
 function buildRatios(){const r=document.getElementById('ratioRow');if(!r) return;r.innerHTML='';RATIOS.forEach(rt=>{const b=document.createElement('button');b.className='ratio-btn'+(rt.id===ST.ratio?' active':'');b.innerHTML=`<span class="ratio-icon">${rt.icon}</span><span class="ratio-label">${rt.label}</span>`;b.onclick=()=>{ST.ratio=rt.id;document.querySelectorAll('.ratio-btn').forEach(x=>x.classList.remove('active'));b.classList.add('active');};r.appendChild(b);});}
 function toggleSetting(k){ST[k]=!ST[k];document.getElementById('toggle'+k.charAt(0).toUpperCase()+k.slice(1))?.classList.toggle('on',ST[k]);}
 function downloadImg(){if(ST.currentUrl) downloadFrom(ST.currentUrl);}
-function downloadFrom(url){const a=document.createElement('a');a.href=url;a.download='immaginai.jpg';a.target='_blank';a.click();}
+function downloadFrom(url){fetch(url).then(r=>r.blob()).then(b=>{const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='WS-immagine.jpg';a.click();URL.revokeObjectURL(a.href);}).catch(()=>{const a=document.createElement('a');a.href=url;a.download='WS-immagine.jpg';a.click();});}
 function downloadModal(){downloadFrom(document.getElementById('modalImg').src);}
 function copyPromptText(){navigator.clipboard.writeText(ST.currentPrompt).then(()=>{const b=document.getElementById('copyBtn');b.textContent='✓ Copiato!';setTimeout(()=>b.textContent='📋 Prompt',1500);});}
 function openModal(url){document.getElementById('modalImg').src=url;document.getElementById('modal').classList.add('open');}
