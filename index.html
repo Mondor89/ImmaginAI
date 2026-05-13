@@ -343,6 +343,7 @@ body:not(.light) .adv-input{background:#1e1a3a;color:var(--text);}
   #controls.tab-hidden{display:none!important;}
   #outputArea{display:none;flex-direction:column;border-radius:16px;margin:12px 16px 0;}
   #outputArea.visible{display:flex;}
+  #controls.tab-hidden #outputArea.visible{display:flex!important;}
   #generatedImg{width:100%;height:auto;max-height:320px;object-fit:contain;}
   #mobile-header{position:fixed;top:0;left:0;right:0;z-index:100;height:54px;padding:0 16px;background:var(--surface);border-bottom:1px solid var(--border);display:flex!important;align-items:center;justify-content:flex-start;}
   .mobile-logo{font-family:var(--font-title);font-size:26px;letter-spacing:2px;background:linear-gradient(90deg,var(--c-accent),var(--c-violet),var(--c-accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;cursor:default;user-select:none;}
@@ -565,7 +566,7 @@ body:not(.light) .adv-input{background:#1e1a3a;color:var(--text);}
       </div>
     </div>
     <nav class="sidebar-nav">
-      <button class="snav-btn active" id="snav-create" onclick="switchTab('create')"><span class="snav-icon">✦</span> Crea</button>
+      <button class="snav-btn active" id="snav-create" onclick="switchTab('create')"><span class="snav-icon">✨</span> Crea</button>
       <button class="snav-btn" id="snav-gallery" onclick="switchTab('gallery')"><span class="snav-icon">🖼</span> Galleria</button>
     </nav>
     <div class="sidebar-footer"></div>
@@ -636,7 +637,7 @@ body:not(.light) .adv-input{background:#1e1a3a;color:var(--text);}
     </div>
 
     <!-- GEN BUTTON -->
-    <button id="genBtn" onclick="generateImage()">✦ GENERA IMMAGINE</button>
+    <button id="genBtn" onclick="generateImage()">✨ GENERA IMMAGINE</button>
   </div>
 
   <!-- PREVIEW -->
@@ -657,8 +658,8 @@ body:not(.light) .adv-input{background:#1e1a3a;color:var(--text);}
       </div>
       <div id="ctaWrap">
         <div class="ctaB-inner">
-          <div class="ctaB-texts"><div class="ctaB-tag">✦ Prossimo step</div><div class="ctaB-title">Mettila su un prodotto!</div></div>
-          <a class="ctaB-btn" href="https://wonderspit.myspreadshop.it" target="_blank">🛒 DESIGNER →</a>
+          <div class="ctaB-texts"><div class="ctaB-tag">✨ Prossimo step</div><div class="ctaB-title">Mettila su un prodotto!</div></div>
+          <a class="ctaB-btn" href="https://wonderspit.myspreadshop.it/create" target="_blank">🛒 Usa nel Designer →</a>
         </div>
       </div>
     </div>
@@ -673,9 +674,9 @@ body:not(.light) .adv-input{background:#1e1a3a;color:var(--text);}
 </div>
 
 <!-- MOBILE GEN + NAV -->
-<div id="genBtnMobile"><button onclick="generateImage()">✦ GENERA IMMAGINE</button></div>
+<div id="genBtnMobile"><button onclick="generateImage()">✨ GENERA IMMAGINE</button></div>
 <div id="bottom-nav">
-  <button class="nav-btn active" id="nav-create" onclick="switchTab('create')"><span class="nav-icon">✦</span><span class="nav-label">Crea</span><div class="nav-dot"></div></button>
+  <button class="nav-btn active" id="nav-create" onclick="switchTab('create')"><span class="nav-icon">✨</span><span class="nav-label">Crea</span><div class="nav-dot"></div></button>
   <button class="nav-btn" id="nav-gallery" onclick="switchTab('gallery')"><span class="nav-icon">🖼</span><span class="nav-label">Galleria</span><div class="nav-dot"></div></button>
 </div>
 
@@ -1116,7 +1117,11 @@ async function generateImage(){
   [btn,btnM].forEach(b=>{if(b){b.disabled=true;b.textContent='⏳ GENERANDO…';}});
   sBox.style.display='flex';imgEl.style.display='none';acts.classList.remove('visible');document.getElementById('ctaWrap').classList.remove('visible');
   showOutput(true);
-  if(isMobile()) setTimeout(()=>document.getElementById('outputArea').scrollIntoView({behavior:'smooth',block:'start'}),100);
+  if(isMobile()) setTimeout(()=>{
+    document.getElementById('controls').classList.remove('tab-hidden');
+    document.getElementById('controls').style.display='flex';
+    document.getElementById('outputArea').scrollIntoView({behavior:'smooth',block:'start'});
+  },100);
   const elapsed=Date.now()-ST.lastGenTime;
   if(ST.lastGenTime>0&&elapsed<ST.cooldown){const wait=ST.cooldown-elapsed;showCooldown(wait);document.getElementById('spinnerMsg').innerHTML=`Cooldown…<br><small>1 richiesta ogni ${Math.round(ST.cooldown/1000)}s</small>`;await new Promise(r=>setTimeout(r,wait));}
   let ok=false;
