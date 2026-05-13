@@ -220,6 +220,30 @@ body:not(.light) .adv-input{background:#1e1a3a;color:var(--text);}
 .img-btn{flex:1;padding:9px 6px;border-radius:10px;font-size:11px;font-weight:700;font-family:var(--font-body);cursor:pointer;border:1px solid var(--border);background:var(--surface);color:var(--text);transition:all .15s;}
 .img-btn:hover{border-color:var(--c-violet);}
 .img-btn.primary{background:linear-gradient(135deg,var(--c-accent),var(--c-violet));color:#FFFFFF;border:none;font-weight:800;}
+/* ── MODIFICA PANEL ── */
+#modificaPanel{display:none;padding:10px 12px;flex-shrink:0;border-top:1px solid var(--border);background:var(--surface);}
+#modificaPanel.open{display:block;}
+.modifica-label{font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.1em;margin-bottom:6px;display:block;}
+#modificaInput{width:100%;background:var(--card);border:1.5px solid var(--border);border-radius:10px;color:var(--text);font-size:12px;font-family:var(--font-body);padding:9px 12px;resize:none;transition:border-color .2s;margin-bottom:8px;}
+#modificaInput:focus{outline:none;border-color:var(--c-violet);}
+#modificaInput::placeholder{color:var(--muted);}
+#modificaGoBtn{width:100%;padding:10px;background:linear-gradient(135deg,var(--c-violet),var(--c-accent2));color:#FFFFFF;border:none;border-radius:10px;font-size:12px;font-weight:800;font-family:var(--font-body);cursor:pointer;letter-spacing:.5px;transition:opacity .2s;}
+#modificaGoBtn:hover{opacity:.88;}
+/* ── COMPARE OVERLAY ── */
+#compareOverlay{display:none;position:absolute;inset:0;z-index:50;background:var(--surface);border-radius:20px;flex-direction:column;overflow:hidden;}
+#compareOverlay.open{display:flex;}
+#outputArea{position:relative;}
+.compare-imgs{display:flex;flex:1;gap:0;min-height:0;}
+.compare-side{flex:1;display:flex;flex-direction:column;align-items:center;padding:10px 8px 6px;gap:6px;min-width:0;}
+.compare-side:first-child{border-right:1px solid var(--border);}
+.compare-tag{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);}
+.compare-img{width:100%;flex:1;object-fit:contain;border-radius:10px;min-height:0;cursor:zoom-in;}
+.compare-actions{display:flex;gap:8px;padding:10px 12px;flex-shrink:0;border-top:1px solid var(--border);}
+.compare-btn{flex:1;padding:10px 6px;border-radius:10px;font-size:11px;font-weight:700;font-family:var(--font-body);cursor:pointer;border:none;transition:all .15s;}
+.compare-btn.keep{background:linear-gradient(135deg,var(--c-violet),var(--c-accent2));color:#FFFFFF;}
+.compare-btn.back{background:var(--card);color:var(--text);border:1px solid var(--border);}
+.compare-btn.keep:hover{opacity:.88;}
+.compare-btn.back:hover{border-color:var(--c-violet);}
 #ctaWrap{display:none;padding:10px 12px;flex-shrink:0;border-top:1px solid var(--border);}
 #ctaWrap.visible{display:block;}
 .ctaB-inner{background:linear-gradient(135deg,rgba(91,53,200,.15),rgba(0,229,200,.08));border:1px solid rgba(91,53,200,.35);border-radius:12px;padding:12px 14px;display:flex;align-items:center;justify-content:space-between;gap:12px;}
@@ -653,7 +677,29 @@ body:not(.light) .adv-input{background:#1e1a3a;color:var(--text);}
       <img id="generatedImg" src="" alt="">
       <div class="img-actions" id="imgActions">
         <button class="img-btn primary" onclick="downloadImg()">⬇ Scarica</button>
-        <button class="img-btn" onclick="regenImage()">🔀 Varia</button>
+        <button class="img-btn" onclick="regenImage()">🔁 Rigenera</button>
+        <button class="img-btn" onclick="toggleModifica()">✏️ Modifica</button>
+      </div>
+      <div id="modificaPanel">
+        <span class="modifica-label">Aggiungi al prompt</span>
+        <textarea id="modificaInput" rows="2" placeholder="Es: aggiungi una palla rossa, togli lo sfondo…"></textarea>
+        <button id="modificaGoBtn" onclick="runModifica()">✨ Genera modifica</button>
+      </div>
+      <div id="compareOverlay">
+        <div class="compare-imgs">
+          <div class="compare-side">
+            <span class="compare-tag">Precedente</span>
+            <img class="compare-img" id="compareImgOld" src="" alt="" onclick="openModal(this.src)">
+          </div>
+          <div class="compare-side">
+            <span class="compare-tag">Nuova</span>
+            <img class="compare-img" id="compareImgNew" src="" alt="" onclick="openModal(this.src)">
+          </div>
+        </div>
+        <div class="compare-actions">
+          <button class="compare-btn back" onclick="discardModifica()">↩ Torna alla precedente</button>
+          <button class="compare-btn keep" onclick="keepModifica()">✓ Tieni questa</button>
+        </div>
       </div>
       <div id="ctaWrap">
         <div class="ctaB-inner">
@@ -1127,14 +1173,120 @@ async function generateImage(){
     const model=MODELS[i];
     document.getElementById('spinnerMsg').innerHTML=`Generando con <strong style="color:var(--c-accent)">${model}</strong>…<br><small style="font-size:11px;opacity:.6">${i+1}/${MODELS.length} · 15–30s</small>`;
     setStatus(`Connessione… (${model})`,'loading');
-    try{const url=buildUrl(model);await tryLoad(url);ST.currentUrl=url;ST.currentPrompt=prompt;ST.lastGenTime=Date.now();imgEl.src=url;imgEl.onclick=()=>openModal(url);sBox.style.display='none';imgEl.style.display='block';acts.classList.add('visible');document.getElementById('ctaWrap').classList.add('visible');imgEl.classList.remove('img-pop');void imgEl.offsetWidth;imgEl.classList.add('img-pop');setStatus('✓ Immagine generata!','ok');setTimeout(()=>setStatus('',''),3000);ST.gallery.unshift({url,prompt,style:ST.style,ratio:ST.ratio,ts:Date.now()});if(ST.gallery.length>50) ST.gallery.pop();try{localStorage.setItem('ig_gallery',JSON.stringify(ST.gallery));}catch(e){}renderGallery();ok=true;break;}
+    try{const url=buildUrl(model);await tryLoad(url);ST.currentUrl=url;ST.currentPrompt=prompt;ST.currentStyle=ST.style;ST.lastGenTime=Date.now();imgEl.src=url;imgEl.onclick=()=>openModal(url);sBox.style.display='none';imgEl.style.display='block';acts.classList.add('visible');document.getElementById('ctaWrap').classList.add('visible');imgEl.classList.remove('img-pop');void imgEl.offsetWidth;imgEl.classList.add('img-pop');setStatus('✓ Immagine generata!','ok');setTimeout(()=>setStatus('',''),3000);ST.gallery.unshift({url,prompt,style:ST.style,ratio:ST.ratio,ts:Date.now()});if(ST.gallery.length>50) ST.gallery.pop();try{localStorage.setItem('ig_gallery',JSON.stringify(ST.gallery));}catch(e){}renderGallery();ok=true;break;}
     catch(e){console.warn('Fallback',i,e);if(i<MODELS.length-1){document.getElementById('spinnerMsg').innerHTML=`${model} non risponde…<br><small>Attendi 5s</small>`;await new Promise(r=>setTimeout(r,5000));}}
   }
-  if(!ok){sBox.innerHTML=`<div style="padding:28px;text-align:center"><div style="font-size:40px;margin-bottom:12px">⚠️</div><p style="color:var(--danger);font-size:15px;font-weight:700;margin-bottom:8px;font-family:var(--font-title)">SERVIZIO NON DISPONIBILE</p><p style="color:var(--muted);font-size:12px;line-height:1.6;margin-bottom:18px">Pollinations sovraccarico. Attendi 30s.</p><button onclick="resetAndRetry()" style="padding:11px 28px;background:linear-gradient(135deg,var(--c-accent),var(--c-violet));color:var(--black);border:none;border-radius:11px;font-size:13px;font-weight:800;cursor:pointer;">🔄 RIPROVA</button></div>`;setStatus('Non disponibile — riprova tra 30s','fail');}
+  if(!ok){sBox.innerHTML=`<div style="padding:28px;text-align:center"><div style="font-size:40px;margin-bottom:12px">⚠️</div><p style="color:var(--danger);font-size:15px;font-weight:700;margin-bottom:8px;font-family:var(--font-title)">SERVIZIO NON DISPONIBILE</p><p style="color:var(--muted);font-size:12px;line-height:1.6;margin-bottom:18px">Pollinations sovraccarico. Attendi 30s.</p><button onclick="resetAndRetry()" style="padding:11px 28px;background:linear-gradient(135deg,var(--c-accent),var(--c-violet));color:#FFFFFF;border:none;border-radius:11px;font-size:13px;font-weight:800;cursor:pointer;">🔄 RIPROVA</button></div>`;setStatus('Non disponibile — riprova tra 30s','fail');}
   [btn,btnM].forEach(b=>{if(b){b.disabled=false;b.textContent='✦ GENERA IMMAGINE';}});ST.busy=false;
 }
 async function resetAndRetry(){ST.lastGenTime=0;document.getElementById('spinnerBox').innerHTML=`<div class="big-spin"></div><div id="spinnerMsg">Riconnessione…</div>`;document.getElementById('generatedImg').style.display='none';document.getElementById('imgActions').classList.remove('visible');await generateImage();}
-async function regenImage(){ST.lastGenTime=0;await generateImage();}
+function toggleModifica(){
+  const p=document.getElementById('modificaPanel');
+  p.classList.toggle('open');
+  if(p.classList.contains('open')) document.getElementById('modificaInput').focus();
+}
+async function runModifica(){
+  const extra=document.getElementById('modificaInput').value.trim();
+  if(!extra) return;
+  closeCompare();
+  await generateModifica(ST.currentPrompt, ST.currentStyle, extra);
+}
+async function generateModifica(basePrompt, baseStyle, extra){
+  if(ST.busy) return;
+  const prevUrl=ST.currentUrl;
+  const prevPrompt=ST.currentPrompt;
+  const prevStyle=ST.currentStyle;
+  ST.busy=true;
+  const sBox=document.getElementById('spinnerBox'),imgEl=document.getElementById('generatedImg'),acts=document.getElementById('imgActions');
+  document.getElementById('modificaPanel').classList.remove('open');
+  document.getElementById('compareOverlay').classList.remove('open');
+  sBox.style.display='flex';imgEl.style.display='none';acts.classList.remove('visible');document.getElementById('ctaWrap').classList.remove('visible');
+  ST.lastGenTime=0;
+  const fullPrompt=basePrompt+', '+extra;
+  const ratio=RATIOS.find(r=>r.id===ST.ratio);
+  const seed=Math.floor(Math.random()*999999);
+  let ok=false;
+  for(let i=0;i<MODELS.length;i++){
+    const model=MODELS[i];
+    document.getElementById('spinnerMsg').innerHTML=`Generando modifica con <strong style="color:var(--c-accent)">${model}</strong>…<br><small style="font-size:11px;opacity:.6">${i+1}/${MODELS.length}</small>`;
+    const p=new URLSearchParams({width:ratio.w,height:ratio.h,model,nologo:'true',enhance:ST.enhance?'true':'false',safe:ST.safe?'true':'false',seed});
+    const neg=document.getElementById('negPrompt');if(neg&&neg.value.trim()) p.append('negative',neg.value.trim());
+    const url=`https://image.pollinations.ai/prompt/${encodeURIComponent(fullPrompt+(baseStyle?', '+baseStyle:''))}?${p}`;
+    try{
+      await tryLoad(url);
+      ST.lastGenTime=Date.now();
+      sBox.style.display='none';
+      // show compare overlay
+      document.getElementById('compareImgOld').src=prevUrl;
+      document.getElementById('compareImgNew').src=url;
+      document.getElementById('compareOverlay').classList.add('open');
+      ST._pendingModifica={url,prompt:basePrompt,extra,style:baseStyle};
+      ok=true;break;
+    }catch(e){if(i<MODELS.length-1){document.getElementById('spinnerMsg').innerHTML=`${model} non risponde…<br><small>Attendi 5s</small>`;await new Promise(r=>setTimeout(r,5000));}}
+  }
+  if(!ok){sBox.innerHTML=`<div style="padding:28px;text-align:center"><div style="font-size:40px;margin-bottom:12px">⚠️</div><p style="color:var(--danger);font-size:15px;font-weight:700;margin-bottom:8px;">SERVIZIO NON DISPONIBILE</p><p style="color:var(--muted);font-size:12px;line-height:1.6;margin-bottom:18px">Pollinations sovraccarico. Attendi 30s.</p><button onclick="resetAndRetry()" style="padding:11px 28px;background:linear-gradient(135deg,var(--c-accent),var(--c-violet));color:#FFFFFF;border:none;border-radius:11px;font-size:13px;font-weight:800;cursor:pointer;">🔄 RIPROVA</button></div>`;}
+  ST.busy=false;
+}
+function keepModifica(){
+  const m=ST._pendingModifica;if(!m) return;
+  const imgEl=document.getElementById('generatedImg');
+  imgEl.src=m.url;imgEl.onclick=()=>openModal(m.url);
+  imgEl.style.display='block';
+  ST.currentUrl=m.url;ST.currentPrompt=m.prompt;ST.currentStyle=m.style;
+  ST.gallery.unshift({url:m.url,prompt:m.prompt+', '+m.extra,style:m.style,ratio:ST.ratio,ts:Date.now()});
+  if(ST.gallery.length>50) ST.gallery.pop();
+  try{localStorage.setItem('ig_gallery',JSON.stringify(ST.gallery));}catch(e){}
+  renderGallery();
+  closeCompare();
+  document.getElementById('imgActions').classList.add('visible');
+  document.getElementById('ctaWrap').classList.add('visible');
+  document.getElementById('modificaInput').value='';
+}
+function discardModifica(){
+  const imgEl=document.getElementById('generatedImg');
+  imgEl.style.display='block';
+  closeCompare();
+  document.getElementById('imgActions').classList.add('visible');
+  document.getElementById('ctaWrap').classList.add('visible');
+}
+function closeCompare(){document.getElementById('compareOverlay').classList.remove('open');}
+async function regenImage(){
+  if(ST.busy) return;
+  ST.lastGenTime=0;
+  const savedPrompt=ST.currentPrompt;
+  const savedStyle=ST.currentStyle;
+  const savedRatio=ST.ratio;
+  if(!savedPrompt) return;
+  ST.busy=true;
+  const sBox=document.getElementById('spinnerBox'),imgEl=document.getElementById('generatedImg'),acts=document.getElementById('imgActions');
+  const btn=document.getElementById('genBtn'),btnM=document.getElementById('genBtnMobile')?.querySelector('button');
+  [btn,btnM].forEach(b=>{if(b){b.disabled=true;b.textContent='⏳ GENERANDO…';}});
+  sBox.style.display='flex';imgEl.style.display='none';acts.classList.remove('visible');document.getElementById('ctaWrap').classList.remove('visible');document.getElementById('compareOverlay').classList.remove('open');document.getElementById('modificaPanel').classList.remove('open');
+  const ratio=RATIOS.find(r=>r.id===savedRatio);
+  const seed=Math.floor(Math.random()*999999);
+  let ok=false;
+  for(let i=0;i<MODELS.length;i++){
+    const model=MODELS[i];
+    document.getElementById('spinnerMsg').innerHTML=`Rigenerando con <strong style="color:var(--c-accent)">${model}</strong>…<br><small style="font-size:11px;opacity:.6">${i+1}/${MODELS.length} · 15–30s</small>`;
+    const p=new URLSearchParams({width:ratio.w,height:ratio.h,model,nologo:'true',enhance:ST.enhance?'true':'false',safe:ST.safe?'true':'false',seed});
+    const neg=document.getElementById('negPrompt');if(neg&&neg.value.trim()) p.append('negative',neg.value.trim());
+    const url=`https://image.pollinations.ai/prompt/${encodeURIComponent(savedPrompt+(savedStyle?', '+savedStyle:''))}?${p}`;
+    try{
+      await tryLoad(url);
+      ST.currentUrl=url;ST.currentPrompt=savedPrompt;ST.currentStyle=savedStyle;ST.lastGenTime=Date.now();
+      imgEl.src=url;imgEl.onclick=()=>openModal(url);
+      sBox.style.display='none';imgEl.style.display='block';acts.classList.add('visible');document.getElementById('ctaWrap').classList.add('visible');
+      imgEl.classList.remove('img-pop');void imgEl.offsetWidth;imgEl.classList.add('img-pop');
+      setStatus('✓ Rigenerata!','ok');setTimeout(()=>setStatus('',''),3000);
+      ST.gallery.unshift({url,prompt:savedPrompt,style:savedStyle,ratio:savedRatio,ts:Date.now()});
+      if(ST.gallery.length>50) ST.gallery.pop();
+      try{localStorage.setItem('ig_gallery',JSON.stringify(ST.gallery));}catch(e){}
+      renderGallery();ok=true;break;
+    }catch(e){if(i<MODELS.length-1){document.getElementById('spinnerMsg').innerHTML=`${model} non risponde…<br><small>Attendi 5s</small>`;await new Promise(r=>setTimeout(r,5000));}}
+  }
+  if(!ok){sBox.innerHTML=`<div style="padding:28px;text-align:center"><div style="font-size:40px;margin-bottom:12px">⚠️</div><p style="color:var(--danger);font-size:15px;font-weight:700;margin-bottom:8px;">SERVIZIO NON DISPONIBILE</p><p style="color:var(--muted);font-size:12px;line-height:1.6;margin-bottom:18px">Pollinations sovraccarico. Attendi 30s.</p><button onclick="resetAndRetry()" style="padding:11px 28px;background:linear-gradient(135deg,var(--c-accent),var(--c-violet));color:#FFFFFF;border:none;border-radius:11px;font-size:13px;font-weight:800;cursor:pointer;">🔄 RIPROVA</button></div>`;}
+  [btn,btnM].forEach(b=>{if(b){b.disabled=false;b.textContent='✨ GENERA IMMAGINE';}});ST.busy=false;
+}
 document.addEventListener('keydown',e=>{if(e.ctrlKey&&e.key==='Enter') generateImage();});
 
 /* ── GALLERY ── */
