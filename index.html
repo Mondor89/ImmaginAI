@@ -76,11 +76,14 @@ body.light .theme-toggle-dot{left:17px;background:#fff;}
 .sidebar-footer{font-size:10px;color:var(--muted);line-height:1.8;padding-top:16px;border-top:1px solid var(--border);}
 .sidebar-footer strong{color:var(--c-violet);}
 
-/* MODIFICA 04 — controls occupa tutta l'altezza con flex justify */
-#controls{width:500px;flex-shrink:0;display:flex;flex-direction:column;height:100svh;overflow-y:auto;overflow-x:hidden;border-right:1px solid var(--border);padding:20px 24px 24px;gap:10px;}
-#controls::-webkit-scrollbar{width:3px;}
-#controls::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px;}
-.controls-spacer{flex:1;}
+.slabel{font-size:9px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.14em;display:block;margin-bottom:6px;}
+#controls{width:500px;flex-shrink:0;display:flex;flex-direction:column;height:100svh;overflow:hidden;border-right:1px solid var(--border);}
+#controls-scroll{flex:1;overflow-y:auto;overflow-x:hidden;padding:20px 24px 12px;display:flex;flex-direction:column;gap:10px;}
+#controls-scroll::-webkit-scrollbar{width:3px;}
+#controls-scroll::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px;}
+#controls-footer{padding:12px 24px 20px;flex-shrink:0;border-top:1px solid var(--border);background:var(--bg);}
+body.light #controls-footer{background:var(--bg);}
+.controls-spacer{display:none;}
 
 #preview-col{flex:1;min-width:260px;display:flex;flex-direction:column;height:100svh;overflow:hidden;padding:20px 20px;}
 #screen-gallery,#screen-pro{display:none;flex:1;flex-direction:column;height:100svh;overflow-y:auto;padding:32px 40px;}
@@ -90,9 +93,8 @@ body.light .theme-toggle-dot{left:17px;background:#fff;}
 #bottom-nav{display:none;}
 #genBtnMobile{display:none;}
 
-.slabel{font-size:9px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.14em;display:block;margin-bottom:6px;}
-
-/* ── PROMPT AREA ── */
+.slabel{font-size:9px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.14em;display:flex;align-items:center;gap:5px;margin-bottom:6px;}
+.slabel-icon{font-size:11px;font-style:normal;color:var(--c-violet);opacity:.8;}
 .prompt-wrap{background:#fff;border:1.5px solid var(--border);border-radius:16px;overflow:hidden;transition:border-color .25s;flex-shrink:0;position:relative;}
 body:not(.light) .prompt-wrap{background:var(--surface);}
 .prompt-wrap:focus-within{border-color:var(--c-violet);box-shadow:0 0 0 3px rgba(91,53,200,.1);}
@@ -113,21 +115,76 @@ body:not(.light) .prompt-wrap{background:var(--surface);}
 @keyframes diceRoll{0%{transform:rotate(0) scale(1)}50%{transform:rotate(180deg) scale(1.3)}100%{transform:rotate(360deg) scale(1)}}
 #errorMsg{padding:0 14px 8px;color:var(--danger);font-size:11px;display:none;font-weight:600;}
 
-/* MODIFICA 05 — CHIP DETTAGLI VISIVI (sostituisce pa-accordion) */
+/* ── DETTAGLI VISIVI — tab categorie + chip ── */
 .dv-wrap{flex-shrink:0;}
 .dv-label{font-size:9px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.14em;display:block;margin-bottom:6px;}
-.dv-chips{display:flex;flex-wrap:wrap;gap:5px;}
-.dv-chip{padding:5px 10px;background:var(--btn-pa-bg);border:1px solid var(--btn-pa-border);border-radius:20px;font-size:11px;font-weight:600;color:var(--btn-pa-color);cursor:pointer;transition:all .15s;user-select:none;}
-.dv-chip:hover{border-color:var(--c-violet);background:rgba(91,53,200,.08);}
-.dv-chip.active{background:var(--btn-pa-active-bg);border-color:var(--btn-pa-active-border);color:var(--btn-pa-active-color);}
 
-/* ── STYLES ── */
+/* Tab row con scroll e frecce pill sx+dx */
+.dv-tab-row-wrap{display:flex;align-items:center;gap:5px;}
+.dv-tab-row{display:flex;gap:4px;overflow-x:auto;scrollbar-width:none;flex:1;}
+.dv-tab-row::-webkit-scrollbar{display:none;}
+/* Tutte le tab viola — attiva piena, inattive viola leggero */
+.dv-tab{
+  padding:5px 11px;
+  background:rgba(91,53,200,.12);
+  border:1px solid rgba(91,53,200,.3);
+  border-radius:20px;
+  font-size:11px;font-weight:700;
+  color:var(--c-violet);
+  cursor:pointer;transition:all .15s;
+  white-space:nowrap;user-select:none;flex-shrink:0;
+}
+body.light .dv-tab{background:rgba(91,53,200,.08);border-color:rgba(91,53,200,.25);color:var(--c-violet);}
+.dv-tab:hover{background:rgba(91,53,200,.2);border-color:var(--c-violet);}
+.dv-tab.active{background:var(--c-violet);border-color:var(--c-violet);color:#fff;}
+/* Frecce pill sx e dx */
+.dv-arrow{
+  flex-shrink:0;
+  width:28px;height:26px;
+  background:var(--c-violet);
+  border:none;border-radius:14px;
+  display:flex;align-items:center;justify-content:center;
+  cursor:pointer;color:#fff;
+  font-size:16px;font-weight:700;line-height:1;
+  transition:opacity .15s;padding:0;
+}
+.dv-arrow:hover{opacity:.82;}
+.dv-arrow.hidden{display:none;}
+
+/* Chip — senza icona, solo testo */
+.dv-chips{display:flex;flex-wrap:wrap;gap:5px;margin-top:8px;min-height:32px;}
+.dv-chip{
+  padding:5px 10px;
+  background:var(--btn-pa-bg);
+  border:1px solid var(--btn-pa-border);
+  border-radius:20px;
+  font-size:11px;font-weight:600;
+  color:var(--btn-pa-color);
+  cursor:pointer;transition:all .15s;user-select:none;
+}
+.dv-chip:hover{border-color:var(--c-violet);background:rgba(91,53,200,.08);}
+.dv-chip.active{background:rgba(91,53,200,.15);border-color:var(--c-violet);color:var(--c-violet);}
+body.light .dv-chip.active{background:rgba(91,53,200,.1);color:var(--c-violet);}
+
+/* ── STYLES — viola per evidenziare importanza ── */
 .style-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:5px;flex-shrink:0;}
-.style-btn{padding:7px 3px 6px;background:var(--btn-style-bg);border:1.5px solid var(--btn-style-border);border-radius:10px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:3px;transition:all .15s;}
-.style-btn:hover{border-color:var(--c-violet);background:rgba(91,53,200,.08);}
-.style-btn.active{background:var(--btn-style-active-bg);border-color:var(--btn-style-active-border);}
-.style-emoji{font-size:18px;}.style-label{font-size:9px;font-weight:700;color:var(--btn-style-color);}
-.style-btn.active .style-label{color:var(--btn-style-active-color);}
+.style-btn{
+  padding:8px 3px 7px;
+  background:rgba(91,53,200,.08);
+  border:1.5px solid rgba(91,53,200,.25);
+  border-radius:10px;cursor:pointer;
+  display:flex;flex-direction:column;align-items:center;gap:3px;
+  transition:all .15s;
+}
+.style-btn:hover{border-color:var(--c-violet);background:rgba(91,53,200,.15);}
+.style-btn.active{background:var(--c-violet);border-color:var(--c-violet);box-shadow:0 2px 12px rgba(91,53,200,.4);}
+body.light .style-btn{background:rgba(91,53,200,.06);border-color:rgba(91,53,200,.2);}
+body.light .style-btn:hover{background:rgba(91,53,200,.12);}
+body.light .style-btn.active{background:var(--c-violet);border-color:var(--c-violet);}
+.style-emoji{font-size:18px;}
+.style-label{font-size:9px;font-weight:700;color:var(--c-violet);}
+body.light .style-label{color:var(--c-violet);}
+.style-btn.active .style-label{color:#fff;}
 
 /* ── RATIO ── */
 .ratio-row{display:flex;gap:6px;flex-shrink:0;}
@@ -351,6 +408,24 @@ body:not(.light) .adv-input{background:#1e1a3a;color:var(--text);}
 .dv-item-info{flex:1;}
 .dv-item-label{font-size:12px;font-weight:600;color:#fff;}
 .dv-item-prompt{font-size:10px;color:#7a78a0;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:220px;}
+/* Categoria admin accordion */
+.cat-admin-block{background:#111122;border:1px solid #1e1e35;border-radius:12px;margin-bottom:10px;overflow:hidden;}
+.cat-admin-header{display:flex;align-items:center;gap:8px;padding:12px 14px;cursor:pointer;user-select:none;}
+.cat-admin-header:hover{background:rgba(255,255,255,.03);}
+.cat-admin-icon{font-size:14px;color:#9d7fff;width:18px;text-align:center;}
+.cat-admin-name{font-size:13px;font-weight:600;color:#fff;flex:1;}
+.cat-admin-count{font-size:10px;color:#7a78a0;}
+.cat-admin-arrow{font-size:9px;color:#7a78a0;transition:transform .2s;}
+.cat-admin-header.open .cat-admin-arrow{transform:rotate(180deg);}
+.cat-admin-body{display:none;padding:0 14px 12px;border-top:1px solid #1e1e35;}
+.cat-admin-body.open{display:block;}
+/* Mobile chip fix */
+@media(max-width:1023px){
+  .dv-tab-row{gap:4px;}
+  .dv-tab{font-size:10px;padding:4px 9px;}
+  .dv-chips{gap:4px;}
+  .dv-chip{font-size:10px;padding:4px 8px;}
+}
 
 @media(max-width:1023px){
   #app{flex-direction:column;height:auto;overflow:visible;}
@@ -358,9 +433,10 @@ body:not(.light) .adv-input{background:#1e1a3a;color:var(--text);}
   #preview-col{display:none!important;}
   #screen-gallery,#screen-pro{display:none;padding:20px 16px 160px;height:auto;overflow:visible;}
   #screen-gallery.active,#screen-pro.active{display:block;}
-  #controls{width:100%!important;height:auto!important;overflow:visible!important;padding:16px 16px 160px!important;border-right:none!important;gap:12px;flex-direction:column;}
+  #controls{width:100%!important;height:auto!important;overflow:visible!important;border-right:none!important;}
+  #controls-scroll{overflow:visible!important;padding:16px 16px 12px!important;gap:12px;}
+  #controls-footer{padding:8px 16px 160px!important;border-top:none!important;background:transparent!important;}
   #controls.tab-hidden{display:none!important;}
-  .controls-spacer{display:none;}
   #outputArea{display:none;flex-direction:column;border-radius:16px;margin:12px 16px 0;}
   #outputArea.visible{display:flex;}
   #preview-col.output-active{display:flex!important;position:fixed;top:54px;left:0;right:0;bottom:140px;z-index:40;background:var(--bg);overflow-y:auto;flex-direction:column;padding:12px 16px;}
@@ -515,16 +591,19 @@ body:not(.light) .adv-input{background:#1e1a3a;color:var(--text);}
           <button class="a-btn primary" onclick="saveStyles()" style="margin-top:4px;">💾 Salva stili</button>
         </div>
 
-        <!-- MODIFICA 06 — nuova sezione admin Tag visivi -->
+        <!-- SEZIONE TAG VISIVI — categorie con tag -->
         <div class="admin-section" id="asec-tag">
-          <div class="a-title">Tag visivi</div><div class="a-desc">Chip cliccabili sotto il prompt. Ogni tag aggiunge dettagli invisibili all'immagine generata.</div>
-          <div class="a-card"><div class="a-card-title">Tag disponibili</div><div id="adminTagList"></div></div>
-          <div class="a-card"><div class="a-card-title">Aggiungi tag</div>
-            <div class="a-row"><div class="a-row-label">Label italiano<div class="a-row-sub">Testo visibile sul chip</div></div><input type="text" id="newTagLabel" class="a-input" placeholder="Es: Sfondo bianco"></div>
-            <div class="a-row"><div class="a-row-label">Prompt inglese<div class="a-row-sub">Testo aggiunto all'immagine (invisibile)</div></div><input type="text" id="newTagPrompt" class="a-input" placeholder="Es: white background, clean"></div>
-            <button class="a-btn primary" onclick="addNewTag()" style="margin-top:10px;">+ Aggiungi tag</button>
+          <div class="a-title">Tag visivi</div><div class="a-desc">Categorie con chip cliccabili. Ogni tag aggiunge dettagli invisibili al prompt.</div>
+          <div id="adminCatList"></div>
+          <div class="a-card" style="margin-top:12px;">
+            <div class="a-card-title">Nuova categoria</div>
+            <div style="display:flex;gap:7px;margin-top:4px;">
+              <input type="text" class="a-input" placeholder="◈ Icona" id="newCatIcon" style="width:70px;">
+              <input type="text" class="a-input" placeholder="Nome categoria" id="newCatLabel" style="flex:1;">
+              <button class="a-btn primary" onclick="addNewCat()">+ Aggiungi</button>
+            </div>
           </div>
-          <button class="a-btn primary" onclick="saveTags()" style="margin-top:4px;">💾 Salva tag</button>
+          <button class="a-btn primary" onclick="saveCats()" style="margin-top:8px;">💾 Salva tutto</button>
         </div>
 
         <div class="admin-section" id="asec-api">
@@ -552,7 +631,7 @@ body:not(.light) .adv-input{background:#1e1a3a;color:var(--text);}
           <div class="a-title">Info sistema</div><div class="a-desc">Stato e manutenzione.</div>
           <div class="a-card">
             <!-- MODIFICA 02 — versione aggiornata a v2.7 -->
-            <div class="a-row"><div class="a-row-label">Versione</div><span style="color:var(--c-accent);font-weight:700;font-size:12px;">v2.7</span></div>
+            <div class="a-row"><div class="a-row-label">Versione</div><span style="color:var(--c-accent);font-weight:700;font-size:12px;">v3.0</span></div>
             <div class="a-row"><div class="a-row-label">API attiva</div><span id="infoActiveApi" style="color:var(--c-accent);font-weight:700;font-size:12px;">Pollinations AI</span></div>
             <div class="a-row"><div class="a-row-label">Tema</div><span id="infoTheme" style="color:#ccc;font-size:12px;">Dark</span></div>
             <div class="a-row"><div class="a-row-label">Immagini galleria</div><span id="infoGalleryCount" style="color:#ccc;font-size:12px;">0</span></div>
@@ -586,12 +665,13 @@ body:not(.light) .adv-input{background:#1e1a3a;color:var(--text);}
 
   <!-- CONTROLS -->
   <div id="controls">
+    <div id="controls-scroll">
     <div id="cooldownBar"><div id="cooldownText">⏳ Attendi…</div><div id="cooldownTrack"><div id="cooldownFill"></div></div></div>
     <div id="statusBar"><div class="status-spin" id="statusSpin"></div><span id="statusText"></span></div>
 
     <!-- PROMPT + DADO -->
     <div>
-      <span class="slabel">Il tuo prompt</span>
+      <span class="slabel"><i class="slabel-icon">✐</i>Il tuo prompt</span>
       <div class="prompt-wrap" id="promptBox">
         <div class="prompt-input-row">
           <textarea id="promptInput" placeholder="Descrivi la tua immagine… oppure premi 🎲 per un'idea" rows="3"></textarea>
@@ -600,22 +680,27 @@ body:not(.light) .adv-input{background:#1e1a3a;color:var(--text);}
         <div id="errorMsg">⚠ Scrivi cosa vuoi vedere!</div>
       </div>
 
-      <!-- MODIFICA 05 — CHIP DETTAGLI VISIVI (sostituisce accordion suggerimenti) -->
+      <!-- DETTAGLI VISIVI — tab categorie + chip -->
       <div class="dv-wrap" style="margin-top:8px;">
-        <span class="dv-label">✨ Dettagli visivi</span>
+        <span class="dv-label">◈ Dettagli visivi</span>
+        <div class="dv-tab-row-wrap">
+          <button class="dv-arrow hidden" id="dvArrowLeft" onclick="scrollDvTabs(-1)" aria-label="Scorri sinistra">‹</button>
+          <div class="dv-tab-row" id="dvTabRow"></div>
+          <button class="dv-arrow hidden" id="dvArrowRight" onclick="scrollDvTabs(1)" aria-label="Scorri destra">›</button>
+        </div>
         <div class="dv-chips" id="dvChips"></div>
       </div>
     </div>
 
     <!-- STYLES -->
     <div>
-      <span class="slabel">Stile artistico</span>
+      <span class="slabel"><i class="slabel-icon">❋</i>Stile artistico</span>
       <div class="style-grid" id="styleGrid"></div>
     </div>
 
     <!-- RATIO -->
     <div>
-      <span class="slabel">Formato</span>
+      <span class="slabel"><i class="slabel-icon">▣</i>Formato</span>
       <div class="ratio-row" id="ratioRow"></div>
     </div>
 
@@ -642,12 +727,12 @@ body:not(.light) .adv-input{background:#1e1a3a;color:var(--text);}
         </div>
       </div>
     </div>
+    </div><!-- /controls-scroll -->
 
-    <!-- spacer per spingere genBtn in fondo -->
-    <div class="controls-spacer"></div>
-
-    <!-- GEN BUTTON -->
-    <button id="genBtn" onclick="generateImage()">✨ GENERA IMMAGINE</button>
+    <!-- GEN BUTTON — sempre visibile in fondo -->
+    <div id="controls-footer">
+      <button id="genBtn" onclick="generateImage()">✨ GENERA IMMAGINE</button>
+    </div>
   </div>
 
   <!-- PREVIEW -->
@@ -738,28 +823,40 @@ const DEFAULT_STYLES_DATA=[
   {id:'3D render, octane render, CGI, volumetric lighting',emoji:'🔮',label:'3D',active:false},
 ];
 
-/* MODIFICA 05 — DEFAULT TAG DETTAGLI VISIVI */
-const DEFAULT_TAGS_DATA=[
-  {label:'Luce cinema',prompt:'cinematic lighting',active:true},
-  {label:'Ora dorata',prompt:'golden hour lighting, warm sunset glow',active:true},
-  {label:'Ombre dramm.',prompt:'dramatic shadows, moody lighting',active:true},
-  {label:'Luce soffusa',prompt:'soft diffused light, gentle illumination',active:true},
-  {label:'Neon',prompt:'neon lights, glowing neon',active:true},
-  {label:'Colori vivaci',prompt:'vibrant colors, highly saturated',active:true},
-  {label:'Pastello',prompt:'pastel colors, soft palette',active:true},
-  {label:'B&N',prompt:'black and white, monochromatic',active:true},
-  {label:'Dark misterioso',prompt:'dark moody atmosphere, deep shadows',active:true},
-  {label:'Ultra dettagliato',prompt:'ultra detailed, 8K resolution, sharp focus',active:true},
-  {label:'Sfondo bianco',prompt:'white background, clean background, isolated',active:true},
-  {label:'Sfondo trasp.',prompt:'transparent background, no background',active:true},
-  {label:'Sfondo sfocato',prompt:'depth of field, bokeh background blur',active:true},
-  {label:'Macro',prompt:'macro photography, extreme close-up, intricate details',active:true},
-  {label:'Vista dall\'alto',prompt:'bird eye view, aerial view, top down',active:true},
-  {label:'Simmetrico',prompt:'symmetrical composition, perfectly centered',active:true},
-  {label:'Vista dal basso',prompt:'worms eye view, dramatic low angle',active:true},
-  {label:'Nebbia eterea',prompt:'foggy misty atmosphere, ethereal haze',active:true},
-  {label:'Vintage retro',prompt:'retro vintage style, aged film grain',active:true},
-  {label:'Stile sticker',prompt:'sticker design, flat vector, bold outline, no background',active:true},
+/* CATEGORIE TAG DETTAGLI VISIVI — struttura con categorie */
+const DEFAULT_CATS_DATA=[
+  {id:'luce',label:'Luce',icon:'✦',active:true,tags:[
+    {icon:'◐',label:'Luce cinema',prompt:'cinematic lighting',active:true},
+    {icon:'◌',label:'Ora dorata',prompt:'golden hour lighting, warm sunset glow',active:true},
+    {icon:'◕',label:'Ombre dram.',prompt:'dramatic shadows, moody lighting',active:true},
+    {icon:'○',label:'Luce soffusa',prompt:'soft diffused light, gentle illumination',active:true},
+    {icon:'⊛',label:'Neon',prompt:'neon lights, glowing neon',active:true},
+  ]},
+  {id:'colore',label:'Colore',icon:'◈',active:true,tags:[
+    {icon:'◉',label:'Vivaci',prompt:'vibrant colors, highly saturated',active:true},
+    {icon:'◌',label:'Pastello',prompt:'pastel colors, soft palette',active:true},
+    {icon:'◧',label:'B&N',prompt:'black and white, monochromatic',active:true},
+    {icon:'◼',label:'Dark',prompt:'dark moody atmosphere, deep shadows',active:true},
+  ]},
+  {id:'sfondo',label:'Sfondo',icon:'▣',active:true,tags:[
+    {icon:'□',label:'Bianco',prompt:'white background, clean background, isolated',active:true},
+    {icon:'▨',label:'Trasparente',prompt:'transparent background, no background',active:true},
+    {icon:'◎',label:'Sfocato',prompt:'depth of field, bokeh background blur',active:true},
+  ]},
+  {id:'qualita',label:'Qualità',icon:'◎',active:true,tags:[
+    {icon:'◈',label:'Ultra dett.',prompt:'ultra detailed, 8K resolution, sharp focus',active:true},
+    {icon:'⊕',label:'Macro',prompt:'macro photography, extreme close-up, intricate details',active:true},
+    {icon:'▦',label:'Sticker',prompt:'sticker design, flat vector, bold outline, no background',active:true},
+  ]},
+  {id:'prospettiva',label:'Prospettiva',icon:'⌖',active:true,tags:[
+    {icon:'▲',label:'Dall\'alto',prompt:'bird eye view, aerial view, top down',active:true},
+    {icon:'▼',label:'Dal basso',prompt:'worms eye view, dramatic low angle',active:true},
+    {icon:'◆',label:'Simmetrico',prompt:'symmetrical composition, perfectly centered',active:true},
+  ]},
+  {id:'atmosfera',label:'Atmosfera',icon:'≋',active:true,tags:[
+    {icon:'≈',label:'Nebbia',prompt:'foggy misty atmosphere, ethereal haze',active:true},
+    {icon:'◷',label:'Vintage',prompt:'retro vintage style, aged film grain',active:true},
+  ]},
 ];
 
 const PA_DATA={
@@ -818,14 +915,14 @@ const BRAND_PALETTES=[
 ];
 
 const ST={style:'',ratio:'1:1',enhance:true,safe:true,gallery:[],currentUrl:'',currentPrompt:'',currentStyle:'',lastGenTime:0,busy:false,theme:'light',activeApi:'pollinations',cooldown:16000,timeout:80000};
-let STYLES=[],TAGS=[],adminLoggedIn=false,currentAdminUser=null,lpTimer=null,currentPaCat=null;
+let STYLES=[],CATS=[],currentCatId=null,adminLoggedIn=false,currentAdminUser=null,lpTimer=null;
 const isMobile=()=>window.innerWidth<1024;
 
 /* ── INIT ── */
 document.addEventListener('DOMContentLoaded',()=>{
   detectLayout();
-  loadSaved();loadStyles();loadTags();loadNavBtns();loadBtnColors();
-  buildStyles();buildRatios();buildDvChips();initLongPress();
+  loadSaved();loadStyles();loadCats();loadNavBtns();loadBtnColors();
+  buildStyles();buildRatios();buildDvTabs();initLongPress();
   loadLogoFromStorage();applyNavBtns();
   window.addEventListener('resize',detectLayout);
 });
@@ -857,57 +954,96 @@ function loadSaved(){
   updateApiInfo();
 }
 
-/* MODIFICA 05 — CHIP DETTAGLI VISIVI */
-function loadTags(){const s=localStorage.getItem('ig_tags');TAGS=s?JSON.parse(s):JSON.parse(JSON.stringify(DEFAULT_TAGS_DATA));}
-function saveTags(){localStorage.setItem('ig_tags',JSON.stringify(TAGS));buildDvChips();renderAdminTagList();msg('✓ Tag salvati!');}
 
-function buildDvChips(){
-  const el=document.getElementById('dvChips');if(!el) return;
-  el.innerHTML='';
-  TAGS.filter(t=>t.active).forEach((t,i)=>{
+/* ── CATEGORIE + CHIP DETTAGLI VISIVI ── */
+function loadCats(){const s=localStorage.getItem('ig_cats');CATS=s?JSON.parse(s):JSON.parse(JSON.stringify(DEFAULT_CATS_DATA));}
+function saveCats(){localStorage.setItem('ig_cats',JSON.stringify(CATS));buildDvTabs();renderAdminCats();msg('✓ Tag salvati!');}
+
+function buildDvTabs(){
+  const tabRow=document.getElementById('dvTabRow');
+  const arrowL=document.getElementById('dvArrowLeft');
+  const arrowR=document.getElementById('dvArrowRight');
+  const chipsEl=document.getElementById('dvChips');
+  if(!tabRow||!chipsEl) return;
+  const activeCats=CATS.filter(c=>c.active);
+  if(!currentCatId&&activeCats.length) currentCatId=activeCats[0].id;
+  tabRow.innerHTML='';
+  activeCats.forEach(cat=>{
+    const btn=document.createElement('button');
+    btn.className='dv-tab'+(cat.id===currentCatId?' active':'');
+    btn.textContent=cat.icon+' '+cat.label;
+    btn.onclick=()=>{currentCatId=cat.id;buildDvTabs();};
+    tabRow.appendChild(btn);
+  });
+  // Aggiorna frecce
+  function updateArrows(){
+    if(arrowL) arrowL.classList.toggle('hidden',tabRow.scrollLeft<=4);
+    if(arrowR) arrowR.classList.toggle('hidden',tabRow.scrollLeft+tabRow.clientWidth>=tabRow.scrollWidth-4);
+  }
+  setTimeout(updateArrows,50);
+  tabRow.addEventListener('scroll',updateArrows,{passive:true});
+  // Chip categoria corrente
+  const cat=CATS.find(c=>c.id===currentCatId);
+  chipsEl.innerHTML='';
+  if(cat){cat.tags.filter(t=>t.active).forEach(t=>{
     const btn=document.createElement('button');
     btn.className='dv-chip';
-    btn.textContent=t.label;
     btn.dataset.prompt=t.prompt;
-    btn.onclick=()=>{
-      btn.classList.toggle('active');
-    };
-    el.appendChild(btn);
-  });
+    btn.textContent=t.label;
+    btn.onclick=()=>btn.classList.toggle('active');
+    chipsEl.appendChild(btn);
+  });}
 }
 
-function getActiveTagsPrompt(){
-  const chips=document.querySelectorAll('.dv-chip.active');
-  return Array.from(chips).map(c=>c.dataset.prompt).filter(Boolean).join(', ');
+function scrollDvTabs(dir){
+  const row=document.getElementById('dvTabRow');
+  if(row) row.scrollBy({left:dir*120,behavior:'smooth'});
 }
 
-function renderAdminTagList(){
-  const el=document.getElementById('adminTagList');if(!el) return;
-  el.innerHTML=TAGS.map((t,i)=>`
-    <div class="dv-item">
-      <div class="dv-item-info">
-        <div class="dv-item-label">${t.label}</div>
-        <div class="dv-item-prompt">${t.prompt}</div>
+function getActiveTagsPrompt(){return Array.from(document.querySelectorAll('.dv-chip.active')).map(c=>c.dataset.prompt).filter(Boolean).join(', ');}
+
+function renderAdminCats(){
+  const el=document.getElementById('adminCatList');if(!el) return;
+  el.innerHTML=CATS.map((cat,ci)=>`
+    <div class="cat-admin-block">
+      <div class="cat-admin-header" onclick="toggleCatAdmin(${ci},this)">
+        <span class="cat-admin-icon">${cat.icon}</span>
+        <span class="cat-admin-name">${cat.label}</span>
+        <span class="cat-admin-count">${cat.tags.length} tag</span>
+        <button class="s-toggle ${cat.active?'on':''}" style="margin-left:8px;" onclick="event.stopPropagation();toggleCatActive(${ci},this)"><div class="s-toggle-thumb"></div></button>
+        <button class="a-btn danger" style="padding:2px 7px;font-size:10px;margin-left:4px;" onclick="event.stopPropagation();deleteCat(${ci})">✕</button>
+        <span class="cat-admin-arrow">▼</span>
       </div>
-      <div style="display:flex;gap:5px;align-items:center;">
-        <button class="s-toggle ${t.active?'on':''}" onclick="toggleTag(${i},this)"><div class="s-toggle-thumb"></div></button>
-        <button class="a-btn danger" style="padding:3px 7px;font-size:10px;" onclick="deleteTag(${i})">✕</button>
+      <div class="cat-admin-body" id="catBody-${ci}">
+        <div style="display:flex;gap:7px;margin:10px 0 6px;">
+          <input type="text" class="a-input" placeholder="Icona" id="catIcon-${ci}" value="${cat.icon}" style="width:60px;">
+          <input type="text" class="a-input" placeholder="Nome" id="catName-${ci}" value="${cat.label}" style="flex:1;">
+          <button class="a-btn ghost" onclick="updateCat(${ci})" style="padding:5px 10px;font-size:10px;">Salva</button>
+        </div>
+        <div style="font-size:10px;color:#7a78a0;margin-bottom:8px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;">Tag</div>
+        ${cat.tags.map((t,ti)=>`<div class="dv-item"><span style="font-size:14px;color:#9d7fff;width:20px;text-align:center;">${t.icon}</span><div class="dv-item-info"><div class="dv-item-label">${t.label}</div><div class="dv-item-prompt">${t.prompt}</div></div><button class="s-toggle ${t.active?'on':''}" onclick="toggleTagInCat(${ci},${ti},this)"><div class="s-toggle-thumb"></div></button><button class="a-btn danger" style="padding:2px 7px;font-size:10px;" onclick="deleteTagInCat(${ci},${ti})">✕</button></div>`).join('')}
+        <div style="margin-top:10px;padding-top:10px;border-top:1px solid #1e1e35;">
+          <div style="font-size:10px;color:#7a78a0;margin-bottom:6px;font-weight:700;">+ Aggiungi tag</div>
+          <div style="display:flex;gap:5px;flex-wrap:wrap;">
+            <input type="text" class="a-input" placeholder="◌ Icona" id="newTagIcon-${ci}" style="width:60px;">
+            <input type="text" class="a-input" placeholder="Label IT" id="newTagLabel-${ci}" style="width:100px;">
+            <input type="text" class="a-input" placeholder="Prompt EN" id="newTagPrompt-${ci}" style="flex:1;min-width:100px;">
+            <button class="a-btn primary" onclick="addTagToCat(${ci})" style="padding:5px 10px;font-size:10px;">+</button>
+          </div>
+        </div>
       </div>
     </div>`).join('');
 }
 
-function toggleTag(i,btn){TAGS[i].active=!TAGS[i].active;btn.classList.toggle('on',TAGS[i].active);btn.querySelector('.s-toggle-thumb').style.left=TAGS[i].active?'19px':'3px';}
-function deleteTag(i){if(!confirm(`Elimina "${TAGS[i].label}"?`)) return;TAGS.splice(i,1);renderAdminTagList();}
-function addNewTag(){
-  const l=document.getElementById('newTagLabel').value.trim();
-  const p=document.getElementById('newTagPrompt').value.trim();
-  if(!l){alert('Inserisci una label');return;}
-  TAGS.push({label:l,prompt:p,active:true});
-  document.getElementById('newTagLabel').value='';
-  document.getElementById('newTagPrompt').value='';
-  renderAdminTagList();
-  msg('Tag aggiunto — premi Salva');
-}
+function toggleCatAdmin(ci,hdr){const body=document.getElementById('catBody-'+ci);if(!body) return;const isOpen=body.classList.toggle('open');hdr.classList.toggle('open',isOpen);}
+function toggleCatActive(ci,btn){CATS[ci].active=!CATS[ci].active;btn.classList.toggle('on',CATS[ci].active);btn.querySelector('.s-toggle-thumb').style.left=CATS[ci].active?'19px':'3px';}
+function deleteCat(ci){if(!confirm(`Elimina categoria "${CATS[ci].label}"?`)) return;if(currentCatId===CATS[ci].id) currentCatId=null;CATS.splice(ci,1);renderAdminCats();}
+function updateCat(ci){CATS[ci].label=document.getElementById('catName-'+ci).value.trim()||CATS[ci].label;CATS[ci].icon=document.getElementById('catIcon-'+ci).value.trim()||CATS[ci].icon;renderAdminCats();msg('Categoria aggiornata — premi Salva');}
+function toggleTagInCat(ci,ti,btn){CATS[ci].tags[ti].active=!CATS[ci].tags[ti].active;btn.classList.toggle('on',CATS[ci].tags[ti].active);btn.querySelector('.s-toggle-thumb').style.left=CATS[ci].tags[ti].active?'19px':'3px';}
+function deleteTagInCat(ci,ti){if(!confirm(`Elimina tag "${CATS[ci].tags[ti].label}"?`)) return;CATS[ci].tags.splice(ti,1);renderAdminCats();}
+function addTagToCat(ci){const icon=document.getElementById('newTagIcon-'+ci).value.trim()||'◌';const label=document.getElementById('newTagLabel-'+ci).value.trim();const prompt=document.getElementById('newTagPrompt-'+ci).value.trim();if(!label){alert('Inserisci una label');return;}CATS[ci].tags.push({icon,label,prompt,active:true});renderAdminCats();msg('Tag aggiunto — premi Salva');}
+function addNewCat(){const icon=document.getElementById('newCatIcon').value.trim()||'◈';const label=document.getElementById('newCatLabel').value.trim();if(!label){alert('Inserisci un nome');return;}CATS.push({id:'cat_'+Date.now(),label,icon,active:true,tags:[]});document.getElementById('newCatIcon').value='';document.getElementById('newCatLabel').value='';renderAdminCats();msg('Categoria aggiunta — premi Salva');}
+
 
 /* ── DADO ── */
 function rollDice(){
@@ -1048,12 +1184,12 @@ function deleteUser(i){const users=loadUsers();if(users[i].username==='WONDERSPI
 function initLongPress(){['sidebarLogo','mobileLogoTitle'].forEach(id=>{const el=document.getElementById(id);if(!el) return;el.addEventListener('mousedown',()=>{lpTimer=setTimeout(openAdmin,3000);});el.addEventListener('touchstart',()=>{lpTimer=setTimeout(openAdmin,3000);},{passive:true});['mouseup','mouseleave','touchend'].forEach(ev=>el.addEventListener(ev,()=>clearTimeout(lpTimer)));});}
 function openAdmin(){document.getElementById('adminOverlay').classList.add('open');if(adminLoggedIn){showAdminPanel(currentAdminUser);}else{document.getElementById('adminLogin').style.display='flex';document.getElementById('adminPanel').classList.remove('open');}}
 function doAdminLogin(){const u=document.getElementById('adminUser').value.trim();const p=document.getElementById('adminPass').value;const users=loadUsers();const found=users.find(x=>x.username===u&&x.password===p);if(found){adminLoggedIn=true;currentAdminUser=found;document.getElementById('loginError').style.display='none';document.getElementById('adminUser').value='';document.getElementById('adminPass').value='';showAdminPanel(found);}else{document.getElementById('loginError').style.display='block';}}
-function showAdminPanel(user){document.getElementById('adminLogin').style.display='none';document.getElementById('adminPanel').classList.add('open');document.getElementById('adminUserLabel').textContent='👤 '+user.username;loadSavedApiKeys();updateApiCards();renderAdminStyleList();renderAdminTagList();renderUserList();buildNavBtnList();loadLogoFromStorage();document.getElementById('aThemeSelect').value=ST.theme;document.getElementById('infoTheme').textContent=ST.theme==='dark'?'Dark':'Light';document.getElementById('infoGalleryCount').textContent=ST.gallery.length;buildBrandSwatches();}
+function showAdminPanel(user){document.getElementById('adminLogin').style.display='none';document.getElementById('adminPanel').classList.add('open');document.getElementById('adminUserLabel').textContent='👤 '+user.username;loadSavedApiKeys();updateApiCards();renderAdminStyleList();renderAdminCats();renderUserList();buildNavBtnList();loadLogoFromStorage();document.getElementById('aThemeSelect').value=ST.theme;document.getElementById('infoTheme').textContent=ST.theme==='dark'?'Dark':'Light';document.getElementById('infoGalleryCount').textContent=ST.gallery.length;buildBrandSwatches();}
 function closeAdmin(){document.getElementById('adminOverlay').classList.remove('open');}
 function aTab(n,btn){document.querySelectorAll('.admin-section').forEach(s=>s.classList.remove('active'));document.querySelectorAll('.admin-tab').forEach(b=>b.classList.remove('active'));document.getElementById('asec-'+n).classList.add('active');btn.classList.add('active');}
 function msg(m){const el=document.getElementById('adminSaveMsg');if(!el) return;el.textContent=m;el.classList.add('ok');setTimeout(()=>{el.textContent='Modifica e salva';el.classList.remove('ok');},3000);}
 function clearGallery(){if(!confirm('Svuotare la galleria?')) return;ST.gallery=[];localStorage.removeItem('ig_gallery');document.getElementById('infoGalleryCount').textContent=0;msg('✓ Svuotata');}
-function resetAllAdmin(){if(!confirm('Reset tutto?')) return;['ig_colors','ig_fonts','ig_styles','ig_tags','ig_active_api','ig_cooldown','ig_timeout'].forEach(k=>localStorage.removeItem(k));applyColors({accent:'#00E5C8',accent2:'#F0008C',violet:'#5B35C8'});applyFonts({title:'Bangers',body:'Space Grotesk'});loadStyles();loadTags();buildStyles();buildDvChips();ST.activeApi='pollinations';ST.cooldown=16000;ST.timeout=80000;updateApiInfo();msg('✓ Reset');}
+function resetAllAdmin(){if(!confirm('Reset tutto?')) return;['ig_colors','ig_fonts','ig_styles','ig_cats','ig_active_api','ig_cooldown','ig_timeout'].forEach(k=>localStorage.removeItem(k));applyColors({accent:'#00E5C8',accent2:'#F0008C',violet:'#5B35C8'});applyFonts({title:'Bangers',body:'Space Grotesk'});loadStyles();loadCats();currentCatId=null;buildStyles();buildDvTabs();ST.activeApi='pollinations';ST.cooldown=16000;ST.timeout=80000;updateApiInfo();msg('✓ Reset');}
 
 /* ── STATUS/COOLDOWN ── */
 function setStatus(m,t){const bar=document.getElementById('statusBar'),sp=document.getElementById('statusSpin'),tx=document.getElementById('statusText');if(!m){bar.className='';return;}bar.className='show '+(t||'');sp.style.display=t==='loading'?'block':'none';tx.textContent=m;}
