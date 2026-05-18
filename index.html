@@ -15,7 +15,6 @@
   --c-accent:#5B35C8;--c-accent2:#3D2F8F;--c-violet:#5B35C8;
   --font-title:'Space Grotesk',sans-serif;--font-body:'Space Grotesk',sans-serif;
   --sidebar-w:200px;
-  /* Bottoni dark default — sempre visibili */
   --btn-style-bg:#1e1a3a;--btn-style-color:#a09cc0;--btn-style-border:#3a3060;
   --btn-style-active-bg:rgba(91,53,200,.2);--btn-style-active-color:#9d7fff;--btn-style-active-border:#5B35C8;
   --btn-ratio-bg:#1e1a3a;--btn-ratio-color:#a09cc0;--btn-ratio-border:#3a3060;
@@ -44,7 +43,6 @@ body{background:var(--bg);color:var(--text);font-family:var(--font-body);height:
 /* ── LAYOUT ── */
 #app{display:flex;height:100svh;overflow:hidden;}
 #sidebar{width:var(--sidebar-w);flex-shrink:0;background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;height:100svh;padding:24px 14px;overflow:hidden;}
-/* ── THEME TOGGLE FISSO ── */
 #themeToggleFixed{
   position:fixed;top:14px;right:18px;z-index:150;
   display:flex;align-items:center;gap:7px;
@@ -64,21 +62,12 @@ body.light .theme-toggle-dot{left:17px;background:#fff;}
 .logo-img-wrap{display:flex;align-items:center;gap:4px;flex:1;}
 .logo-img{height:36px;width:auto;object-fit:contain;display:block;}
 .logo-img.hidden{display:none;}
-.logo-ai{font-family:'Space Grotesk',sans-serif;font-size:18px;font-weight:800;letter-spacing:-1px;line-height:1;
-  color:var(--c-violet);position:relative;top:2px;
-}
-/* Mobile logo */
+.logo-ai{font-family:'Space Grotesk',sans-serif;font-size:18px;font-weight:800;letter-spacing:-1px;line-height:1;color:var(--c-violet);position:relative;top:2px;}
 .mobile-logo-wrap{display:flex;align-items:center;gap:4px;}
 .mobile-logo-img{height:28px;width:auto;object-fit:contain;}
 .mobile-logo-img.hidden{display:none;}
-.mobile-logo-text{font-family:var(--font-title);font-size:22px;letter-spacing:2px;
-  background:linear-gradient(90deg,var(--c-accent),var(--c-violet),var(--c-accent2));
-  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
-  cursor:default;user-select:none;
-}
-.mobile-logo-ai{font-family:'Space Grotesk',sans-serif;font-size:15px;font-weight:800;letter-spacing:-1px;
-  color:var(--c-violet);position:relative;top:1px;
-}
+.mobile-logo-text{font-family:var(--font-title);font-size:22px;letter-spacing:2px;background:linear-gradient(90deg,var(--c-accent),var(--c-violet),var(--c-accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;cursor:default;user-select:none;}
+.mobile-logo-ai{font-family:'Space Grotesk',sans-serif;font-size:15px;font-weight:800;letter-spacing:-1px;color:var(--c-violet);position:relative;top:1px;}
 .sidebar-nav{display:flex;flex-direction:column;gap:3px;flex:1;}
 .snav-btn{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:12px;border:none;background:none;color:var(--muted);font-family:var(--font-body);font-size:13px;font-weight:600;cursor:pointer;width:100%;text-align:left;transition:all .15s;}
 .snav-btn:hover{background:var(--card);color:var(--text);}
@@ -87,9 +76,11 @@ body.light .theme-toggle-dot{left:17px;background:#fff;}
 .sidebar-footer{font-size:10px;color:var(--muted);line-height:1.8;padding-top:16px;border-top:1px solid var(--border);}
 .sidebar-footer strong{color:var(--c-violet);}
 
+/* MODIFICA 04 — controls occupa tutta l'altezza con flex justify */
 #controls{width:500px;flex-shrink:0;display:flex;flex-direction:column;height:100svh;overflow-y:auto;overflow-x:hidden;border-right:1px solid var(--border);padding:20px 24px 24px;gap:10px;}
 #controls::-webkit-scrollbar{width:3px;}
 #controls::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px;}
+.controls-spacer{flex:1;}
 
 #preview-col{flex:1;min-width:260px;display:flex;flex-direction:column;height:100svh;overflow:hidden;padding:20px 20px;}
 #screen-gallery,#screen-pro{display:none;flex:1;flex-direction:column;height:100svh;overflow-y:auto;padding:32px 40px;}
@@ -99,7 +90,6 @@ body.light .theme-toggle-dot{left:17px;background:#fff;}
 #bottom-nav{display:none;}
 #genBtnMobile{display:none;}
 
-/* ── LABELS ── */
 .slabel{font-size:9px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.14em;display:block;margin-bottom:6px;}
 
 /* ── PROMPT AREA ── */
@@ -110,8 +100,6 @@ body:not(.light) .prompt-wrap{background:var(--surface);}
 #promptInput{flex:1;background:transparent;border:none;color:var(--text);font-size:13px;font-family:var(--font-body);padding:12px 10px 12px 14px;resize:none;line-height:1.5;height:80px;}
 #promptInput:focus{outline:none;}
 #promptInput::placeholder{color:var(--muted);}
-
-/* Textarea row: input + dado */
 .prompt-input-row{display:flex;align-items:flex-start;gap:0;}
 #diceBtn{
   flex-shrink:0;width:44px;height:80px;
@@ -123,25 +111,15 @@ body:not(.light) .prompt-wrap{background:var(--surface);}
 #diceBtn .dice-icon{display:inline-block;}
 #diceBtn.rolling .dice-icon{animation:diceRoll .4s ease;}
 @keyframes diceRoll{0%{transform:rotate(0) scale(1)}50%{transform:rotate(180deg) scale(1.3)}100%{transform:rotate(360deg) scale(1)}}
-
 #errorMsg{padding:0 14px 8px;color:var(--danger);font-size:11px;display:none;font-weight:600;}
 
-/* PROMPT ASSISTANT — accordion */
-.pa-accordion{flex-shrink:0;}
-.pa-header{display:flex;align-items:center;justify-content:center;gap:8px;padding:10px 14px;background:var(--c-violet);border:none;border-radius:10px;cursor:pointer;transition:all .15s;user-select:none;margin-top:6px;}
-.pa-header:hover{opacity:.88;}
-.pa-header.open{border-radius:10px 10px 0 0;opacity:.95;}
-.pa-header-label{font-size:12px;font-weight:700;color:#fff;display:flex;align-items:center;gap:6px;}
-.pa-arrow{font-size:9px;color:rgba(255,255,255,.7);transition:transform .2s;}
-.pa-header.open .pa-arrow{transform:rotate(180deg);}
-.pa-body{display:none;background:var(--accordion-bg);border:1px solid var(--c-violet);border-top:none;border-radius:0 0 10px 10px;padding:10px;}
-.pa-body.open{display:block;}
-.pa-cats{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:7px;}
-.pa-cat{padding:4px 10px;background:var(--btn-pa-bg);border:1px solid var(--btn-pa-border);border-radius:20px;font-size:10px;font-weight:700;color:var(--btn-pa-color);cursor:pointer;transition:all .15s;}
-.pa-cat:hover,.pa-cat.active{background:var(--btn-pa-active-bg);border-color:var(--btn-pa-active-border);color:var(--btn-pa-active-color);}
-.pa-prompts{display:flex;flex-direction:column;gap:4px;}
-.pa-prompt{padding:6px 10px;background:var(--btn-prompt-bg);border:1px solid var(--btn-prompt-border);border-radius:8px;font-size:11px;color:var(--btn-prompt-color);cursor:pointer;transition:all .15s;font-weight:500;text-align:left;}
-.pa-prompt:hover{border-color:var(--c-violet);background:rgba(91,53,200,.08);}
+/* MODIFICA 05 — CHIP DETTAGLI VISIVI (sostituisce pa-accordion) */
+.dv-wrap{flex-shrink:0;}
+.dv-label{font-size:9px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.14em;display:block;margin-bottom:6px;}
+.dv-chips{display:flex;flex-wrap:wrap;gap:5px;}
+.dv-chip{padding:5px 10px;background:var(--btn-pa-bg);border:1px solid var(--btn-pa-border);border-radius:20px;font-size:11px;font-weight:600;color:var(--btn-pa-color);cursor:pointer;transition:all .15s;user-select:none;}
+.dv-chip:hover{border-color:var(--c-violet);background:rgba(91,53,200,.08);}
+.dv-chip.active{background:var(--btn-pa-active-bg);border-color:var(--btn-pa-active-border);color:var(--btn-pa-active-color);}
 
 /* ── STYLES ── */
 .style-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:5px;flex-shrink:0;}
@@ -198,10 +176,21 @@ body:not(.light) .adv-input{background:#1e1a3a;color:var(--text);}
 #cooldownTrack{width:100%;height:2px;background:var(--border);border-radius:2px;}
 #cooldownFill{height:2px;background:linear-gradient(90deg,var(--c-accent),var(--c-violet));border-radius:2px;width:100%;transition:width .1s linear;}
 
-/* ── GEN BUTTON ── */
-#genBtn{width:100%;padding:14px;background:var(--gen-btn-bg);color:var(--gen-btn-color);border:none;border-radius:14px;font-size:15px;font-weight:800;font-family:'Space Grotesk',sans-serif;cursor:pointer;letter-spacing:1px;transition:all .2s;box-shadow:0 4px 20px rgba(91,53,200,.3);flex-shrink:0;}
+/* MODIFICA 03 — GEN BUTTON più grande e prominente */
+#genBtn{
+  width:100%;padding:18px;
+  background:var(--gen-btn-bg);color:var(--gen-btn-color);
+  border:none;border-radius:16px;
+  font-size:18px;font-weight:800;
+  font-family:'Space Grotesk',sans-serif;
+  cursor:pointer;letter-spacing:1.5px;
+  transition:all .2s;
+  box-shadow:0 6px 28px rgba(91,53,200,.4);
+  flex-shrink:0;
+  margin-top:4px;
+}
 #genBtn:disabled{background:var(--border);color:var(--muted);box-shadow:none;cursor:not-allowed;}
-#genBtn:not(:disabled):hover{transform:translateY(-1px);box-shadow:0 6px 28px rgba(91,53,200,.45);}
+#genBtn:not(:disabled):hover{transform:translateY(-2px);box-shadow:0 10px 36px rgba(91,53,200,.55);}
 
 /* ── PREVIEW ── */
 #preview-header{font-family:'Space Grotesk',sans-serif;font-size:14px;font-weight:700;letter-spacing:.5px;color:var(--muted);margin-bottom:14px;padding-bottom:12px;border-bottom:1px solid var(--border);flex-shrink:0;text-transform:uppercase;}
@@ -336,28 +325,33 @@ body:not(.light) .adv-input{background:#1e1a3a;color:var(--text);}
 .s-toggle-thumb{position:absolute;width:14px;height:14px;border-radius:50%;background:#888;top:3px;left:3px;transition:left .2s;}
 .s-toggle.on .s-toggle-thumb{left:19px;background:#080810;}
 .api-card{background:#111122;border:1px solid #1e1e35;border-radius:12px;padding:14px;margin-bottom:10px;position:relative;}
-.api-card.api-active{border-color:var(--c-accent);}
-.api-active-badge{position:absolute;top:10px;right:10px;background:rgba(0,229,200,.1);border:1px solid var(--c-accent);border-radius:20px;padding:2px 9px;font-size:9px;font-weight:700;color:var(--c-accent);text-transform:uppercase;display:none;}
+.api-active-badge{display:none;position:absolute;top:10px;right:10px;background:rgba(0,229,200,.15);border:1px solid rgba(0,229,200,.3);color:var(--c-accent);font-size:9px;font-weight:700;padding:2px 7px;border-radius:5px;letter-spacing:.05em;}
 .api-active-badge.show{display:block;}
-.api-name{font-size:13px;font-weight:700;color:#fff;margin-bottom:3px;}
-.api-desc{font-size:11px;color:#7a78a0;margin-bottom:10px;line-height:1.5;}
-.api-key-row{display:flex;gap:7px;margin-bottom:9px;}
-.api-key-input{flex:1;background:#1a1a2e;border:1px solid #2a2050;border-radius:7px;color:#fff;font-size:11px;font-family:var(--font-body);padding:7px 11px;}
+.api-name{font-size:13px;font-weight:700;color:#fff;margin-bottom:4px;}
+.api-desc{font-size:11px;color:#7a78a0;margin-bottom:10px;}
+.api-key-row{display:flex;gap:7px;margin-bottom:8px;}
+.api-key-input{flex:1;background:#1a1a2e;border:1px solid #2a2050;border-radius:7px;color:#fff;font-size:12px;font-family:var(--font-body);padding:7px 11px;}
 .api-key-input:focus{outline:none;border-color:var(--c-accent);}
-.user-item{display:flex;align-items:center;gap:9px;padding:10px 0;border-bottom:1px solid #1e1e35;}
+.user-item{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid #1e1e35;}
 .user-item:last-child{border-bottom:none;}
-.user-avatar{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,var(--c-violet),var(--c-accent));display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#080810;flex-shrink:0;}
+.user-avatar{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,var(--c-accent),var(--c-violet));display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#080810;flex-shrink:0;}
 .user-info{flex:1;}
-.user-name{font-size:12px;font-weight:600;color:#fff;}
-.user-role-label{font-size:10px;color:#7a78a0;}
-.user-badge{padding:2px 7px;border-radius:4px;font-size:8px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin-left:5px;}
-.user-badge.admin{background:rgba(240,0,140,.1);border:1px solid var(--c-accent2);color:var(--c-accent2);}
-.user-badge.user{background:rgba(0,229,200,.05);border:1px solid rgba(0,229,200,.3);color:var(--c-accent);}
-.admin-save-bar{position:sticky;bottom:0;background:#0a0a18;border-top:1px solid #2a2050;padding:12px 20px;display:flex;align-items:center;justify-content:space-between;gap:12px;}
-.admin-save-msg{font-size:11px;color:#7a78a0;}
+.user-name{font-size:12px;font-weight:600;color:#fff;display:flex;align-items:center;gap:7px;}
+.user-badge{font-size:9px;padding:2px 6px;border-radius:4px;font-weight:700;}
+.user-badge.admin{background:rgba(0,229,200,.15);color:var(--c-accent);}
+.user-badge.user{background:rgba(91,53,200,.15);color:#9d7fff;}
+.user-role-label{font-size:10px;color:#7a78a0;margin-top:2px;}
+.admin-save-bar{padding:12px 20px;border-top:1px solid #2a2050;background:#0a0a18;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-shrink:0;}
+.admin-save-msg{font-size:11px;color:#7a78a0;font-weight:600;}
 .admin-save-msg.ok{color:var(--c-accent);}
 
-/* ── MOBILE ── */
+/* MODIFICA 06 — Admin tag DV item styles */
+.dv-item{display:flex;align-items:center;gap:9px;padding:9px 0;border-bottom:1px solid #1e1e35;}
+.dv-item:last-child{border-bottom:none;}
+.dv-item-info{flex:1;}
+.dv-item-label{font-size:12px;font-weight:600;color:#fff;}
+.dv-item-prompt{font-size:10px;color:#7a78a0;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:220px;}
+
 @media(max-width:1023px){
   #app{flex-direction:column;height:auto;overflow:visible;}
   #sidebar{display:none!important;}
@@ -366,6 +360,7 @@ body:not(.light) .adv-input{background:#1e1a3a;color:var(--text);}
   #screen-gallery.active,#screen-pro.active{display:block;}
   #controls{width:100%!important;height:auto!important;overflow:visible!important;padding:16px 16px 160px!important;border-right:none!important;gap:12px;flex-direction:column;}
   #controls.tab-hidden{display:none!important;}
+  .controls-spacer{display:none;}
   #outputArea{display:none;flex-direction:column;border-radius:16px;margin:12px 16px 0;}
   #outputArea.visible{display:flex;}
   #preview-col.output-active{display:flex!important;position:fixed;top:54px;left:0;right:0;bottom:140px;z-index:40;background:var(--bg);overflow-y:auto;flex-direction:column;padding:12px 16px;}
@@ -375,7 +370,8 @@ body:not(.light) .adv-input{background:#1e1a3a;color:var(--text);}
   #app{padding-top:54px;}
   #genBtnMobile{position:fixed;bottom:76px;left:12px;right:12px;z-index:50;display:none;}
   #genBtnMobile.tab-visible{display:block;}
-  #genBtnMobile button{width:100%;padding:16px;background:var(--gen-btn-bg);color:var(--gen-btn-color);border:none;border-radius:16px;font-size:15px;font-weight:800;font-family:'Space Grotesk',sans-serif;cursor:pointer;letter-spacing:1px;box-shadow:0 4px 20px rgba(91,53,200,.35);}
+  /* MODIFICA 03 mobile — bottone genera più grande */
+  #genBtnMobile button{width:100%;padding:18px;background:var(--gen-btn-bg);color:var(--gen-btn-color);border:none;border-radius:16px;font-size:17px;font-weight:800;font-family:'Space Grotesk',sans-serif;cursor:pointer;letter-spacing:1.5px;box-shadow:0 6px 28px rgba(91,53,200,.4);}
   #genBtnMobile button:disabled{background:var(--border);color:var(--muted);box-shadow:none;}
   #bottom-nav{position:fixed;bottom:0;left:0;right:0;background:var(--surface);border-top:2px solid var(--border);display:flex!important;z-index:60;height:64px;}
   .nav-btn{flex:1;padding:8px 4px;background:none;border:none;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;cursor:pointer;transition:background .15s;position:relative;}
@@ -389,6 +385,9 @@ body:not(.light) .adv-input{background:#1e1a3a;color:var(--text);}
   .style-grid{grid-template-columns:repeat(3,1fr)!important;}
   .gallery-grid{grid-template-columns:1fr 1fr;}
   #genBtn{display:none!important;}
+  /* MODIFICA 07 — chip mobile: wrap ok, max 2 righe visibili */
+  .dv-chips{flex-wrap:wrap;gap:5px;}
+  .dv-chip{font-size:11px;padding:5px 9px;}
   #themeToggle{background:none!important;border:none!important;font-size:22px!important;padding:0!important;width:auto!important;color:var(--muted)!important;}
   @media(max-width:600px){.admin-body{flex-direction:column;}.admin-tabs{width:100%;flex-direction:row;overflow-x:auto;border-right:none;border-bottom:1px solid #2a2050;padding:8px;}.admin-tab{flex-shrink:0;padding:7px 11px;}.admin-content{padding:14px;}.a-row{flex-direction:column;align-items:flex-start;}.a-input{width:100%;}}
 }
@@ -403,13 +402,11 @@ body:not(.light) .adv-input{background:#1e1a3a;color:var(--text);}
 </head>
 <body>
 
-<!-- THEME TOGGLE FISSO TOP-RIGHT -->
 <div id="themeToggleFixed" onclick="toggleTheme()">
   <div class="theme-toggle-pill"><div class="theme-toggle-dot"></div></div>
   <span class="toggle-label" id="themeLabel">Light</span>
 </div>
 
-<!-- MOBILE HEADER -->
 <div id="mobile-header">
   <div class="mobile-logo-wrap" id="mobileLogoTitle">
     <img class="mobile-logo-img" id="logoImgMobile" src="WonderSpit_Logo.png" alt="WonderSpit" style="height:38px;" onerror="this.classList.add('hidden');document.getElementById('logoFallbackMobile').style.display='block'">
@@ -440,6 +437,7 @@ body:not(.light) .adv-input{background:#1e1a3a;color:var(--text);}
         <button class="admin-tab" onclick="aTab('font',this)"><span class="admin-tab-icon">Aa</span> Font</button>
         <button class="admin-tab" onclick="aTab('logo',this)"><span class="admin-tab-icon">🖼</span> Logo & Nav</button>
         <button class="admin-tab" onclick="aTab('stili',this)"><span class="admin-tab-icon">✦</span> Stili AI</button>
+        <button class="admin-tab" onclick="aTab('tag',this)"><span class="admin-tab-icon">🏷</span> Tag visivi</button>
         <button class="admin-tab" onclick="aTab('api',this)"><span class="admin-tab-icon">🔌</span> API</button>
         <button class="admin-tab" onclick="aTab('utenti',this)"><span class="admin-tab-icon">👤</span> Utenti</button>
         <button class="admin-tab" onclick="aTab('info',this)"><span class="admin-tab-icon">ℹ</span> Info</button>
@@ -477,31 +475,15 @@ body:not(.light) .adv-input{background:#1e1a3a;color:var(--text);}
           </div>
           <button class="a-btn primary" onclick="saveFonts()">💾 Salva font</button>
         </div>
-
-        <!-- LOGO & NAV -->
         <div class="admin-section" id="asec-logo">
           <div class="a-title">Logo & Nav</div><div class="a-desc">Personalizza logo e bottoni di navigazione.</div>
           <div class="a-card">
             <div class="a-card-title">Logo — URL immagine</div>
-            <div class="a-row">
-              <div class="a-row-label">Logo desktop (esteso)<div class="a-row-sub">Carica su GitHub, incolla URL</div></div>
-              <input type="text" id="logoDesktopUrl" class="a-input" placeholder="WonderSpit_Logo_esteso.png" style="width:100%;margin-top:6px;">
-            </div>
-            <div class="a-row">
-              <div class="a-row-label">Logo mobile (icona)<div class="a-row-sub">Versione compatta per smartphone</div></div>
-              <input type="text" id="logoMobileUrl" class="a-input" placeholder="WonderSpit_Logo.png" style="width:100%;margin-top:6px;">
-            </div>
-            <div style="display:flex;gap:7px;margin-top:10px;">
-              <button class="a-btn primary" onclick="saveLogo()">💾 Salva logo</button>
-              <button class="a-btn ghost" onclick="resetLogo()">↺ Reset</button>
-            </div>
+            <div class="a-row"><div class="a-row-label">Logo desktop (esteso)<div class="a-row-sub">Carica su GitHub, incolla URL</div></div><input type="text" id="logoDesktopUrl" class="a-input" placeholder="WonderSpit_Logo_esteso.png" style="width:100%;margin-top:6px;"></div>
+            <div class="a-row"><div class="a-row-label">Logo mobile (icona)<div class="a-row-sub">Versione compatta per smartphone</div></div><input type="text" id="logoMobileUrl" class="a-input" placeholder="WonderSpit_Logo.png" style="width:100%;margin-top:6px;"></div>
+            <div style="display:flex;gap:7px;margin-top:10px;"><button class="a-btn primary" onclick="saveLogo()">💾 Salva logo</button><button class="a-btn ghost" onclick="resetLogo()">↺ Reset</button></div>
           </div>
-          <div class="a-card" style="margin-top:12px;">
-            <div class="a-card-title">Bottoni navigazione</div>
-            <div id="navBtnList"></div>
-            <button class="a-btn primary" onclick="saveNavBtns()" style="margin-top:12px;">💾 Salva nav</button>
-          </div>
-
+          <div class="a-card" style="margin-top:12px;"><div class="a-card-title">Bottoni navigazione</div><div id="navBtnList"></div><button class="a-btn primary" onclick="saveNavBtns()" style="margin-top:12px;">💾 Salva nav</button></div>
           <div class="a-card" style="margin-top:12px;">
             <div class="a-card-title">Colori bottoni Stile artistico</div>
             <div class="a-row"><div class="a-row-label">Sfondo normale</div><input type="color" id="btnStyleBg" oninput="liveBtn('--btn-style-bg',this.value)" style="width:40px;height:28px;padding:1px;cursor:pointer;background:none;border:1px solid #2a2050;border-radius:5px;"></div>
@@ -515,21 +497,12 @@ body:not(.light) .adv-input{background:#1e1a3a;color:var(--text);}
             <div class="a-row"><div class="a-row-label">Bordo/testo attivo</div><input type="color" id="btnRatioActiveColor" oninput="liveBtn('--btn-ratio-active-color',this.value);liveBtn('--btn-ratio-active-border',this.value);" style="width:40px;height:28px;padding:1px;cursor:pointer;background:none;border:1px solid #2a2050;border-radius:5px;"></div>
           </div>
           <div class="a-card" style="margin-top:8px;">
-            <div class="a-card-title">Colori accordion Suggerimenti & Avanzate</div>
-            <div class="a-row"><div class="a-row-label">Sfondo</div><input type="color" id="accordionBg" oninput="liveBtn('--accordion-bg',this.value)" style="width:40px;height:28px;padding:1px;cursor:pointer;background:none;border:1px solid #2a2050;border-radius:5px;"></div>
-            <div class="a-row"><div class="a-row-label">Testo</div><input type="color" id="accordionColor" oninput="liveBtn('--accordion-color',this.value)" style="width:40px;height:28px;padding:1px;cursor:pointer;background:none;border:1px solid #2a2050;border-radius:5px;"></div>
-          </div>
-          <div class="a-card" style="margin-top:8px;">
             <div class="a-card-title">Bottone GENERA IMMAGINE</div>
             <div class="a-row"><div class="a-row-label">Sfondo</div><input type="color" id="genBtnBg" value="#5B35C8" oninput="liveBtn('--gen-btn-bg',this.value)" style="width:40px;height:28px;padding:1px;cursor:pointer;background:none;border:1px solid #2a2050;border-radius:5px;"></div>
             <div class="a-row"><div class="a-row-label">Testo</div><input type="color" id="genBtnColor" value="#FFFFFF" oninput="liveBtn('--gen-btn-color',this.value)" style="width:40px;height:28px;padding:1px;cursor:pointer;background:none;border:1px solid #2a2050;border-radius:5px;"></div>
           </div>
-          <div style="display:flex;gap:8px;margin-top:10px;">
-            <button class="a-btn primary" onclick="saveBtnColors()">💾 Salva colori bottoni</button>
-            <button class="a-btn ghost" onclick="resetBtnColors()">↺ Reset</button>
-          </div>
-        </div><!-- /asec-logo -->
-
+          <div style="display:flex;gap:8px;margin-top:10px;"><button class="a-btn primary" onclick="saveBtnColors()">💾 Salva colori bottoni</button><button class="a-btn ghost" onclick="resetBtnColors()">↺ Reset</button></div>
+        </div>
         <div class="admin-section" id="asec-stili">
           <div class="a-title">Stili AI</div><div class="a-desc">Attiva/disattiva stili. Aggiungi stili personalizzati.</div>
           <div class="a-card"><div class="a-card-title">Stili disponibili</div><div id="adminStyleList"></div></div>
@@ -541,6 +514,19 @@ body:not(.light) .adv-input{background:#1e1a3a;color:var(--text);}
           </div>
           <button class="a-btn primary" onclick="saveStyles()" style="margin-top:4px;">💾 Salva stili</button>
         </div>
+
+        <!-- MODIFICA 06 — nuova sezione admin Tag visivi -->
+        <div class="admin-section" id="asec-tag">
+          <div class="a-title">Tag visivi</div><div class="a-desc">Chip cliccabili sotto il prompt. Ogni tag aggiunge dettagli invisibili all'immagine generata.</div>
+          <div class="a-card"><div class="a-card-title">Tag disponibili</div><div id="adminTagList"></div></div>
+          <div class="a-card"><div class="a-card-title">Aggiungi tag</div>
+            <div class="a-row"><div class="a-row-label">Label italiano<div class="a-row-sub">Testo visibile sul chip</div></div><input type="text" id="newTagLabel" class="a-input" placeholder="Es: Sfondo bianco"></div>
+            <div class="a-row"><div class="a-row-label">Prompt inglese<div class="a-row-sub">Testo aggiunto all'immagine (invisibile)</div></div><input type="text" id="newTagPrompt" class="a-input" placeholder="Es: white background, clean"></div>
+            <button class="a-btn primary" onclick="addNewTag()" style="margin-top:10px;">+ Aggiungi tag</button>
+          </div>
+          <button class="a-btn primary" onclick="saveTags()" style="margin-top:4px;">💾 Salva tag</button>
+        </div>
+
         <div class="admin-section" id="asec-api">
           <div class="a-title">API</div><div class="a-desc">Provider di generazione immagini.</div>
           <div class="api-card" id="apiCard-pollinations"><div class="api-active-badge" id="apiBadge-pollinations">✓ ATTIVO</div><div class="api-name">🆓 Pollinations AI</div><div class="api-desc">Gratuito, illimitato, senza API key. Cooldown 16s.</div><button class="a-btn primary" onclick="setActiveApi('pollinations')">Usa questo</button></div>
@@ -565,7 +551,8 @@ body:not(.light) .adv-input{background:#1e1a3a;color:var(--text);}
         <div class="admin-section" id="asec-info">
           <div class="a-title">Info sistema</div><div class="a-desc">Stato e manutenzione.</div>
           <div class="a-card">
-            <div class="a-row"><div class="a-row-label">Versione</div><span style="color:var(--c-accent);font-weight:700;font-size:12px;">v2.2</span></div>
+            <!-- MODIFICA 02 — versione aggiornata a v2.7 -->
+            <div class="a-row"><div class="a-row-label">Versione</div><span style="color:var(--c-accent);font-weight:700;font-size:12px;">v2.7</span></div>
             <div class="a-row"><div class="a-row-label">API attiva</div><span id="infoActiveApi" style="color:var(--c-accent);font-weight:700;font-size:12px;">Pollinations AI</span></div>
             <div class="a-row"><div class="a-row-label">Tema</div><span id="infoTheme" style="color:#ccc;font-size:12px;">Dark</span></div>
             <div class="a-row"><div class="a-row-label">Immagini galleria</div><span id="infoGalleryCount" style="color:#ccc;font-size:12px;">0</span></div>
@@ -612,16 +599,11 @@ body:not(.light) .adv-input{background:#1e1a3a;color:var(--text);}
         </div>
         <div id="errorMsg">⚠ Scrivi cosa vuoi vedere!</div>
       </div>
-      <!-- PROMPT ASSISTANT — accordion separato -->
-      <div class="pa-accordion">
-        <div class="pa-header" id="paHeader" onclick="togglePA()">
-          <span class="pa-header-label">💡 Suggerimenti prompt</span>
-          <span class="pa-arrow">▼</span>
-        </div>
-        <div class="pa-body" id="paBody">
-          <div class="pa-cats" id="paCats"></div>
-          <div class="pa-prompts" id="paPrompts"></div>
-        </div>
+
+      <!-- MODIFICA 05 — CHIP DETTAGLI VISIVI (sostituisce accordion suggerimenti) -->
+      <div class="dv-wrap" style="margin-top:8px;">
+        <span class="dv-label">✨ Dettagli visivi</span>
+        <div class="dv-chips" id="dvChips"></div>
       </div>
     </div>
 
@@ -660,6 +642,9 @@ body:not(.light) .adv-input{background:#1e1a3a;color:var(--text);}
         </div>
       </div>
     </div>
+
+    <!-- spacer per spingere genBtn in fondo -->
+    <div class="controls-spacer"></div>
 
     <!-- GEN BUTTON -->
     <button id="genBtn" onclick="generateImage()">✨ GENERA IMMAGINE</button>
@@ -736,9 +721,6 @@ body:not(.light) .adv-input{background:#1e1a3a;color:var(--text);}
 </div>
 
 <script>
-/* ════════════════════════════════
-   DEFAULTS
-════════════════════════════════ */
 const DEFAULT_USERS=[{username:'WONDERSPIT',password:'369852147',role:'admin'}];
 
 const DEFAULT_STYLES_DATA=[
@@ -748,7 +730,6 @@ const DEFAULT_STYLES_DATA=[
   {id:'anime style, manga, japanese animation, clean lines',emoji:'🌸',label:'Anime',active:true},
   {id:'cyberpunk, neon lights, futuristic city, dark atmosphere',emoji:'🤖',label:'Cyber',active:true},
   {id:'minimalist, clean composition, elegant, negative space',emoji:'⬜',label:'Minimal',active:true},
-  // extra - gestibili da admin
   {id:'oil painting, classical art, rich colors, painterly brushstrokes',emoji:'🖼️',label:'Pittura',active:false},
   {id:'watercolor painting, soft flowing colors, artistic',emoji:'💧',label:'Acquarell',active:false},
   {id:'pixel art, 8-bit, retro game style, vibrant',emoji:'👾',label:'Pixel',active:false},
@@ -757,138 +738,74 @@ const DEFAULT_STYLES_DATA=[
   {id:'3D render, octane render, CGI, volumetric lighting',emoji:'🔮',label:'3D',active:false},
 ];
 
-/* PROMPT ASSISTANT — categorie e prompt 360° */
+/* MODIFICA 05 — DEFAULT TAG DETTAGLI VISIVI */
+const DEFAULT_TAGS_DATA=[
+  {label:'Luce cinema',prompt:'cinematic lighting',active:true},
+  {label:'Ora dorata',prompt:'golden hour lighting, warm sunset glow',active:true},
+  {label:'Ombre dramm.',prompt:'dramatic shadows, moody lighting',active:true},
+  {label:'Luce soffusa',prompt:'soft diffused light, gentle illumination',active:true},
+  {label:'Neon',prompt:'neon lights, glowing neon',active:true},
+  {label:'Colori vivaci',prompt:'vibrant colors, highly saturated',active:true},
+  {label:'Pastello',prompt:'pastel colors, soft palette',active:true},
+  {label:'B&N',prompt:'black and white, monochromatic',active:true},
+  {label:'Dark misterioso',prompt:'dark moody atmosphere, deep shadows',active:true},
+  {label:'Ultra dettagliato',prompt:'ultra detailed, 8K resolution, sharp focus',active:true},
+  {label:'Sfondo bianco',prompt:'white background, clean background, isolated',active:true},
+  {label:'Sfondo trasp.',prompt:'transparent background, no background',active:true},
+  {label:'Sfondo sfocato',prompt:'depth of field, bokeh background blur',active:true},
+  {label:'Macro',prompt:'macro photography, extreme close-up, intricate details',active:true},
+  {label:'Vista dall\'alto',prompt:'bird eye view, aerial view, top down',active:true},
+  {label:'Simmetrico',prompt:'symmetrical composition, perfectly centered',active:true},
+  {label:'Vista dal basso',prompt:'worms eye view, dramatic low angle',active:true},
+  {label:'Nebbia eterea',prompt:'foggy misty atmosphere, ethereal haze',active:true},
+  {label:'Vintage retro',prompt:'retro vintage style, aged film grain',active:true},
+  {label:'Stile sticker',prompt:'sticker design, flat vector, bold outline, no background',active:true},
+];
+
 const PA_DATA={
-  '🐾 Animali':[
-    'un corgi astronauta che galleggia nello spazio con tuta vintage',
-    'una tigre del Bengala in stile giapponese ukiyo-e, onde di Hokusai',
-    'un gufo steampunk con occhiali meccanici e ingranaggi dorati',
-    'un polpo che suona la chitarra elettrica su un palco rock',
-    'un gatto samurai con katana sotto la pioggia notturna neon',
-    'un orso grizzly che medita su una montagna al tramonto',
-  ],
-  '🚀 Fantascienza':[
-    'una città futuristica sospesa tra le nuvole, architettura biopunk',
-    'un robot antico abbandonato nella giungla ricoperto di muschio',
-    'un astronauta solitario su un pianeta viola con due lune',
-    'una navicella spaziale vintage degli anni 50 che atterra su Marte',
-    'un cyborg donna con capelli neon in un vicolo cyberpunk piovoso',
-    'un portale dimensionale che si apre in una foresta di cristallo',
-  ],
-  '🌿 Natura':[
-    'una cascata che scende tra montagne innevate al tramonto dorato',
-    'una foresta bioluminescente di notte con funghi luminosi blu',
-    'un oceano tempestoso con onde enormi sotto un cielo viola',
-    'un campo di girasoli con aurora boreale sullo sfondo',
-    'una grotta di ghiaccio con stalattiti di cristallo iridescente',
-    'un vulcano attivo al tramonto con colata lavica arancione',
-  ],
-  '🎨 Arte & Design':[
-    'un ritratto in stile pop art anni 60 con colori saturi e mezzitoni',
-    'una composizione astratta geometrica ispirata al Bauhaus',
-    'uno skyline di città in stile Art Nouveau con ornamenti floreali',
-    'un mandala intricato con simboli cosmici e colori vivaci',
-    'una scena surrealista stile Dalì con orologi che si sciolgono',
-    'un poster vintage da viaggio anni 30 con grafica retro lineare',
-  ],
-  '🏙 Urban':[
-    'un vicolo di Tokyo di notte con insegne neon che si riflettono nella pioggia',
-    'un muro di graffiti urbani coloratissimi stile street art',
-    'un mercato di spezie marocchino con colori vivaci e luce dorata',
-    'una stazione metropolitana futuristica con architettura organica',
-    'un rooftop newyorkese di notte con skyline illuminato',
-    'una bicicletta abbandonata con fiori che crescono tra i raggi',
-  ],
-  '✨ Magico':[
-    'una biblioteca infinita con libri che volano tra scaffali dorati',
-    'un drago di cristallo che dorme avvolto in una foresta incantata',
-    'un castello di nuvole che galleggia sopra un mare di nebbia',
-    'una strega con cappello che prepara una pozione luminosa verde',
-    'una porta di legno antico che si apre su un mondo parallelo colorato',
-    'un unicorno di nebbia che corre attraverso un campo stellato',
-  ],
-  '🍕 Cibo & Vita':[
-    'una pizza napoletana stilizzata come opera d\'arte pop art',
-    'un mercato del pesce giapponese all\'alba con luci calde',
-    'un caffè parigino di notte con luci dorate e passanti sfocati',
-    'una cucina italiana rustica con pasta fresca e pomodori',
-    'un cocktail bar anni 20 con atmosfera jazz e luci soffuse',
-    'una gelateria colorata con gusti impossibili e colori surreali',
-  ],
-  '🎵 Musica':[
-    'una chitarra elettrica esplosa in schegge di luce colorata',
-    'un DJ in una discoteca anni 80 con luci laser e fumo',
-    'un pianoforte a coda in una foresta nebbiosa di notte',
-    'una band jazz in un club buio con luci calde soffuse',
-    'cuffie da studio che emettono onde sonore visibili come colori',
-    'un violinista di strada sotto la pioggia a Parigi',
-  ],
+  '🐾 Animali':['un corgi astronauta che galleggia nello spazio con tuta vintage','una tigre del Bengala in stile giapponese ukiyo-e, onde di Hokusai','un gufo steampunk con occhiali meccanici e ingranaggi dorati','un polpo che suona la chitarra elettrica su un palco rock','un gatto samurai con katana sotto la pioggia notturna neon','un orso grizzly che medita su una montagna al tramonto'],
+  '🚀 Fantascienza':['una città futuristica sospesa tra le nuvole, architettura biopunk','un robot antico abbandonato nella giungla ricoperto di muschio','un astronauta solitario su un pianeta viola con due lune','una navicella spaziale vintage degli anni 50 che atterra su Marte','un cyborg donna con capelli neon in un vicolo cyberpunk piovoso','un portale dimensionale che si apre in una foresta di cristallo'],
+  '🌿 Natura':['una cascata che scende tra montagne innevate al tramonto dorato','una foresta bioluminescente di notte con funghi luminosi blu','un oceano tempestoso con onde enormi sotto un cielo viola','un campo di girasoli con aurora boreale sullo sfondo','una grotta di ghiaccio con stalattiti di cristallo iridescente','un vulcano attivo al tramonto con colata lavica arancione'],
+  '🎨 Arte & Design':['un ritratto in stile pop art anni 60 con colori saturi e mezzitoni','una composizione astratta geometrica ispirata al Bauhaus','uno skyline di città in stile Art Nouveau con ornamenti floreali','un mandala intricato con simboli cosmici e colori vivaci','una scena surrealista stile Dalì con orologi che si sciolgono','un poster vintage da viaggio anni 30 con grafica retro lineare'],
+  '🏙 Urban':['un vicolo di Tokyo di notte con insegne neon che si riflettono nella pioggia','un muro di graffiti urbani coloratissimi stile street art','un mercato di spezie marocchino con colori vivaci e luce dorata','una stazione metropolitana futuristica con architettura organica','un rooftop newyorkese di notte con skyline illuminato','una bicicletta abbandonata con fiori che crescono tra i raggi'],
+  '✨ Magico':['una biblioteca infinita con libri che volano tra scaffali dorati','un drago di cristallo che dorme avvolto in una foresta incantata','un castello di nuvole che galleggia sopra un mare di nebbia','una strega con cappello che prepara una pozione luminosa verde','una porta di legno antico che si apre su un mondo parallelo colorato','un unicorno di nebbia che corre attraverso un campo stellato'],
+  '🍕 Cibo & Vita':['una pizza napoletana stilizzata come opera d\'arte pop art','un mercato del pesce giapponese all\'alba con luci calde','un caffè parigino di notte con luci dorate e passanti sfocati','una cucina italiana rustica con pasta fresca e pomodori','un cocktail bar anni 20 con atmosfera jazz e luci soffuse','una gelateria colorata con gusti impossibili e colori surreali'],
+  '🎵 Musica':['una chitarra elettrica esplosa in schegge di luce colorata','un DJ in una discoteca anni 80 con luci laser e fumo','un pianoforte a coda in una foresta nebbiosa di notte','una band jazz in un club buio con luci calde soffuse','cuffie da studio che emettono onde sonore visibili come colori','un violinista di strada sotto la pioggia a Parigi'],
 };
 
-/* DADO — prompt completi 360° */
 const DICE_FULL=[
-  // Animali
   {p:'un gatto nero con occhi galattici seduto su un libro antico aperto, sfondo candele accese, atmosfera misteriosa',s:'fantasy art, magical, epic scene, dramatic lighting'},
   {p:'un delfino che salta fuori dall\'oceano lasciando una scia di stelle bioluminescenti di notte',s:'digital art, concept art, vibrant colors, highly detailed'},
   {p:'un leone con criniera fatta di raggi di sole dorati, ritratto epico stile africano',s:'oil painting, classical art, rich colors, painterly brushstrokes'},
   {p:'una volpe rossa che corre nella neve sotto l\'aurora boreale, silhouette drammatica',s:'minimalist, clean composition, elegant, negative space'},
-  // Fantascienza
   {p:'una città sommersa atlantide ritrovata con edifici coperti di coralli colorati e pesci tropicali',s:'digital art, concept art, vibrant colors, highly detailed'},
   {p:'un esercito di robot vintage arrugginiti che guardano un tramonto su un pianeta deserto',s:'photorealistic, ultra detailed, real photo, sharp focus'},
   {p:'una stazione spaziale abbandonata che orbita intorno a un pianeta di ghiaccio azzurro',s:'3D render, octane render, CGI, volumetric lighting'},
   {p:'una mappa stellare olografica che galleggia nell\'aria con costellazioni illuminate in blu',s:'cyberpunk, neon lights, futuristic city, dark atmosphere'},
-  // Natura
   {p:'una sequoia gigante di tremila anni in autunno con foglie dorate che cadono in spirale',s:'photorealistic, ultra detailed, real photo, sharp focus'},
   {p:'un tornado di colori primari che attraversa una pianura bianca, surrealismo puro',s:'digital art, concept art, vibrant colors, highly detailed'},
   {p:'una grotta sottomarina con luce che filtra dall\'alto e pesci che nuotano tra colonne di roccia',s:'photorealistic, ultra detailed, real photo, sharp focus'},
   {p:'il Monte Fuji riflesso perfettamente in un lago al tramonto rosa e arancione',s:'minimalist, clean composition, elegant, negative space'},
-  // Arte
   {p:'un ritratto cubista di una donna in stile Picasso con colori primari geometrici',s:'digital art, concept art, vibrant colors, highly detailed'},
   {p:'mani umane che tengono il globo terrestre fatto di fiori colorati, concetto ecologico',s:'photorealistic, ultra detailed, real photo, sharp focus'},
   {p:'un orologio che si scioglie su una spiaggia deserta al tramonto, omaggio a Dalì',s:'oil painting, classical art, rich colors, painterly brushstrokes'},
   {p:'alfabeto greco dorato che galleggia su uno sfondo di marmo bianco, classicismo moderno',s:'minimalist, clean composition, elegant, negative space'},
-  // Urban
   {p:'Times Square di New York in un giorno di pioggia con riflessi colorati sull\'asfalto bagnato',s:'photorealistic, ultra detailed, real photo, sharp focus'},
   {p:'un mercato notturno di Bangkok con lampioni di carta e bancarelle di street food illuminati',s:'photorealistic, ultra detailed, real photo, sharp focus'},
   {p:'graffiti urbani giganti su un edificio abbandonato che raffigurano un bosco incantato',s:'digital art, concept art, vibrant colors, highly detailed'},
   {p:'una via di Barcellona con architettura Gaudì al tramonto con colori caldi arancio viola',s:'photorealistic, ultra detailed, real photo, sharp focus'},
-  // Magico
   {p:'una fata della foresta che danza tra funghi luminosi blu in una notte nebbiosa',s:'fantasy art, magical, epic scene, dramatic lighting'},
   {p:'un libro antico che si apre rivelando un universo in miniatura con pianeti e stelle',s:'fantasy art, magical, epic scene, dramatic lighting'},
   {p:'una fenice che rinasce dalle fiamme con ali di fuoco arancio e oro su sfondo nero',s:'digital art, concept art, vibrant colors, highly detailed'},
   {p:'un castello medievale avvolto dalla nebbia su una collina con luna piena sullo sfondo',s:'fantasy art, magical, epic scene, dramatic lighting'},
-  // Cibo
   {p:'una torta a più piani decorata come un palazzo vittoriano in miniatura con dettagli incredibili',s:'photorealistic, ultra detailed, real photo, sharp focus'},
   {p:'un sushi boat galleggiante su un fiume di salsa di soia con ponticelli di wasabi',s:'digital art, concept art, vibrant colors, highly detailed'},
-  // Musica
   {p:'una sala da concerto barocca con orchestra che suona mentre note musicali volano nell\'aria',s:'oil painting, classical art, rich colors, painterly brushstrokes'},
   {p:'un festival musicale open air di notte con luci laser coloratissime e folla che balla',s:'photorealistic, ultra detailed, real photo, sharp focus'},
-  // Vintage
   {p:'una Cadillac rosa degli anni 50 parcheggiata davanti a un diner americano al tramonto',s:'photorealistic, ultra detailed, real photo, sharp focus'},
   {p:'un poster di viaggio stile anni 30 per la luna con astronauti in tuta vintage',s:'minimalist, clean composition, elegant, negative space'},
-  // Astratto
   {p:'un\'esplosione di colori primari che formano un vortice cosmico astratto su sfondo nero',s:'digital art, concept art, vibrant colors, highly detailed'},
   {p:'geometrie impossibili di marmo bianco che si intersecano nello spazio senza gravità',s:'minimalist, clean composition, elegant, negative space'},
-];
-
-/* DADO — aggiunte coerenti con testo esistente */
-const DICE_ADD=[
-  'con colori neon vivacissimi e sfondo scuro drammatico',
-  'stile acquerello delicato con palette pastello',
-  'illuminato da una luce cinematografica dorata al tramonto',
-  'in stile retro anni 80 con colori saturi e grafica vettoriale',
-  'su sfondo bianco minimalista con ombre morbide',
-  'con effetto glitch digitale e pixel colorati',
-  'atmosfera nebbiosa e misteriosa con luci soffuse',
-  'ultra dettagliato, qualità fotografica 8K',
-  'stile manga giapponese con linee pulite e espressioni dinamiche',
-  'come illustrazione di un libro vintage anni 50',
-  'con texture di pennellate pittoriche visibili',
-  'in stile mosaico romano con tesserine colorate',
-  'prospettiva dal basso drammatica con cielo sullo sfondo',
-  'vista aerea dall\'alto come in un dipinto di Klimt',
-  'monocromatico con un singolo colore accento vivido',
-  'con effetto long exposure fotografico e scie di luce',
 ];
 
 const RATIOS=[{id:'1:1',w:1024,h:1024,icon:'▪',label:'1:1'},{id:'16:9',w:1280,h:720,icon:'▬',label:'16:9'},{id:'9:16',w:720,h:1280,icon:'▮',label:'9:16'},{id:'4:3',w:1024,h:768,icon:'▭',label:'4:3'}];
@@ -900,15 +817,16 @@ const BRAND_PALETTES=[
   {name:'Neon Caldo',c:{accent:'#FFE600',accent2:'#F0008C',violet:'#5B35C8'}},
 ];
 
-const ST={style:'',ratio:'1:1',enhance:true,safe:true,gallery:[],currentUrl:'',currentPrompt:'',lastGenTime:0,busy:false,theme:'light',activeApi:'pollinations',cooldown:16000,timeout:80000};
-let STYLES=[],adminLoggedIn=false,currentAdminUser=null,lpTimer=null,currentPaCat=null;
+const ST={style:'',ratio:'1:1',enhance:true,safe:true,gallery:[],currentUrl:'',currentPrompt:'',currentStyle:'',lastGenTime:0,busy:false,theme:'light',activeApi:'pollinations',cooldown:16000,timeout:80000};
+let STYLES=[],TAGS=[],adminLoggedIn=false,currentAdminUser=null,lpTimer=null,currentPaCat=null;
 const isMobile=()=>window.innerWidth<1024;
 
 /* ── INIT ── */
 document.addEventListener('DOMContentLoaded',()=>{
   detectLayout();
-  loadSaved(); loadStyles(); loadNavBtns(); loadBtnColors(); buildStyles(); buildRatios(); buildPA(); initLongPress();
-  loadLogoFromStorage(); applyNavBtns();
+  loadSaved();loadStyles();loadTags();loadNavBtns();loadBtnColors();
+  buildStyles();buildRatios();buildDvChips();initLongPress();
+  loadLogoFromStorage();applyNavBtns();
   window.addEventListener('resize',detectLayout);
 });
 
@@ -923,47 +841,72 @@ function detectLayout(){
     document.getElementById('sidebar').style.display='none';
     document.getElementById('preview-col').style.display='none';
     const activeNav=document.querySelector('.nav-btn.active');
-    const t=activeNav?.id?.replace('nav-','') || 'create';
+    const t=activeNav?.id?.replace('nav-','')||'create';
     switchTab(t);
   }
 }
 
 function loadSaved(){
   try{ST.gallery=JSON.parse(localStorage.getItem('ig_gallery')||'[]');}catch(e){}
-  const t=localStorage.getItem('ig_theme')||'light'; applyTheme(t);
-  const c=JSON.parse(localStorage.getItem('ig_colors')||'null'); if(c) applyColors(c);
-  const f=JSON.parse(localStorage.getItem('ig_fonts')||'null'); if(f) applyFonts(f);
+  const t=localStorage.getItem('ig_theme')||'light';applyTheme(t);
+  const c=JSON.parse(localStorage.getItem('ig_colors')||'null');if(c) applyColors(c);
+  const f=JSON.parse(localStorage.getItem('ig_fonts')||'null');if(f) applyFonts(f);
   ST.activeApi=localStorage.getItem('ig_active_api')||'pollinations';
-  const cd=localStorage.getItem('ig_cooldown'); if(cd) ST.cooldown=parseInt(cd);
-  const to=localStorage.getItem('ig_timeout'); if(to) ST.timeout=parseInt(to);
+  const cd=localStorage.getItem('ig_cooldown');if(cd) ST.cooldown=parseInt(cd);
+  const to=localStorage.getItem('ig_timeout');if(to) ST.timeout=parseInt(to);
   updateApiInfo();
 }
 
-/* ── PROMPT ASSISTANT ── */
-function togglePA(){
-  const h=document.getElementById('paHeader');
-  const b=document.getElementById('paBody');
-  h.classList.toggle('open');
-  b.classList.toggle('open');
+/* MODIFICA 05 — CHIP DETTAGLI VISIVI */
+function loadTags(){const s=localStorage.getItem('ig_tags');TAGS=s?JSON.parse(s):JSON.parse(JSON.stringify(DEFAULT_TAGS_DATA));}
+function saveTags(){localStorage.setItem('ig_tags',JSON.stringify(TAGS));buildDvChips();renderAdminTagList();msg('✓ Tag salvati!');}
+
+function buildDvChips(){
+  const el=document.getElementById('dvChips');if(!el) return;
+  el.innerHTML='';
+  TAGS.filter(t=>t.active).forEach((t,i)=>{
+    const btn=document.createElement('button');
+    btn.className='dv-chip';
+    btn.textContent=t.label;
+    btn.dataset.prompt=t.prompt;
+    btn.onclick=()=>{
+      btn.classList.toggle('active');
+    };
+    el.appendChild(btn);
+  });
 }
-function buildPA(){
-  const catsEl=document.getElementById('paCats');
-  const cats=Object.keys(PA_DATA);
-  catsEl.innerHTML=cats.map(c=>`<button class="pa-cat" onclick="selectPaCat('${c}',this)">${c}</button>`).join('');
-  selectPaCat(cats[0],catsEl.firstChild);
+
+function getActiveTagsPrompt(){
+  const chips=document.querySelectorAll('.dv-chip.active');
+  return Array.from(chips).map(c=>c.dataset.prompt).filter(Boolean).join(', ');
 }
-function selectPaCat(cat,btn){
-  currentPaCat=cat;
-  document.querySelectorAll('.pa-cat').forEach(b=>b.classList.remove('active'));
-  if(btn) btn.classList.add('active');
-  const prompts=PA_DATA[cat]||[];
-  document.getElementById('paPrompts').innerHTML=prompts.map(p=>`<button class="pa-prompt" onclick="applyPaPrompt('${p.replace(/'/g,"\\'")}')">📝 ${p.substring(0,55)}…</button>`).join('');
+
+function renderAdminTagList(){
+  const el=document.getElementById('adminTagList');if(!el) return;
+  el.innerHTML=TAGS.map((t,i)=>`
+    <div class="dv-item">
+      <div class="dv-item-info">
+        <div class="dv-item-label">${t.label}</div>
+        <div class="dv-item-prompt">${t.prompt}</div>
+      </div>
+      <div style="display:flex;gap:5px;align-items:center;">
+        <button class="s-toggle ${t.active?'on':''}" onclick="toggleTag(${i},this)"><div class="s-toggle-thumb"></div></button>
+        <button class="a-btn danger" style="padding:3px 7px;font-size:10px;" onclick="deleteTag(${i})">✕</button>
+      </div>
+    </div>`).join('');
 }
-function applyPaPrompt(p){
-  document.getElementById('promptInput').value=p;
-  document.getElementById('promptInput').focus();
-  document.getElementById('promptBox').classList.remove('err');
-  document.getElementById('errorMsg').style.display='none';
+
+function toggleTag(i,btn){TAGS[i].active=!TAGS[i].active;btn.classList.toggle('on',TAGS[i].active);btn.querySelector('.s-toggle-thumb').style.left=TAGS[i].active?'19px':'3px';}
+function deleteTag(i){if(!confirm(`Elimina "${TAGS[i].label}"?`)) return;TAGS.splice(i,1);renderAdminTagList();}
+function addNewTag(){
+  const l=document.getElementById('newTagLabel').value.trim();
+  const p=document.getElementById('newTagPrompt').value.trim();
+  if(!l){alert('Inserisci una label');return;}
+  TAGS.push({label:l,prompt:p,active:true});
+  document.getElementById('newTagLabel').value='';
+  document.getElementById('newTagPrompt').value='';
+  renderAdminTagList();
+  msg('Tag aggiunto — premi Salva');
 }
 
 /* ── DADO ── */
@@ -975,8 +918,7 @@ function rollDice(){
   document.getElementById('promptInput').value=pick.p;
   const match=STYLES.find(s=>s.id===pick.s&&s.active);
   if(match){
-    ST.style=match.id;
-    buildStyles();
+    ST.style=match.id;buildStyles();
     const btns=document.querySelectorAll('.style-btn');
     STYLES.filter(s=>s.active).forEach((s,i)=>{if(s.id===pick.s&&btns[i]) btns[i].classList.add('active');});
   }
@@ -995,43 +937,23 @@ function toggleAccordion(){
 
 function liveBtn(cssVar,val){document.documentElement.style.setProperty(cssVar,val);}
 function saveBtnColors(){
-  const keys=['--btn-style-bg','--btn-style-color','--btn-style-active-bg','--btn-style-active-color','--btn-style-active-border',
-    '--btn-ratio-active-bg','--btn-ratio-active-color','--btn-ratio-active-border',
-    '--accordion-bg','--accordion-color','--gen-btn-bg','--gen-btn-color'];
-  const saved={};
-  keys.forEach(k=>{saved[k]=getComputedStyle(document.documentElement).getPropertyValue(k).trim();});
-  localStorage.setItem('ig_btn_colors',JSON.stringify(saved));
-  msg('✓ Colori bottoni salvati');
+  const keys=['--btn-style-bg','--btn-style-color','--btn-style-active-bg','--btn-style-active-color','--btn-style-active-border','--btn-ratio-active-bg','--btn-ratio-active-color','--btn-ratio-active-border','--accordion-bg','--accordion-color','--gen-btn-bg','--gen-btn-color'];
+  const saved={};keys.forEach(k=>{saved[k]=getComputedStyle(document.documentElement).getPropertyValue(k).trim();});
+  localStorage.setItem('ig_btn_colors',JSON.stringify(saved));msg('✓ Colori bottoni salvati');
 }
 function resetBtnColors(){localStorage.removeItem('ig_btn_colors');location.reload();}
-function loadBtnColors(){
-  const s=localStorage.getItem('ig_btn_colors');if(!s) return;
-  const saved=JSON.parse(s);
-  Object.entries(saved).forEach(([k,v])=>document.documentElement.style.setProperty(k,v));
-}
+function loadBtnColors(){const s=localStorage.getItem('ig_btn_colors');if(!s) return;const saved=JSON.parse(s);Object.entries(saved).forEach(([k,v])=>document.documentElement.style.setProperty(k,v));}
 
 /* ── LOGO & NAV ADMIN ── */
-const DEFAULT_NAV_BTNS=[
-  {id:'create',label:'Crea',icon:'✦',bg:null,color:null},
-  {id:'gallery',label:'Galleria',icon:'🖼',bg:null,color:null},
-];
+const DEFAULT_NAV_BTNS=[{id:'create',label:'Crea',icon:'✦',bg:null,color:null},{id:'gallery',label:'Galleria',icon:'🖼',bg:null,color:null}];
 let NAV_BTNS=[];
 function loadNavBtns(){const s=localStorage.getItem('ig_nav_btns');NAV_BTNS=s?JSON.parse(s):JSON.parse(JSON.stringify(DEFAULT_NAV_BTNS));}
 function applyNavBtns(){
   NAV_BTNS.forEach(b=>{
     const sn=document.getElementById('snav-'+b.id);
-    if(sn){
-      if(b.bg){sn.style.background=b.bg;}
-      if(b.color){sn.style.color=b.color;}
-      const icon=sn.querySelector('.snav-icon');if(icon) icon.textContent=b.icon;
-      sn.childNodes.forEach(n=>{if(n.nodeType===3&&n.textContent.trim()) n.textContent=' '+b.label;});
-    }
+    if(sn){if(b.bg) sn.style.background=b.bg;if(b.color) sn.style.color=b.color;const icon=sn.querySelector('.snav-icon');if(icon) icon.textContent=b.icon;sn.childNodes.forEach(n=>{if(n.nodeType===3&&n.textContent.trim()) n.textContent=' '+b.label;});}
     const nb=document.getElementById('nav-'+b.id);
-    if(nb){
-      const lbl=nb.querySelector('.nav-label');if(lbl) lbl.textContent=b.label;
-      const ic=nb.querySelector('.nav-icon');if(ic) ic.textContent=b.icon;
-      if(b.bg) nb.style.background=b.bg;
-    }
+    if(nb){const lbl=nb.querySelector('.nav-label');if(lbl) lbl.textContent=b.label;const ic=nb.querySelector('.nav-icon');if(ic) ic.textContent=b.icon;if(b.bg) nb.style.background=b.bg;}
   });
 }
 function buildNavBtnList(){
@@ -1049,8 +971,7 @@ function buildNavBtnList(){
 }
 function saveNavBtns(){localStorage.setItem('ig_nav_btns',JSON.stringify(NAV_BTNS));applyNavBtns();msg('✓ Nav salvata');}
 function saveLogo(){
-  const d=document.getElementById('logoDesktopUrl').value.trim();
-  const m=document.getElementById('logoMobileUrl').value.trim();
+  const d=document.getElementById('logoDesktopUrl').value.trim();const m=document.getElementById('logoMobileUrl').value.trim();
   if(d){localStorage.setItem('ig_logo_desktop',d);const el=document.getElementById('logoImgDesktop');if(el) el.src=d;}
   if(m){localStorage.setItem('ig_logo_mobile',m);const el=document.getElementById('logoImgMobile');if(el) el.src=m;}
   msg('✓ Logo salvato');
@@ -1064,19 +985,12 @@ function resetLogo(){
 function loadLogoFromStorage(){
   const d=localStorage.getItem('ig_logo_desktop');const m=localStorage.getItem('ig_logo_mobile');
   const de=document.getElementById('logoImgDesktop');const me=document.getElementById('logoImgMobile');
-  if(d&&de) de.src=d; if(m&&me) me.src=m;
-  // Pre-fill admin inputs
+  if(d&&de) de.src=d;if(m&&me) me.src=m;
   const di=document.getElementById('logoDesktopUrl');const mi=document.getElementById('logoMobileUrl');
-  if(d&&di) di.value=d; if(m&&mi) mi.value=m;
+  if(d&&di) di.value=d;if(m&&mi) mi.value=m;
 }
 
-function applyTheme(t){
-  document.body.classList.toggle('light',t==='light');
-  const lbl=document.getElementById('themeLabel');
-  if(lbl) lbl.textContent=t==='light'?'Light':'Dark';
-  const desk=document.getElementById('themeToggleDesktop');if(desk) desk.textContent=(t==='light'?'🌙':'☀️')+' Cambia tema';
-  ST.theme=t;
-}
+function applyTheme(t){document.body.classList.toggle('light',t==='light');const lbl=document.getElementById('themeLabel');if(lbl) lbl.textContent=t==='light'?'Light':'Dark';const desk=document.getElementById('themeToggleDesktop');if(desk) desk.textContent=(t==='light'?'🌙':'☀️')+' Cambia tema';ST.theme=t;}
 function toggleTheme(){const n=ST.theme==='dark'?'light':'dark';applyTheme(n);localStorage.setItem('ig_theme',n);const s=document.getElementById('aThemeSelect');if(s) s.value=n;}
 function adminApplyTheme(t){applyTheme(t);localStorage.setItem('ig_theme',t);}
 
@@ -1134,12 +1048,12 @@ function deleteUser(i){const users=loadUsers();if(users[i].username==='WONDERSPI
 function initLongPress(){['sidebarLogo','mobileLogoTitle'].forEach(id=>{const el=document.getElementById(id);if(!el) return;el.addEventListener('mousedown',()=>{lpTimer=setTimeout(openAdmin,3000);});el.addEventListener('touchstart',()=>{lpTimer=setTimeout(openAdmin,3000);},{passive:true});['mouseup','mouseleave','touchend'].forEach(ev=>el.addEventListener(ev,()=>clearTimeout(lpTimer)));});}
 function openAdmin(){document.getElementById('adminOverlay').classList.add('open');if(adminLoggedIn){showAdminPanel(currentAdminUser);}else{document.getElementById('adminLogin').style.display='flex';document.getElementById('adminPanel').classList.remove('open');}}
 function doAdminLogin(){const u=document.getElementById('adminUser').value.trim();const p=document.getElementById('adminPass').value;const users=loadUsers();const found=users.find(x=>x.username===u&&x.password===p);if(found){adminLoggedIn=true;currentAdminUser=found;document.getElementById('loginError').style.display='none';document.getElementById('adminUser').value='';document.getElementById('adminPass').value='';showAdminPanel(found);}else{document.getElementById('loginError').style.display='block';}}
-function showAdminPanel(user){document.getElementById('adminLogin').style.display='none';document.getElementById('adminPanel').classList.add('open');document.getElementById('adminUserLabel').textContent='👤 '+user.username;loadSavedApiKeys();updateApiCards();renderAdminStyleList();renderUserList();buildNavBtnList();loadLogoFromStorage();document.getElementById('aThemeSelect').value=ST.theme;document.getElementById('infoTheme').textContent=ST.theme==='dark'?'Dark':'Light';document.getElementById('infoGalleryCount').textContent=ST.gallery.length;buildBrandSwatches();}
+function showAdminPanel(user){document.getElementById('adminLogin').style.display='none';document.getElementById('adminPanel').classList.add('open');document.getElementById('adminUserLabel').textContent='👤 '+user.username;loadSavedApiKeys();updateApiCards();renderAdminStyleList();renderAdminTagList();renderUserList();buildNavBtnList();loadLogoFromStorage();document.getElementById('aThemeSelect').value=ST.theme;document.getElementById('infoTheme').textContent=ST.theme==='dark'?'Dark':'Light';document.getElementById('infoGalleryCount').textContent=ST.gallery.length;buildBrandSwatches();}
 function closeAdmin(){document.getElementById('adminOverlay').classList.remove('open');}
 function aTab(n,btn){document.querySelectorAll('.admin-section').forEach(s=>s.classList.remove('active'));document.querySelectorAll('.admin-tab').forEach(b=>b.classList.remove('active'));document.getElementById('asec-'+n).classList.add('active');btn.classList.add('active');}
 function msg(m){const el=document.getElementById('adminSaveMsg');if(!el) return;el.textContent=m;el.classList.add('ok');setTimeout(()=>{el.textContent='Modifica e salva';el.classList.remove('ok');},3000);}
 function clearGallery(){if(!confirm('Svuotare la galleria?')) return;ST.gallery=[];localStorage.removeItem('ig_gallery');document.getElementById('infoGalleryCount').textContent=0;msg('✓ Svuotata');}
-function resetAllAdmin(){if(!confirm('Reset tutto?')) return;['ig_colors','ig_fonts','ig_styles','ig_active_api','ig_cooldown','ig_timeout'].forEach(k=>localStorage.removeItem(k));applyColors({accent:'#00E5C8',accent2:'#F0008C',violet:'#5B35C8'});applyFonts({title:'Bangers',body:'Space Grotesk'});loadStyles();buildStyles();ST.activeApi='pollinations';ST.cooldown=16000;ST.timeout=80000;updateApiInfo();msg('✓ Reset');}
+function resetAllAdmin(){if(!confirm('Reset tutto?')) return;['ig_colors','ig_fonts','ig_styles','ig_tags','ig_active_api','ig_cooldown','ig_timeout'].forEach(k=>localStorage.removeItem(k));applyColors({accent:'#00E5C8',accent2:'#F0008C',violet:'#5B35C8'});applyFonts({title:'Bangers',body:'Space Grotesk'});loadStyles();loadTags();buildStyles();buildDvChips();ST.activeApi='pollinations';ST.cooldown=16000;ST.timeout=80000;updateApiInfo();msg('✓ Reset');}
 
 /* ── STATUS/COOLDOWN ── */
 function setStatus(m,t){const bar=document.getElementById('statusBar'),sp=document.getElementById('statusSpin'),tx=document.getElementById('statusText');if(!m){bar.className='';return;}bar.className='show '+(t||'');sp.style.display=t==='loading'?'block':'none';tx.textContent=m;}
@@ -1150,7 +1064,18 @@ function showCooldown(ms){const bar=document.getElementById('cooldownBar'),fill=
 function showOutput(v){const out=document.getElementById('outputArea'),ph=document.getElementById('previewPlaceholder'),pc=document.getElementById('preview-col');if(v){out.classList.add('visible');out.style.display='flex';if(ph) ph.style.display='none';if(isMobile()&&pc) pc.classList.add('output-active');}else{out.classList.remove('visible');out.style.display='none';if(ph) ph.style.display='flex';if(pc) pc.classList.remove('output-active');}}
 
 /* ── GENERATE ── */
-function buildUrl(model){const prompt=document.getElementById('promptInput').value.trim();const ratio=RATIOS.find(r=>r.id===ST.ratio);const full=prompt+(ST.style?', '+ST.style:'');const seedEl=document.getElementById('seedInput');const seed=seedEl&&seedEl.value?seedEl.value:Math.floor(Math.random()*999999);const neg=document.getElementById('negPrompt');const p=new URLSearchParams({width:ratio.w,height:ratio.h,model,nologo:'true',enhance:ST.enhance?'true':'false',safe:ST.safe?'true':'false',seed});if(neg&&neg.value.trim()) p.append('negative',neg.value.trim());return `https://image.pollinations.ai/prompt/${encodeURIComponent(full)}?${p}`;}
+function buildUrl(model){
+  const prompt=document.getElementById('promptInput').value.trim();
+  const tags=getActiveTagsPrompt();
+  const ratio=RATIOS.find(r=>r.id===ST.ratio);
+  const full=prompt+(ST.style?', '+ST.style:'')+(tags?', '+tags:'');
+  const seedEl=document.getElementById('seedInput');
+  const seed=seedEl&&seedEl.value?seedEl.value:Math.floor(Math.random()*999999);
+  const neg=document.getElementById('negPrompt');
+  const p=new URLSearchParams({width:ratio.w,height:ratio.h,model,nologo:'true',enhance:ST.enhance?'true':'false',safe:ST.safe?'true':'false',seed});
+  if(neg&&neg.value.trim()) p.append('negative',neg.value.trim());
+  return `https://image.pollinations.ai/prompt/${encodeURIComponent(full)}?${p}`;
+}
 function tryLoad(url){return new Promise((res,rej)=>{const t=setTimeout(()=>rej('timeout'),ST.timeout);const img=new Image();img.onload=()=>{clearTimeout(t);res(url);};img.onerror=()=>{clearTimeout(t);rej('error');};img.src=url;});}
 
 async function generateImage(){
@@ -1163,10 +1088,7 @@ async function generateImage(){
   [btn,btnM].forEach(b=>{if(b){b.disabled=true;b.textContent='⏳ GENERANDO…';}});
   sBox.style.display='flex';imgEl.style.display='none';acts.classList.remove('visible');document.getElementById('ctaWrap').classList.remove('visible');
   showOutput(true);
-  if(isMobile()) setTimeout(()=>{
-    const pc=document.getElementById('preview-col');
-    if(pc) pc.scrollTop=0;
-  },100);
+  if(isMobile()) setTimeout(()=>{const pc=document.getElementById('preview-col');if(pc) pc.scrollTop=0;},100);
   const elapsed=Date.now()-ST.lastGenTime;
   if(ST.lastGenTime>0&&elapsed<ST.cooldown){const wait=ST.cooldown-elapsed;showCooldown(wait);document.getElementById('spinnerMsg').innerHTML=`Cooldown…<br><small>1 richiesta ogni ${Math.round(ST.cooldown/1000)}s</small>`;await new Promise(r=>setTimeout(r,wait));}
   let ok=false;
@@ -1174,19 +1096,30 @@ async function generateImage(){
     const model=MODELS[i];
     document.getElementById('spinnerMsg').innerHTML=`Generando con <strong style="color:var(--c-accent)">${model}</strong>…<br><small style="font-size:11px;opacity:.6">${i+1}/${MODELS.length} · 15–30s</small>`;
     setStatus(`Connessione… (${model})`,'loading');
-    try{const url=buildUrl(model);await tryLoad(url);ST.currentUrl=url;ST.currentPrompt=prompt;ST.currentStyle=ST.style;ST.lastGenTime=Date.now();imgEl.src=url;imgEl.onclick=()=>openModal(url);sBox.style.display='none';imgEl.style.display='block';acts.classList.add('visible');document.getElementById('ctaWrap').classList.add('visible');imgEl.classList.remove('img-pop');void imgEl.offsetWidth;imgEl.classList.add('img-pop');setStatus('✓ Immagine generata!','ok');setTimeout(()=>setStatus('',''),3000);ST.gallery.unshift({url,prompt,style:ST.style,ratio:ST.ratio,ts:Date.now()});if(ST.gallery.length>50) ST.gallery.pop();try{localStorage.setItem('ig_gallery',JSON.stringify(ST.gallery));}catch(e){}renderGallery();ok=true;break;}
-    catch(e){
-      // retry same model once silently
-      try{await tryLoad(buildUrl(model));} catch(e2){
+    try{
+      const url=buildUrl(model);await tryLoad(url);
+      ST.currentUrl=url;ST.currentPrompt=prompt;ST.currentStyle=ST.style;ST.lastGenTime=Date.now();
+      imgEl.src=url;imgEl.onclick=()=>openModal(url);
+      sBox.style.display='none';imgEl.style.display='block';acts.classList.add('visible');document.getElementById('ctaWrap').classList.add('visible');
+      imgEl.classList.remove('img-pop');void imgEl.offsetWidth;imgEl.classList.add('img-pop');
+      setStatus('✓ Immagine generata!','ok');setTimeout(()=>setStatus('',''),3000);
+      ST.gallery.unshift({url,prompt,style:ST.style,ratio:ST.ratio,ts:Date.now()});
+      if(ST.gallery.length>50) ST.gallery.pop();
+      try{localStorage.setItem('ig_gallery',JSON.stringify(ST.gallery));}catch(e){}
+      renderGallery();ok=true;break;
+    }catch(e){
+      try{await tryLoad(buildUrl(model));}catch(e2){
         console.warn('Fallback',i,e2);
         if(i<MODELS.length-1){document.getElementById('spinnerMsg').innerHTML=`${model} non risponde…<br><small>Attendi 10s</small>`;await new Promise(r=>setTimeout(r,10000));}
       }
     }
   }
   if(!ok){sBox.innerHTML=`<div style="padding:28px;text-align:center"><div style="font-size:40px;margin-bottom:12px">⚠️</div><p style="color:var(--danger);font-size:15px;font-weight:700;margin-bottom:8px;font-family:var(--font-title)">SERVIZIO NON DISPONIBILE</p><p style="color:var(--muted);font-size:12px;line-height:1.6;margin-bottom:18px">Pollinations sovraccarico. Attendi 30s.</p><button onclick="resetAndRetry()" style="padding:11px 28px;background:linear-gradient(135deg,var(--c-accent),var(--c-violet));color:#FFFFFF;border:none;border-radius:11px;font-size:13px;font-weight:800;cursor:pointer;">🔄 RIPROVA</button></div>`;setStatus('Non disponibile — riprova tra 30s','fail');}
-  [btn,btnM].forEach(b=>{if(b){b.disabled=false;b.textContent='✦ GENERA IMMAGINE';}});ST.busy=false;
+  [btn,btnM].forEach(b=>{if(b){b.disabled=false;b.textContent='✨ GENERA IMMAGINE';}});ST.busy=false;
 }
 async function resetAndRetry(){ST.lastGenTime=0;document.getElementById('spinnerBox').innerHTML=`<div class="big-spin"></div><div id="spinnerMsg">Riconnessione…</div>`;document.getElementById('generatedImg').style.display='none';document.getElementById('imgActions').classList.remove('visible');await generateImage();}
+
+/* ── MODIFICA ── */
 function toggleModifica(){
   const p=document.getElementById('modificaPanel');
   p.classList.toggle('open');
@@ -1196,13 +1129,11 @@ async function runModifica(){
   const extra=document.getElementById('modificaInput').value.trim();
   if(!extra) return;
   closeCompare();
-  await generateModifica(ST.currentPrompt, ST.currentStyle, extra);
+  await generateModifica(ST.currentPrompt,ST.currentStyle,extra);
 }
-async function generateModifica(basePrompt, baseStyle, extra){
+async function generateModifica(basePrompt,baseStyle,extra){
   if(ST.busy) return;
   const prevUrl=ST.currentUrl;
-  const prevPrompt=ST.currentPrompt;
-  const prevStyle=ST.currentStyle;
   ST.busy=true;
   const sBox=document.getElementById('spinnerBox'),imgEl=document.getElementById('generatedImg'),acts=document.getElementById('imgActions');
   document.getElementById('modificaPanel').classList.remove('open');
@@ -1216,23 +1147,21 @@ async function generateModifica(basePrompt, baseStyle, extra){
   for(let i=0;i<MODELS.length;i++){
     const model=MODELS[i];
     document.getElementById('spinnerMsg').innerHTML=`Generando modifica con <strong style="color:var(--c-accent)">${model}</strong>…<br><small style="font-size:11px;opacity:.6">${i+1}/${MODELS.length}</small>`;
-    const p=new URLSearchParams({width:ratio.w,height:ratio.h,model,nologo:'true',enhance:ST.enhance?'true':'false',safe:ST.safe?'true':'false',seed});
+    /* MODIFICA 01 — enhance:false per non perdere il testo aggiunto */
+    const p=new URLSearchParams({width:ratio.w,height:ratio.h,model,nologo:'true',enhance:'false',safe:ST.safe?'true':'false',seed});
     const neg=document.getElementById('negPrompt');if(neg&&neg.value.trim()) p.append('negative',neg.value.trim());
     const url=`https://image.pollinations.ai/prompt/${encodeURIComponent(fullPrompt+(baseStyle?', '+baseStyle:''))}?${p}`;
     try{
       await tryLoad(url);
       ST.lastGenTime=Date.now();
       sBox.style.display='none';
-      // show compare overlay
       document.getElementById('compareImgOld').src=prevUrl;
       document.getElementById('compareImgNew').src=url;
       document.getElementById('compareOverlay').classList.add('open');
       ST._pendingModifica={url,prompt:basePrompt,extra,style:baseStyle};
       ok=true;break;
     }catch(e2){
-      try{await tryLoad(url);} catch(e3){
-        if(i<MODELS.length-1){document.getElementById('spinnerMsg').innerHTML=`${model} non risponde…<br><small>Attendi 10s</small>`;await new Promise(r=>setTimeout(r,10000));}
-      }
+      if(i<MODELS.length-1){document.getElementById('spinnerMsg').innerHTML=`${model} non risponde…<br><small>Attendi 10s</small>`;await new Promise(r=>setTimeout(r,10000));}
     }
   }
   if(!ok){sBox.innerHTML=`<div style="padding:28px;text-align:center"><div style="font-size:40px;margin-bottom:12px">⚠️</div><p style="color:var(--danger);font-size:15px;font-weight:700;margin-bottom:8px;">SERVIZIO NON DISPONIBILE</p><p style="color:var(--muted);font-size:12px;line-height:1.6;margin-bottom:18px">Pollinations sovraccarico. Attendi 30s.</p><button onclick="resetAndRetry()" style="padding:11px 28px;background:linear-gradient(135deg,var(--c-accent),var(--c-violet));color:#FFFFFF;border:none;border-radius:11px;font-size:13px;font-weight:800;cursor:pointer;">🔄 RIPROVA</button></div>`;}
@@ -1241,32 +1170,26 @@ async function generateModifica(basePrompt, baseStyle, extra){
 function keepModifica(){
   const m=ST._pendingModifica;if(!m) return;
   const imgEl=document.getElementById('generatedImg');
-  imgEl.src=m.url;imgEl.onclick=()=>openModal(m.url);
-  imgEl.style.display='block';
+  imgEl.src=m.url;imgEl.onclick=()=>openModal(m.url);imgEl.style.display='block';
   ST.currentUrl=m.url;ST.currentPrompt=m.prompt;ST.currentStyle=m.style;
   ST.gallery.unshift({url:m.url,prompt:m.prompt+', '+m.extra,style:m.style,ratio:ST.ratio,ts:Date.now()});
   if(ST.gallery.length>50) ST.gallery.pop();
   try{localStorage.setItem('ig_gallery',JSON.stringify(ST.gallery));}catch(e){}
-  renderGallery();
-  closeCompare();
-  document.getElementById('imgActions').classList.add('visible');
-  document.getElementById('ctaWrap').classList.add('visible');
+  renderGallery();closeCompare();
+  document.getElementById('imgActions').classList.add('visible');document.getElementById('ctaWrap').classList.add('visible');
   document.getElementById('modificaInput').value='';
 }
 function discardModifica(){
-  const imgEl=document.getElementById('generatedImg');
-  imgEl.style.display='block';
+  document.getElementById('generatedImg').style.display='block';
   closeCompare();
-  document.getElementById('imgActions').classList.add('visible');
-  document.getElementById('ctaWrap').classList.add('visible');
+  document.getElementById('imgActions').classList.add('visible');document.getElementById('ctaWrap').classList.add('visible');
 }
 function closeCompare(){document.getElementById('compareOverlay').classList.remove('open');}
+
 async function regenImage(){
   if(ST.busy) return;
   ST.lastGenTime=0;
-  const savedPrompt=ST.currentPrompt;
-  const savedStyle=ST.currentStyle;
-  const savedRatio=ST.ratio;
+  const savedPrompt=ST.currentPrompt;const savedStyle=ST.currentStyle;const savedRatio=ST.ratio;
   if(!savedPrompt) return;
   ST.busy=true;
   const sBox=document.getElementById('spinnerBox'),imgEl=document.getElementById('generatedImg'),acts=document.getElementById('imgActions');
@@ -1294,9 +1217,7 @@ async function regenImage(){
       try{localStorage.setItem('ig_gallery',JSON.stringify(ST.gallery));}catch(e){}
       renderGallery();ok=true;break;
     }catch(e2){
-      try{await tryLoad(url);} catch(e3){
-        if(i<MODELS.length-1){document.getElementById('spinnerMsg').innerHTML=`${model} non risponde…<br><small>Attendi 10s</small>`;await new Promise(r=>setTimeout(r,10000));}
-      }
+      if(i<MODELS.length-1){document.getElementById('spinnerMsg').innerHTML=`${model} non risponde…<br><small>Attendi 10s</small>`;await new Promise(r=>setTimeout(r,10000));}
     }
   }
   if(!ok){sBox.innerHTML=`<div style="padding:28px;text-align:center"><div style="font-size:40px;margin-bottom:12px">⚠️</div><p style="color:var(--danger);font-size:15px;font-weight:700;margin-bottom:8px;">SERVIZIO NON DISPONIBILE</p><p style="color:var(--muted);font-size:12px;line-height:1.6;margin-bottom:18px">Pollinations sovraccarico. Attendi 30s.</p><button onclick="resetAndRetry()" style="padding:11px 28px;background:linear-gradient(135deg,var(--c-accent),var(--c-violet));color:#FFFFFF;border:none;border-radius:11px;font-size:13px;font-weight:800;cursor:pointer;">🔄 RIPROVA</button></div>`;}
@@ -1315,7 +1236,7 @@ function toggleSetting(k){ST[k]=!ST[k];document.getElementById('toggle'+k.charAt
 function downloadImg(){if(ST.currentUrl) downloadFrom(ST.currentUrl);}
 function downloadFrom(url){fetch(url).then(r=>r.blob()).then(b=>{const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='WS-immagine.jpg';a.click();URL.revokeObjectURL(a.href);}).catch(()=>{const a=document.createElement('a');a.href=url;a.download='WS-immagine.jpg';a.click();});}
 function downloadModal(){downloadFrom(document.getElementById('modalImg').src);}
-function copyPromptText(){navigator.clipboard.writeText(ST.currentPrompt).then(()=>{const b=document.getElementById('copyBtn');b.textContent='✓ Copiato!';setTimeout(()=>b.textContent='📋 Prompt',1500);});}
+function copyPromptText(){navigator.clipboard.writeText(ST.currentPrompt).then(()=>{const b=document.getElementById('copyBtn');if(b){b.textContent='✓ Copiato!';setTimeout(()=>b.textContent='📋 Prompt',1500);}});}
 function openModal(url){document.getElementById('modalImg').src=url;document.getElementById('modal').classList.add('open');}
 function closeModal(){document.getElementById('modal').classList.remove('open');}
 
