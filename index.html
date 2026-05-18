@@ -93,7 +93,7 @@ body.light .theme-toggle-dot{left:17px;background:#fff;}
 #controls-scroll{flex:1;overflow-y:auto;overflow-x:hidden;padding:20px 24px 12px;display:flex;flex-direction:column;gap:14px;}
 #controls-scroll::-webkit-scrollbar{width:3px;}
 #controls-scroll::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px;}
-#controls-footer{padding:12px 24px 20px;flex-shrink:0;border-top:1px solid var(--border);background:var(--bg);}
+#controls-footer{padding:16px 24px 20px;flex-shrink:0;border-top:1px solid var(--border);background:var(--bg);}
 body.light #controls-footer{background:var(--bg);}
 .controls-spacer{display:none;}
 
@@ -133,7 +133,44 @@ body:not(.light) .prompt-wrap{background:var(--surface);}
 @keyframes diceRoll{0%{transform:rotate(0) scale(1)}50%{transform:rotate(180deg) scale(1.3)}100%{transform:rotate(360deg) scale(1)}}
 #errorMsg{padding:0 14px 8px;color:var(--danger);font-size:11px;display:none;font-weight:600;}
 
-/* ── DETTAGLI VISIVI — tab categorie + chip ── */
+/* Badge Attivi inline nel titolo DV */
+.dv-attivi-badge{
+  display:inline-flex;align-items:center;gap:4px;
+  padding:3px 9px 3px 7px;
+  background:var(--c-violet);border:none;border-radius:20px;
+  font-size:9px;font-weight:700;color:#fff;
+  cursor:pointer;transition:all .15s;user-select:none;
+  letter-spacing:.02em;
+}
+.dv-attivi-badge:hover{opacity:.85;}
+.dv-attivi-badge.view-attivi{background:rgba(91,53,200,.2);color:var(--c-violet);border:1px solid var(--c-violet);}
+body.light .dv-attivi-badge.view-attivi{background:rgba(91,53,200,.1);}
+.dv-attivi-n{
+  display:inline-flex;align-items:center;justify-content:center;
+  background:rgba(255,255,255,.3);color:#fff;
+  width:14px;height:14px;border-radius:50%;
+  font-size:8px;font-weight:800;
+}
+.dv-attivi-badge.view-attivi .dv-attivi-n{background:var(--c-violet);color:#fff;}
+
+/* UI sezioni — CSS variables per label+colore da admin */
+:root{
+  --ui-prompt-label:'Il tuo prompt';
+  --ui-dv-label:'Dettagli visivi';
+  --ui-stile-label:'Stile artistico';
+  --ui-formato-label:'Formato';
+  --ui-avanzate-label:'Opzioni avanzate';
+  --ui-genera-label:'Genera immagine';
+  --ui-genera-bg:var(--c-violet);
+  --ui-genera-color:#fff;
+  --ui-accordion-bg:var(--c-violet);
+  --ui-accordion-color:#fff;
+  --ui-tab-bg:rgba(91,53,200,.1);
+  --ui-tab-active-bg:var(--c-violet);
+  --ui-tab-color:var(--c-violet);
+  --ui-chip-bg:var(--surface);
+  --ui-chip-active-bg:var(--c-violet);
+}
 .dv-wrap{flex-shrink:0;margin-top:16px;}
 .dv-label{font-size:9px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.14em;display:flex;align-items:center;gap:5px;margin-bottom:8px;}
 .dv-label-icon{font-size:12px;color:var(--c-violet);}
@@ -521,6 +558,7 @@ body:not(.light) .adv-input{background:#1e1a3a;color:var(--text);}
       <div class="admin-tabs">
         <button class="admin-tab active" onclick="aTab('tema',this)"><span class="admin-tab-icon">🎨</span> Tema</button>
         <button class="admin-tab" onclick="aTab('colori',this)"><span class="admin-tab-icon">🌈</span> Colori</button>
+        <button class="admin-tab" onclick="aTab('ui',this)"><span class="admin-tab-icon">◧</span> UI Sezioni</button>
         <button class="admin-tab" onclick="aTab('font',this)"><span class="admin-tab-icon">Aa</span> Font</button>
         <button class="admin-tab" onclick="aTab('logo',this)"><span class="admin-tab-icon">🖼</span> Logo & Nav</button>
         <button class="admin-tab" onclick="aTab('stili',this)"><span class="admin-tab-icon">✦</span> Stili AI</button>
@@ -551,6 +589,58 @@ body:not(.light) .adv-input{background:#1e1a3a;color:var(--text);}
             <div class="a-row"><div class="a-row-label">Viola brand<div class="a-row-sub">Gradienti</div></div><div style="display:flex;gap:7px;align-items:center;"><input type="color" id="colorViolet" value="#5B35C8" oninput="previewColor('--c-violet',this.value)" style="width:44px;height:32px;padding:2px;cursor:pointer;background:none;border:1px solid #2a2050;border-radius:7px;"><button class="a-btn ghost" onclick="resetColor('violet','#5B35C8','--c-violet')">Reset</button></div></div>
           </div>
           <div style="display:flex;gap:9px;"><button class="a-btn primary" onclick="saveColors()">💾 Salva colori</button><button class="a-btn ghost" onclick="resetAllColors()">↺ Reset</button></div>
+        </div>
+
+        <!-- UI SEZIONI — rinomina, icona, colore ogni sezione dell'app -->
+        <div class="admin-section" id="asec-ui">
+          <div class="a-title">UI Sezioni</div><div class="a-desc">Rinomina, cambia icona e colore di ogni sezione dell'app. Le modifiche si applicano in tempo reale.</div>
+
+          <div class="a-card">
+            <div class="a-card-title">✐ Il tuo prompt</div>
+            <div class="a-row"><div class="a-row-label">Icona<div class="a-row-sub">Simbolo testuale</div></div><input type="text" id="uiPromptIcon" class="a-input" value="✐" style="width:60px;" oninput="liveUiLabel('prompt',this)"></div>
+            <div class="a-row"><div class="a-row-label">Etichetta</div><input type="text" id="uiPromptLabel" class="a-input" value="Il tuo prompt" oninput="liveUiLabel('prompt',this)"></div>
+          </div>
+
+          <div class="a-card" style="margin-top:8px;">
+            <div class="a-card-title">◈ Dettagli visivi</div>
+            <div class="a-row"><div class="a-row-label">Icona</div><input type="text" id="uiDvIcon" class="a-input" value="◈" style="width:60px;" oninput="liveUiLabel('dv',this)"></div>
+            <div class="a-row"><div class="a-row-label">Etichetta</div><input type="text" id="uiDvLabel" class="a-input" value="Dettagli visivi" oninput="liveUiLabel('dv',this)"></div>
+            <div class="a-row"><div class="a-row-label">Colore tab inattiva</div><input type="color" id="uiTabBg" value="#5B35C8" oninput="liveUiColor('--ui-tab-bg','rgba('+hexToRgb(this.value)+',.1)')" style="width:40px;height:28px;padding:1px;cursor:pointer;background:none;border:1px solid #2a2050;border-radius:5px;"></div>
+            <div class="a-row"><div class="a-row-label">Colore tab attiva</div><input type="color" id="uiTabActiveBg" value="#5B35C8" oninput="liveUiColor('--ui-tab-active-bg',this.value)" style="width:40px;height:28px;padding:1px;cursor:pointer;background:none;border:1px solid #2a2050;border-radius:5px;"></div>
+            <div class="a-row"><div class="a-row-label">Colore chip attivo</div><input type="color" id="uiChipActiveBg" value="#5B35C8" oninput="liveUiColor('--ui-chip-active-bg',this.value)" style="width:40px;height:28px;padding:1px;cursor:pointer;background:none;border:1px solid #2a2050;border-radius:5px;"></div>
+          </div>
+
+          <div class="a-card" style="margin-top:8px;">
+            <div class="a-card-title">❋ Stile artistico</div>
+            <div class="a-row"><div class="a-row-label">Icona</div><input type="text" id="uiStileIcon" class="a-input" value="❋" style="width:60px;" oninput="liveUiLabel('stile',this)"></div>
+            <div class="a-row"><div class="a-row-label">Etichetta</div><input type="text" id="uiStileLabel" class="a-input" value="Stile artistico" oninput="liveUiLabel('stile',this)"></div>
+          </div>
+
+          <div class="a-card" style="margin-top:8px;">
+            <div class="a-card-title">▣ Formato</div>
+            <div class="a-row"><div class="a-row-label">Icona</div><input type="text" id="uiFormatoIcon" class="a-input" value="▣" style="width:60px;" oninput="liveUiLabel('formato',this)"></div>
+            <div class="a-row"><div class="a-row-label">Etichetta</div><input type="text" id="uiFormatoLabel" class="a-input" value="Formato" oninput="liveUiLabel('formato',this)"></div>
+            <div class="a-row"><div class="a-row-label">Colore bottone attivo</div><input type="color" id="uiRatioActiveBg" value="#5B35C8" oninput="applyUiRatioColor(this.value)" style="width:40px;height:28px;padding:1px;cursor:pointer;background:none;border:1px solid #2a2050;border-radius:5px;"></div>
+          </div>
+
+          <div class="a-card" style="margin-top:8px;">
+            <div class="a-card-title">⚙ Opzioni avanzate</div>
+            <div class="a-row"><div class="a-row-label">Testo bottone</div><input type="text" id="uiAvanzateLabel" class="a-input" value="Opzioni avanzate" oninput="liveUiAccordion(this.value)"></div>
+            <div class="a-row"><div class="a-row-label">Sfondo</div><input type="color" id="uiAccordionBg" value="#5B35C8" oninput="document.documentElement.style.setProperty('--accordion-bg-btn',this.value);document.getElementById('advHeader').style.background=this.value;" style="width:40px;height:28px;padding:1px;cursor:pointer;background:none;border:1px solid #2a2050;border-radius:5px;"></div>
+            <div class="a-row"><div class="a-row-label">Colore testo</div><input type="color" id="uiAccordionColor" value="#ffffff" oninput="document.getElementById('advHeader').style.color=this.value;document.querySelector('.accordion-title').style.color=this.value;" style="width:40px;height:28px;padding:1px;cursor:pointer;background:none;border:1px solid #2a2050;border-radius:5px;"></div>
+          </div>
+
+          <div class="a-card" style="margin-top:8px;">
+            <div class="a-card-title">✨ Bottone Genera immagine</div>
+            <div class="a-row"><div class="a-row-label">Testo</div><input type="text" id="uiGeneraLabel" class="a-input" value="GENERA IMMAGINE" oninput="liveUiGenera(this.value)"></div>
+            <div class="a-row"><div class="a-row-label">Sfondo</div><input type="color" id="uiGeneraBg" value="#5B35C8" oninput="liveBtn('--gen-btn-bg',this.value)" style="width:40px;height:28px;padding:1px;cursor:pointer;background:none;border:1px solid #2a2050;border-radius:5px;"></div>
+            <div class="a-row"><div class="a-row-label">Testo colore</div><input type="color" id="uiGeneraColor" value="#ffffff" oninput="liveBtn('--gen-btn-color',this.value)" style="width:40px;height:28px;padding:1px;cursor:pointer;background:none;border:1px solid #2a2050;border-radius:5px;"></div>
+          </div>
+
+          <div style="display:flex;gap:8px;margin-top:12px;">
+            <button class="a-btn primary" onclick="saveUiSettings()">💾 Salva UI</button>
+            <button class="a-btn ghost" onclick="resetUiSettings()">↺ Reset</button>
+          </div>
         </div>
         <div class="admin-section" id="asec-font">
           <div class="a-title">Font</div><div class="a-desc">4 font del brand kit WonderSpit.</div>
@@ -642,7 +732,7 @@ body:not(.light) .adv-input{background:#1e1a3a;color:var(--text);}
           <div class="a-title">Info sistema</div><div class="a-desc">Stato e manutenzione.</div>
           <div class="a-card">
             <!-- MODIFICA 02 — versione aggiornata a v2.7 -->
-            <div class="a-row"><div class="a-row-label">Versione</div><span style="color:var(--c-accent);font-weight:700;font-size:12px;">v3.2</span></div>
+            <div class="a-row"><div class="a-row-label">Versione</div><span style="color:var(--c-accent);font-weight:700;font-size:12px;">v3.3</span></div>
             <div class="a-row"><div class="a-row-label">API attiva</div><span id="infoActiveApi" style="color:var(--c-accent);font-weight:700;font-size:12px;">Pollinations AI</span></div>
             <div class="a-row"><div class="a-row-label">Tema</div><span id="infoTheme" style="color:#ccc;font-size:12px;">Dark</span></div>
             <div class="a-row"><div class="a-row-label">Immagini galleria</div><span id="infoGalleryCount" style="color:#ccc;font-size:12px;">0</span></div>
@@ -682,7 +772,7 @@ body:not(.light) .adv-input{background:#1e1a3a;color:var(--text);}
 
     <!-- PROMPT + DADO -->
     <div>
-      <span class="slabel"><i class="slabel-icon">✐</i>Il tuo prompt</span>
+      <span class="slabel" id="promptSlabel"><i class="slabel-icon">✐</i>Il tuo prompt</span>
       <div class="prompt-wrap" id="promptBox">
         <div class="prompt-input-row">
           <textarea id="promptInput" placeholder="Descrivi la tua immagine… oppure premi 🎲 per un'idea" rows="3"></textarea>
@@ -693,7 +783,12 @@ body:not(.light) .adv-input{background:#1e1a3a;color:var(--text);}
 
       <!-- DETTAGLI VISIVI — tab categorie + chip -->
       <div class="dv-wrap">
-        <span class="dv-label"><span class="dv-label-icon">◈</span>Dettagli visivi</span>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+          <span class="dv-label" style="margin-bottom:0;"><span class="dv-label-icon">◈</span>Dettagli visivi</span>
+          <button class="dv-attivi-badge" id="dvAttiviBadge" style="display:none;" onclick="toggleAttiviView()">
+            ✓ Attivi <span class="dv-attivi-n" id="dvAttiviN">0</span>
+          </button>
+        </div>
         <div class="dv-tab-row-wrap">
           <button class="dv-arrow hidden" id="dvArrowLeft" onclick="scrollDvTabs(-1)" aria-label="Scorri sinistra">‹</button>
           <div class="dv-tab-row" id="dvTabRow"></div>
@@ -705,13 +800,13 @@ body:not(.light) .adv-input{background:#1e1a3a;color:var(--text);}
 
     <!-- STYLES -->
     <div>
-      <span class="slabel"><i class="slabel-icon">❋</i>Stile artistico</span>
+      <span class="slabel" id="stileSlabel"><i class="slabel-icon">❋</i>Stile artistico</span>
       <div class="style-grid" id="styleGrid"></div>
     </div>
 
     <!-- RATIO -->
     <div>
-      <span class="slabel"><i class="slabel-icon">▣</i>Formato</span>
+      <span class="slabel" id="formatoSlabel"><i class="slabel-icon">▣</i>Formato</span>
       <div class="ratio-row" id="ratioRow"></div>
     </div>
 
@@ -934,7 +1029,7 @@ document.addEventListener('DOMContentLoaded',()=>{
   detectLayout();
   loadSaved();loadStyles();loadCats();loadNavBtns();loadBtnColors();
   buildStyles();buildRatios();buildDvTabs();initLongPress();
-  loadLogoFromStorage();applyNavBtns();
+  loadLogoFromStorage();applyNavBtns();loadUiSettings();
   window.addEventListener('resize',detectLayout);
 });
 
@@ -970,43 +1065,45 @@ function loadSaved(){
 function loadCats(){const s=localStorage.getItem('ig_cats');CATS=s?JSON.parse(s):JSON.parse(JSON.stringify(DEFAULT_CATS_DATA));}
 function saveCats(){localStorage.setItem('ig_cats',JSON.stringify(CATS));buildDvTabs();renderAdminCats();msg('✓ Tag salvati!');}
 
-// Set persistente delle selezioni: Map prompt→label
 const SELECTED_TAGS=new Map();
 const CAT_ID_ATTIVI='__attivi__';
+let dvShowAttivi=false;
+
+function updateAttiviBadge(){
+  const badge=document.getElementById('dvAttiviBadge');
+  const num=document.getElementById('dvAttiviN');
+  if(!badge) return;
+  const n=SELECTED_TAGS.size;
+  badge.style.display=n>0?'inline-flex':'none';
+  if(num) num.textContent=n;
+  // stile: se in view attivi → outline, altrimenti pieno
+  badge.classList.toggle('view-attivi',dvShowAttivi);
+}
+
+function toggleAttiviView(){
+  dvShowAttivi=!dvShowAttivi;
+  buildDvChipsArea();
+  updateAttiviBadge();
+}
 
 function buildDvTabs(){
   const tabRow=document.getElementById('dvTabRow');
   const arrowL=document.getElementById('dvArrowLeft');
   const arrowR=document.getElementById('dvArrowRight');
-  const chipsEl=document.getElementById('dvChips');
-  if(!tabRow||!chipsEl) return;
+  if(!tabRow) return;
 
   const activeCats=CATS.filter(c=>c.active);
   if(!currentCatId&&activeCats.length) currentCatId=activeCats[0].id;
 
   tabRow.innerHTML='';
-
-  // Tab "Attivi" — appare solo se ci sono selezioni
-  if(SELECTED_TAGS.size>0){
-    const btnA=document.createElement('button');
-    btnA.className='dv-tab tab-attivi'+(currentCatId===CAT_ID_ATTIVI?' active':'');
-    btnA.innerHTML='✓ Attivi <span class="dv-tab-badge">'+SELECTED_TAGS.size+'</span>';
-    btnA.onclick=()=>{currentCatId=CAT_ID_ATTIVI;buildDvTabs();};
-    tabRow.appendChild(btnA);
-  } else if(currentCatId===CAT_ID_ATTIVI){
-    currentCatId=activeCats[0]?.id||null;
-  }
-
-  // Tab categorie normali
   activeCats.forEach(cat=>{
     const btn=document.createElement('button');
-    btn.className='dv-tab'+(cat.id===currentCatId?' active':'');
+    btn.className='dv-tab'+(cat.id===currentCatId&&!dvShowAttivi?' active':'');
     btn.textContent=cat.icon+' '+cat.label;
-    btn.onclick=()=>{currentCatId=cat.id;buildDvTabs();};
+    btn.onclick=()=>{currentCatId=cat.id;dvShowAttivi=false;buildDvTabs();buildDvChipsArea();updateAttiviBadge();};
     tabRow.appendChild(btn);
   });
 
-  // Frecce
   function updateArrows(){
     if(arrowL) arrowL.classList.toggle('hidden',tabRow.scrollLeft<=4);
     if(arrowR) arrowR.classList.toggle('hidden',tabRow.scrollLeft+tabRow.clientWidth>=tabRow.scrollWidth-4);
@@ -1015,11 +1112,16 @@ function buildDvTabs(){
   tabRow.removeEventListener('scroll',updateArrows);
   tabRow.addEventListener('scroll',updateArrows,{passive:true});
 
-  // Area chip
+  buildDvChipsArea();
+  updateAttiviBadge();
+}
+
+function buildDvChipsArea(){
+  const chipsEl=document.getElementById('dvChips');
+  if(!chipsEl) return;
   chipsEl.innerHTML='';
 
-  if(currentCatId===CAT_ID_ATTIVI){
-    // View ATTIVI — mostra tutti i selezionati con X
+  if(dvShowAttivi){
     if(SELECTED_TAGS.size===0){
       chipsEl.innerHTML='<span class="dv-empty-msg">Nessun dettaglio selezionato</span>';
     } else {
@@ -1029,13 +1131,13 @@ function buildDvTabs(){
         wrap.innerHTML=label+' <button class="dv-chip-remove" aria-label="Rimuovi">✕</button>';
         wrap.querySelector('.dv-chip-remove').onclick=()=>{
           SELECTED_TAGS.delete(prompt);
-          buildDvTabs();
+          if(SELECTED_TAGS.size===0) dvShowAttivi=false;
+          buildDvChipsArea();updateAttiviBadge();
         };
         chipsEl.appendChild(wrap);
       });
     }
   } else {
-    // View CATEGORIA — chip normali, stato da SELECTED_TAGS
     const cat=CATS.find(c=>c.id===currentCatId);
     if(cat){
       cat.tags.filter(t=>t.active).forEach(t=>{
@@ -1045,22 +1147,9 @@ function buildDvTabs(){
         btn.dataset.prompt=t.prompt;
         btn.textContent=t.label;
         btn.onclick=()=>{
-          if(SELECTED_TAGS.has(t.prompt)){
-            SELECTED_TAGS.delete(t.prompt);
-            btn.classList.remove('active');
-          } else {
-            SELECTED_TAGS.set(t.prompt,t.label);
-            btn.classList.add('active');
-          }
-          // Aggiorna badge tab Attivi senza rifare tutto
-          const tabAttivi=tabRow.querySelector('.tab-attivi');
-          if(SELECTED_TAGS.size>0){
-            if(!tabAttivi){buildDvTabs();return;}
-            const badge=tabAttivi.querySelector('.dv-tab-badge');
-            if(badge) badge.textContent=SELECTED_TAGS.size;
-          } else {
-            buildDvTabs();
-          }
+          if(SELECTED_TAGS.has(t.prompt)){SELECTED_TAGS.delete(t.prompt);btn.classList.remove('active');}
+          else{SELECTED_TAGS.set(t.prompt,t.label);btn.classList.add('active');}
+          updateAttiviBadge();
         };
         chipsEl.appendChild(btn);
       });
@@ -1074,6 +1163,102 @@ function scrollDvTabs(dir){
 }
 
 function getActiveTagsPrompt(){return Array.from(SELECTED_TAGS.keys()).join(', ');}
+
+/* ── UI SEZIONI ADMIN ── */
+function hexToRgb(hex){const r=parseInt(hex.slice(1,3),16),g=parseInt(hex.slice(3,5),16),b=parseInt(hex.slice(5,7),16);return r+','+g+','+b;}
+
+function liveUiLabel(section,input){
+  const iconEl=document.getElementById('ui'+section.charAt(0).toUpperCase()+section.slice(1)+'Icon');
+  const labelEl=document.getElementById('ui'+section.charAt(0).toUpperCase()+section.slice(1)+'Label');
+  const icon=iconEl?iconEl.value:'';
+  const label=labelEl?labelEl.value:'';
+  // Aggiorna slabel nel DOM
+  const map={
+    prompt:'promptSlabel',dv:'dvSlabel',stile:'stileSlabel',formato:'formatoSlabel'
+  };
+  const el=document.getElementById(map[section]);
+  if(el) el.innerHTML=`<i class="slabel-icon">${icon}</i>${label}`;
+  // Aggiorna anche dv-label se sezione dv
+  if(section==='dv'){
+    const dvl=document.querySelector('.dv-label-icon');
+    const dvtxt=document.querySelector('.dv-label');
+    if(dvl) dvl.textContent=icon;
+    if(dvtxt){dvtxt.childNodes.forEach(n=>{if(n.nodeType===3) n.textContent=label;});}
+  }
+}
+
+function liveUiColor(varName,val){document.documentElement.style.setProperty(varName,val);}
+
+function applyUiRatioColor(hex){
+  document.documentElement.style.setProperty('--btn-ratio-active-bg',hex);
+  document.documentElement.style.setProperty('--btn-ratio-active-border',hex);
+  document.documentElement.style.setProperty('--btn-ratio-active-color','#fff');
+}
+
+function liveUiAccordion(label){
+  const el=document.querySelector('.accordion-title');
+  if(el) el.textContent='⚙ '+label;
+}
+
+function liveUiGenera(label){
+  const btn=document.getElementById('genBtn');
+  const btnM=document.getElementById('genBtnMobile')?.querySelector('button');
+  if(btn) btn.textContent='✨ '+label.toUpperCase();
+  if(btnM) btnM.textContent='✨ '+label.toUpperCase();
+}
+
+function saveUiSettings(){
+  const data={
+    promptIcon:document.getElementById('uiPromptIcon')?.value||'✐',
+    promptLabel:document.getElementById('uiPromptLabel')?.value||'Il tuo prompt',
+    dvIcon:document.getElementById('uiDvIcon')?.value||'◈',
+    dvLabel:document.getElementById('uiDvLabel')?.value||'Dettagli visivi',
+    stileIcon:document.getElementById('uiStileIcon')?.value||'❋',
+    stileLabel:document.getElementById('uiStileLabel')?.value||'Stile artistico',
+    formatoIcon:document.getElementById('uiFormatoIcon')?.value||'▣',
+    formatoLabel:document.getElementById('uiFormatoLabel')?.value||'Formato',
+    avanzateLabel:document.getElementById('uiAvanzateLabel')?.value||'Opzioni avanzate',
+    generaLabel:document.getElementById('uiGeneraLabel')?.value||'GENERA IMMAGINE',
+    generaBg:document.getElementById('uiGeneraBg')?.value||'#5B35C8',
+    generaColor:document.getElementById('uiGeneraColor')?.value||'#ffffff',
+    accordionBg:document.getElementById('uiAccordionBg')?.value||'#5B35C8',
+    accordionColor:document.getElementById('uiAccordionColor')?.value||'#ffffff',
+    tabActiveBg:document.getElementById('uiTabActiveBg')?.value||'#5B35C8',
+    chipActiveBg:document.getElementById('uiChipActiveBg')?.value||'#5B35C8',
+    ratioActiveBg:document.getElementById('uiRatioActiveBg')?.value||'#5B35C8',
+  };
+  localStorage.setItem('ig_ui',JSON.stringify(data));
+  applyUiSettings(data);
+  msg('✓ UI salvata!');
+}
+
+function applyUiSettings(d){
+  if(!d) return;
+  // Labels slabel
+  const ps=document.getElementById('promptSlabel');if(ps) ps.innerHTML=`<i class="slabel-icon">${d.promptIcon}</i>${d.promptLabel}`;
+  const ss=document.getElementById('stileSlabel');if(ss) ss.innerHTML=`<i class="slabel-icon">${d.stileIcon}</i>${d.stileLabel}`;
+  const fs=document.getElementById('formatoSlabel');if(fs) fs.innerHTML=`<i class="slabel-icon">${d.formatoIcon}</i>${d.formatoLabel}`;
+  // DV label
+  const dvicon=document.querySelector('.dv-label-icon');if(dvicon) dvicon.textContent=d.dvIcon;
+  const dvtxt=document.querySelector('.dv-label');if(dvtxt){dvtxt.childNodes.forEach(n=>{if(n.nodeType===3) n.textContent=d.dvLabel;});}
+  // Genera
+  liveBtn('--gen-btn-bg',d.generaBg);liveBtn('--gen-btn-color',d.generaColor);
+  if(d.generaLabel){liveUiGenera(d.generaLabel);}
+  // Accordion
+  if(d.accordionBg) document.getElementById('advHeader').style.background=d.accordionBg;
+  if(d.accordionColor){const at=document.querySelector('.accordion-title');if(at) at.style.color=d.accordionColor;}
+  if(d.avanzateLabel) liveUiAccordion(d.avanzateLabel);
+  // Colori CSS vars
+  if(d.tabActiveBg){document.documentElement.style.setProperty('--ui-tab-active-bg',d.tabActiveBg);document.documentElement.style.setProperty('--c-violet',d.tabActiveBg);}
+  if(d.chipActiveBg) document.documentElement.style.setProperty('--ui-chip-active-bg',d.chipActiveBg);
+  if(d.ratioActiveBg) applyUiRatioColor(d.ratioActiveBg);
+  // Prefill admin inputs
+  const keys=['promptIcon','promptLabel','dvIcon','dvLabel','stileIcon','stileLabel','formatoIcon','formatoLabel','avanzateLabel','generaLabel','generaBg','generaColor','accordionBg','accordionColor','tabActiveBg','chipActiveBg','ratioActiveBg'];
+  keys.forEach(k=>{const el=document.getElementById('ui'+k.charAt(0).toUpperCase()+k.slice(1));if(el&&d[k]) el.value=d[k];});
+}
+
+function resetUiSettings(){localStorage.removeItem('ig_ui');location.reload();}
+function loadUiSettings(){const s=localStorage.getItem('ig_ui');if(s) applyUiSettings(JSON.parse(s));}
 
 function renderAdminCats(){
   const el=document.getElementById('adminCatList');if(!el) return;
