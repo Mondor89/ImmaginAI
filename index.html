@@ -787,7 +787,7 @@ body:not(.light) .adv-input{background:#1e1a3a;color:var(--text);}
           <div class="a-title">Info sistema</div><div class="a-desc">Stato e manutenzione.</div>
           <div class="a-card">
             <!-- MODIFICA 02 — versione aggiornata a v2.7 -->
-            <div class="a-row"><div class="a-row-label">Versione</div><span style="color:var(--c-accent);font-weight:700;font-size:12px;">v4.0</span></div>
+            <div class="a-row"><div class="a-row-label">Versione</div><span style="color:var(--c-accent);font-weight:700;font-size:12px;">v4.1</span></div>
             <div class="a-row"><div class="a-row-label">API attiva</div><span id="infoActiveApi" style="color:var(--c-accent);font-weight:700;font-size:12px;">Pollinations AI</span></div>
             <div class="a-row"><div class="a-row-label">Tema</div><span id="infoTheme" style="color:#ccc;font-size:12px;">Dark</span></div>
             <div class="a-row"><div class="a-row-label">Immagini galleria</div><span id="infoGalleryCount" style="color:#ccc;font-size:12px;">0</span></div>
@@ -895,6 +895,7 @@ body:not(.light) .adv-input{background:#1e1a3a;color:var(--text);}
         <button class="img-btn primary" onclick="downloadImg()">⬇ Scarica</button>
         <button class="img-btn" onclick="regenImage()">🔁 Rigenera</button>
         <button class="img-btn" onclick="toggleModifica()">✏️ Modifica</button>
+        <button class="img-btn" onclick="removeBackground()" id="removeBgBtn" title="Rigenera senza sfondo">✂️ Senza sfondo</button>
       </div>
       <div id="modificaPanel">
         <span class="modifica-label">Aggiungi al prompt</span>
@@ -1671,7 +1672,15 @@ async function generateImage(){
 }
 async function resetAndRetry(){ST.lastGenTime=0;document.getElementById('spinnerBox').innerHTML=`<div class="big-spin"></div><div id="spinnerMsg">Riconnessione…</div>`;document.getElementById('generatedImg').style.display='none';document.getElementById('imgActions').classList.remove('visible');await generateImage();}
 
-/* ── MODIFICA ── */
+/* ── RIMUOVI SFONDO ── */
+async function removeBackground(){
+  if(ST.busy) return;
+  if(!ST.currentPrompt) return;
+  const extra='transparent background, no background, isolated object on white, clean cutout, product photo style';
+  await generateModifica(ST.currentPrompt, ST.currentStyle, extra);
+}
+
+
 function toggleModifica(){
   const p=document.getElementById('modificaPanel');
   p.classList.toggle('open');
