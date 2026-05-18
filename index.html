@@ -90,12 +90,54 @@ body.light .theme-toggle-dot{left:17px;background:#fff;}
 
 /* ── CONTROLS layout ── */
 #controls{width:500px;flex-shrink:0;display:flex;flex-direction:column;height:100svh;overflow:hidden;border-right:1px solid var(--border);}
-#controls-scroll{flex:1;overflow-y:auto;overflow-x:hidden;padding:20px 24px 12px;display:flex;flex-direction:column;gap:14px;}
+#controls-scroll{flex:1;overflow-y:auto;overflow-x:visible;padding:20px 24px 12px;display:flex;flex-direction:column;gap:14px;}
 #controls-scroll::-webkit-scrollbar{width:3px;}
 #controls-scroll::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px;}
 #controls-footer{padding:16px 24px 20px;flex-shrink:0;border-top:1px solid var(--border);background:var(--bg);}
 body.light #controls-footer{background:var(--bg);}
 .controls-spacer{display:none;}
+
+/* ── BOTTONE "COSA NON VUOI" — fucsia ── */
+.neg-toggle{
+  width:100%;background:#F0008C;border:none;border-radius:12px;
+  color:#fff;font-size:13px;font-weight:700;
+  cursor:pointer;padding:12px 16px;
+  display:flex;align-items:center;justify-content:center;gap:7px;
+  font-family:var(--font-body);transition:all .15s;
+  letter-spacing:.3px;
+  box-shadow:0 3px 14px rgba(240,0,140,.3);
+}
+.neg-toggle:hover{background:#d4007c;box-shadow:0 5px 18px rgba(240,0,140,.4);}
+.neg-toggle-icon{font-size:16px;transition:transform .2s;line-height:1;}
+.neg-toggle.open .neg-toggle-icon{transform:rotate(45deg);}
+#negWrap{display:none;margin-top:8px;}
+#negWrap.open{display:block;}
+#negPrompt{width:100%;background:var(--surface);border:1.5px solid var(--border);border-radius:10px;color:var(--text);font-size:12px;font-family:var(--font-body);padding:9px 12px;resize:none;transition:border-color .2s;}
+#negPrompt:focus{outline:none;border-color:#F0008C;}
+#negPrompt::placeholder{color:var(--muted);}
+.neg-hint{font-size:10px;color:var(--muted);margin-top:4px;}
+
+/* ── FAQ SCREEN ── */
+#screen-faq{display:none;flex:1;flex-direction:column;height:100svh;overflow-y:auto;padding:32px 40px;}
+#screen-faq.active{display:flex;flex-direction:column;}
+.faq-section-title{font-size:10px;font-weight:700;color:var(--c-violet);text-transform:uppercase;letter-spacing:.12em;margin:0 0 10px;display:flex;align-items:center;gap:8px;}
+.faq-section-title::after{content:'';flex:1;height:1px;background:rgba(91,53,200,.2);}
+.faq-block{margin-bottom:24px;}
+.faq-item{border:1px solid var(--border);border-radius:12px;margin-bottom:6px;overflow:hidden;transition:border-color .2s;}
+.faq-item:hover{border-color:rgba(91,53,200,.3);}
+.faq-item.open{border-color:var(--c-violet);}
+.faq-q{width:100%;background:var(--surface);border:none;padding:13px 16px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;gap:12px;text-align:left;}
+.faq-q-text{font-size:13px;font-weight:600;color:var(--text);flex:1;line-height:1.4;}
+.faq-q-icon{font-size:16px;color:var(--c-violet);flex-shrink:0;transition:transform .25s;font-weight:300;line-height:1;}
+.faq-item.open .faq-q-icon{transform:rotate(45deg);}
+.faq-item.open .faq-q{background:rgba(91,53,200,.05);}
+.faq-a{display:none;padding:0 16px 14px;background:var(--surface);}
+.faq-item.open .faq-a{display:block;}
+.faq-a-text{font-size:13px;color:var(--muted);line-height:1.75;border-top:1px solid var(--border);padding-top:12px;}
+@media(max-width:1023px){
+  #screen-faq{padding:20px 16px 160px;height:auto;overflow:visible;}
+  #screen-faq.active{display:block;}
+}
 
 #preview-col{flex:1;min-width:260px;display:flex;flex-direction:column;height:100svh;overflow:hidden;padding:20px 20px;}
 #screen-gallery,#screen-pro{display:none;flex:1;flex-direction:column;height:100svh;overflow-y:auto;padding:32px 40px;}
@@ -121,37 +163,38 @@ body:not(.light) .prompt-wrap{background:var(--surface);}
 #promptInput:focus{outline:none;}
 #promptInput::placeholder{color:var(--muted);}
 .prompt-input-row{display:flex;align-items:flex-start;gap:0;}
+/* ── DADO — giallo brand ── */
 #diceBtn{
   flex-shrink:0;width:44px;height:80px;
-  background:var(--c-violet);border:none;border-left:1px solid rgba(255,255,255,.1);
+  background:#FFE600;border:none;border-left:1px solid rgba(0,0,0,.08);
   cursor:pointer;display:flex;align-items:center;justify-content:center;
   font-size:20px;transition:background .2s;
 }
-#diceBtn:hover{background:var(--deep);}
-#diceBtn .dice-icon{display:inline-block;}
+#diceBtn:hover{background:#f0d800;}
+#diceBtn .dice-icon{display:inline-block;filter:drop-shadow(0 1px 2px rgba(0,0,0,.2));}
 #diceBtn.rolling .dice-icon{animation:diceRoll .4s ease;}
 @keyframes diceRoll{0%{transform:rotate(0) scale(1)}50%{transform:rotate(180deg) scale(1.3)}100%{transform:rotate(360deg) scale(1)}}
 #errorMsg{padding:0 14px 8px;color:var(--danger);font-size:11px;display:none;font-weight:600;}
 
-/* Badge Attivi inline nel titolo DV */
+/* Badge Attivi inline — azzurro */
 .dv-attivi-badge{
   display:inline-flex;align-items:center;gap:4px;
   padding:3px 9px 3px 7px;
-  background:var(--c-violet);border:none;border-radius:20px;
-  font-size:9px;font-weight:700;color:#fff;
+  background:#00E5C8;border:none;border-radius:20px;
+  font-size:9px;font-weight:700;color:#080810;
   cursor:pointer;transition:all .15s;user-select:none;
   letter-spacing:.02em;
 }
 .dv-attivi-badge:hover{opacity:.85;}
-.dv-attivi-badge.view-attivi{background:rgba(91,53,200,.2);color:var(--c-violet);border:1px solid var(--c-violet);}
-body.light .dv-attivi-badge.view-attivi{background:rgba(91,53,200,.1);}
+.dv-attivi-badge.view-attivi{background:rgba(0,229,200,.15);color:#00E5C8;border:1px solid #00E5C8;}
+body.light .dv-attivi-badge.view-attivi{background:rgba(0,229,200,.12);}
 .dv-attivi-n{
   display:inline-flex;align-items:center;justify-content:center;
-  background:rgba(255,255,255,.3);color:#fff;
+  background:rgba(0,0,0,.15);color:#080810;
   width:14px;height:14px;border-radius:50%;
   font-size:8px;font-weight:800;
 }
-.dv-attivi-badge.view-attivi .dv-attivi-n{background:var(--c-violet);color:#fff;}
+.dv-attivi-badge.view-attivi .dv-attivi-n{background:#00E5C8;color:#080810;}
 
 /* UI sezioni — CSS variables per label+colore da admin */
 :root{
@@ -179,35 +222,34 @@ body.light .dv-attivi-badge.view-attivi{background:rgba(91,53,200,.1);}
 .dv-tab-row-wrap{display:flex;align-items:center;gap:5px;}
 .dv-tab-row{display:flex;gap:4px;overflow-x:auto;scrollbar-width:none;flex:1;}
 .dv-tab-row::-webkit-scrollbar{display:none;}
-/* Tab CATEGORIA — pill viola */
-.dv-tab{padding:6px 13px;background:rgba(91,53,200,.1);border:1px solid rgba(91,53,200,.3);border-radius:20px;font-size:11px;font-weight:700;color:var(--c-violet);cursor:pointer;transition:all .15s;white-space:nowrap;user-select:none;flex-shrink:0;display:inline-flex;align-items:center;gap:3px;}
-.dv-tab:hover{background:rgba(91,53,200,.2);border-color:var(--c-violet);}
-.dv-tab.active{background:var(--c-violet);border-color:var(--c-violet);color:#fff;}
-body.light .dv-tab{background:rgba(91,53,200,.1);border-color:rgba(91,53,200,.3);color:var(--c-violet);}
-body.light .dv-tab:hover{background:rgba(91,53,200,.18);}
-body.light .dv-tab.active{background:var(--c-violet);border-color:var(--c-violet);color:#fff;}
-/* Badge contatore nella tab Attivi */
-.dv-tab-badge{display:inline-flex;align-items:center;justify-content:center;background:rgba(255,255,255,.3);color:#fff;width:16px;height:16px;border-radius:50%;font-size:9px;font-weight:800;flex-shrink:0;}
-.dv-tab:not(.active) .dv-tab-badge{background:var(--c-violet);color:#fff;}
-body.light .dv-tab:not(.active) .dv-tab-badge{background:var(--c-violet);color:#fff;}
-/* Frecce pill */
-.dv-arrow{flex-shrink:0;width:28px;height:30px;background:var(--c-violet);border:none;border-radius:14px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:#fff;font-size:16px;font-weight:700;line-height:1;transition:opacity .15s;padding:0;}
+/* Tab CATEGORIA — pill azzurro */
+.dv-tab{padding:6px 13px;background:rgba(0,229,200,.1);border:1px solid rgba(0,229,200,.3);border-radius:20px;font-size:11px;font-weight:700;color:#00E5C8;cursor:pointer;transition:all .15s;white-space:nowrap;user-select:none;flex-shrink:0;display:inline-flex;align-items:center;gap:3px;}
+.dv-tab:hover{background:rgba(0,229,200,.2);border-color:#00E5C8;}
+.dv-tab.active{background:#00E5C8;border-color:#00E5C8;color:#080810;}
+body.light .dv-tab{background:rgba(0,229,200,.1);border-color:rgba(0,229,200,.35);color:#008a7a;}
+body.light .dv-tab:hover{background:rgba(0,229,200,.18);}
+body.light .dv-tab.active{background:#00E5C8;border-color:#00E5C8;color:#080810;}
+/* Badge contatore */
+.dv-tab-badge{display:inline-flex;align-items:center;justify-content:center;background:rgba(0,0,0,.15);color:#080810;width:16px;height:16px;border-radius:50%;font-size:9px;font-weight:800;flex-shrink:0;}
+.dv-tab:not(.active) .dv-tab-badge{background:#00E5C8;color:#080810;}
+/* Frecce pill azzurro */
+.dv-arrow{flex-shrink:0;width:28px;height:30px;background:#00E5C8;border:none;border-radius:14px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:#080810;font-size:16px;font-weight:700;line-height:1;transition:opacity .15s;padding:0;}
 .dv-arrow:hover{opacity:.82;}
 .dv-arrow.hidden{display:none;}
 
-/* Chip FIGLIO — rettangolare, testo del tema (scuro in light, chiaro in dark), distinguibile */
+/* Chip FIGLIO — rettangolare, testo tema, hover azzurro */
 .dv-chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px;min-height:34px;}
 .dv-chip{padding:5px 12px;background:var(--surface);border:1.5px solid var(--border);border-radius:8px;font-size:11px;font-weight:600;color:var(--text);cursor:pointer;transition:all .15s;user-select:none;}
-.dv-chip:hover{border-color:var(--c-violet);background:rgba(91,53,200,.06);}
-.dv-chip.active{background:var(--c-violet);border-color:var(--c-violet);color:#fff;font-weight:700;}
+.dv-chip:hover{border-color:#00E5C8;background:rgba(0,229,200,.06);}
+.dv-chip.active{background:#00E5C8;border-color:#00E5C8;color:#080810;font-weight:700;}
 body.light .dv-chip{background:#fff;border-color:#DDDDE8;color:#0A0A14;}
-body.light .dv-chip:hover{border-color:var(--c-violet);background:rgba(91,53,200,.05);}
-body.light .dv-chip.active{background:var(--c-violet);border-color:var(--c-violet);color:#fff;}
+body.light .dv-chip:hover{border-color:#00E5C8;background:rgba(0,229,200,.06);}
+body.light .dv-chip.active{background:#00E5C8;border-color:#00E5C8;color:#080810;}
 
-/* Chip nella view Attivi — con X rimuovi */
-.dv-chip-active-item{display:inline-flex;align-items:center;gap:5px;padding:4px 8px 4px 11px;background:var(--c-violet);border:none;border-radius:8px;font-size:11px;font-weight:600;color:#fff;cursor:default;}
-.dv-chip-remove{display:inline-flex;align-items:center;justify-content:center;width:15px;height:15px;border-radius:50%;background:rgba(255,255,255,.25);border:none;cursor:pointer;color:#fff;font-size:10px;font-weight:700;line-height:1;padding:0;transition:background .15s;flex-shrink:0;}
-.dv-chip-remove:hover{background:rgba(255,255,255,.45);}
+/* Chip view Attivi — azzurro con X */
+.dv-chip-active-item{display:inline-flex;align-items:center;gap:5px;padding:4px 8px 4px 11px;background:#00E5C8;border:none;border-radius:8px;font-size:11px;font-weight:600;color:#080810;cursor:default;}
+.dv-chip-remove{display:inline-flex;align-items:center;justify-content:center;width:15px;height:15px;border-radius:50%;background:rgba(0,0,0,.15);border:none;cursor:pointer;color:#080810;font-size:10px;font-weight:700;line-height:1;padding:0;transition:background .15s;flex-shrink:0;}
+.dv-chip-remove:hover{background:rgba(0,0,0,.28);}
 .dv-empty-msg{font-size:11px;color:var(--muted);font-style:italic;padding:4px 0;}
 
 /* ── STYLES — viola per evidenziare importanza ── */
@@ -275,11 +317,11 @@ body:not(.light) .adv-input{background:#1e1a3a;color:var(--text);}
 #statusBar.fail{border-color:var(--danger);color:var(--danger);}
 #statusBar.loading{border-color:var(--c-violet);color:var(--muted);}
 .status-spin{width:14px;height:14px;border:2px solid rgba(0,229,200,.2);border-top-color:var(--c-accent);border-radius:50%;animation:spin .7s linear infinite;flex-shrink:0;}
-#cooldownBar{display:none;background:var(--surface);border:1px solid var(--yellow);border-radius:10px;padding:8px 12px;flex-shrink:0;}
+#cooldownBar{display:none;background:var(--surface);border:1px solid #F0008C;border-radius:10px;padding:8px 12px;flex-shrink:0;}
 #cooldownBar.show{display:block;}
-#cooldownText{font-size:11px;color:var(--yellow);margin-bottom:6px;font-weight:600;}
-#cooldownTrack{width:100%;height:2px;background:var(--border);border-radius:2px;}
-#cooldownFill{height:2px;background:linear-gradient(90deg,var(--c-accent),var(--c-violet));border-radius:2px;width:100%;transition:width .1s linear;}
+#cooldownText{font-size:11px;color:#F0008C;margin-bottom:6px;font-weight:600;}
+#cooldownTrack{width:100%;height:3px;background:var(--border);border-radius:2px;}
+#cooldownFill{height:3px;background:linear-gradient(90deg,#F0008C,#ff4db8);border-radius:2px;width:100%;transition:width .1s linear;}
 
 /* MODIFICA 03 — GEN BUTTON più grande e prominente */
 #genBtn{
@@ -563,6 +605,7 @@ body:not(.light) .adv-input{background:#1e1a3a;color:var(--text);}
         <button class="admin-tab" onclick="aTab('logo',this)"><span class="admin-tab-icon">🖼</span> Logo & Nav</button>
         <button class="admin-tab" onclick="aTab('stili',this)"><span class="admin-tab-icon">✦</span> Stili AI</button>
         <button class="admin-tab" onclick="aTab('tag',this)"><span class="admin-tab-icon">🏷</span> Tag visivi</button>
+        <button class="admin-tab" onclick="aTab('faq',this)"><span class="admin-tab-icon">❓</span> FAQ</button>
         <button class="admin-tab" onclick="aTab('api',this)"><span class="admin-tab-icon">🔌</span> API</button>
         <button class="admin-tab" onclick="aTab('utenti',this)"><span class="admin-tab-icon">👤</span> Utenti</button>
         <button class="admin-tab" onclick="aTab('info',this)"><span class="admin-tab-icon">ℹ</span> Info</button>
@@ -707,6 +750,20 @@ body:not(.light) .adv-input{background:#1e1a3a;color:var(--text);}
           <button class="a-btn primary" onclick="saveCats()" style="margin-top:8px;">💾 Salva tutto</button>
         </div>
 
+        <!-- FAQ ADMIN -->
+        <div class="admin-section" id="asec-faq">
+          <div class="a-title">FAQ</div><div class="a-desc">Gestisci domande e risposte. Ogni FAQ può essere attivata, modificata o eliminata.</div>
+          <div id="adminFaqList"></div>
+          <div class="a-card" style="margin-top:12px;">
+            <div class="a-card-title">Nuova categoria FAQ</div>
+            <div style="display:flex;gap:7px;margin-top:4px;">
+              <input type="text" class="a-input" placeholder="es: 🎓 Guida avanzata" id="newFaqCat" style="flex:1;">
+              <button class="a-btn primary" onclick="addFaqCat()">+ Aggiungi</button>
+            </div>
+          </div>
+          <button class="a-btn primary" onclick="saveFaqs()" style="margin-top:8px;">💾 Salva tutto</button>
+        </div>
+
         <div class="admin-section" id="asec-api">
           <div class="a-title">API</div><div class="a-desc">Provider di generazione immagini.</div>
           <div class="api-card" id="apiCard-pollinations"><div class="api-active-badge" id="apiBadge-pollinations">✓ ATTIVO</div><div class="api-name">🆓 Pollinations AI</div><div class="api-desc">Gratuito, illimitato, senza API key. Cooldown 16s.</div><button class="a-btn primary" onclick="setActiveApi('pollinations')">Usa questo</button></div>
@@ -732,7 +789,7 @@ body:not(.light) .adv-input{background:#1e1a3a;color:var(--text);}
           <div class="a-title">Info sistema</div><div class="a-desc">Stato e manutenzione.</div>
           <div class="a-card">
             <!-- MODIFICA 02 — versione aggiornata a v2.7 -->
-            <div class="a-row"><div class="a-row-label">Versione</div><span style="color:var(--c-accent);font-weight:700;font-size:12px;">v3.3</span></div>
+            <div class="a-row"><div class="a-row-label">Versione</div><span style="color:var(--c-accent);font-weight:700;font-size:12px;">v3.5</span></div>
             <div class="a-row"><div class="a-row-label">API attiva</div><span id="infoActiveApi" style="color:var(--c-accent);font-weight:700;font-size:12px;">Pollinations AI</span></div>
             <div class="a-row"><div class="a-row-label">Tema</div><span id="infoTheme" style="color:#ccc;font-size:12px;">Dark</span></div>
             <div class="a-row"><div class="a-row-label">Immagini galleria</div><span id="infoGalleryCount" style="color:#ccc;font-size:12px;">0</span></div>
@@ -760,6 +817,7 @@ body:not(.light) .adv-input{background:#1e1a3a;color:var(--text);}
     <nav class="sidebar-nav">
       <button class="snav-btn active" id="snav-create" onclick="switchTab('create')"><span class="snav-icon">✨</span> Crea</button>
       <button class="snav-btn" id="snav-gallery" onclick="switchTab('gallery')"><span class="snav-icon">🖼</span> Galleria</button>
+      <button class="snav-btn" id="snav-faq" onclick="switchTab('faq')"><span class="snav-icon">❓</span> FAQ</button>
     </nav>
     <div class="sidebar-footer"></div>
   </aside>
@@ -810,27 +868,14 @@ body:not(.light) .adv-input{background:#1e1a3a;color:var(--text);}
       <div class="ratio-row" id="ratioRow"></div>
     </div>
 
-    <!-- OPZIONI AVANZATE (accordion) -->
-    <div class="accordion">
-      <div class="accordion-header" id="advHeader" onclick="toggleAccordion()">
-        <span class="accordion-title">⚙ Opzioni avanzate</span>
-        <span class="accordion-arrow">▼</span>
-      </div>
-      <div class="accordion-body" id="advBody">
-        <div class="adv-row">
-          <span class="adv-label">Prompt negativo</span>
-          <textarea id="negPrompt" class="adv-input" rows="2" placeholder="blurry, ugly, distorted, watermark…"></textarea>
-          <div class="adv-hint">Cosa NON vuoi nell'immagine</div>
-        </div>
-        <div class="adv-row">
-          <span class="adv-label">Seed (riproducibilità)</span>
-          <input type="number" id="seedInput" class="adv-input" placeholder="Vuoto = casuale">
-          <div class="adv-hint">Stesso seed + prompt = stessa immagine</div>
-        </div>
-        <div class="adv-toggles">
-          <div class="adv-toggle-row"><span>✨ Migliora prompt auto</span><button class="toggle-track on" id="toggleEnhance" onclick="toggleSetting('enhance')"><div class="toggle-thumb"></div></button></div>
-          <div class="adv-toggle-row"><span>🛡 Modalità sicura</span><button class="toggle-track on" id="toggleSafe" onclick="toggleSetting('safe')"><div class="toggle-thumb"></div></button></div>
-        </div>
+    <!-- COSA NON VUOI — link espandibile -->
+    <div>
+      <button class="neg-toggle" id="negToggle" onclick="toggleNeg()">
+        <span class="neg-toggle-icon">+</span> Cosa non vuoi nella tua immagine?
+      </button>
+      <div id="negWrap">
+        <textarea id="negPrompt" rows="2" placeholder="es: sfondo confuso, troppi colori, persone…"></textarea>
+        <div class="neg-hint">Descrivi cosa preferisci non vedere nell'immagine generata</div>
       </div>
     </div>
     </div><!-- /controls-scroll -->
@@ -893,6 +938,13 @@ body:not(.light) .adv-input{background:#1e1a3a;color:var(--text);}
     <div style="font-size:13px;color:var(--muted);margin-bottom:20px;font-weight:500;" id="galleryCount">0 immagini generate</div>
     <div id="galleryContent" style="overflow-y:auto;flex:1;"></div>
   </div>
+
+  <!-- FAQ -->
+  <div id="screen-faq">
+    <div class="wonder-title" style="margin-bottom:4px">FAQ</div>
+    <div style="font-size:13px;color:var(--muted);margin-bottom:24px;font-weight:500;">Domande frequenti e guida all'uso</div>
+    <div id="faqContent"></div>
+  </div>
 </div>
 
 <!-- MOBILE GEN + NAV -->
@@ -900,6 +952,7 @@ body:not(.light) .adv-input{background:#1e1a3a;color:var(--text);}
 <div id="bottom-nav">
   <button class="nav-btn active" id="nav-create" onclick="switchTab('create')"><span class="nav-icon">✨</span><span class="nav-label">Crea</span><div class="nav-dot"></div></button>
   <button class="nav-btn" id="nav-gallery" onclick="switchTab('gallery')"><span class="nav-icon">🖼</span><span class="nav-label">Galleria</span><div class="nav-dot"></div></button>
+  <button class="nav-btn" id="nav-faq" onclick="switchTab('faq')"><span class="nav-icon">❓</span><span class="nav-label">FAQ</span><div class="nav-dot"></div></button>
 </div>
 
 <!-- MODAL -->
@@ -965,16 +1018,40 @@ const DEFAULT_CATS_DATA=[
   ]},
 ];
 
-const PA_DATA={
-  '🐾 Animali':['un corgi astronauta che galleggia nello spazio con tuta vintage','una tigre del Bengala in stile giapponese ukiyo-e, onde di Hokusai','un gufo steampunk con occhiali meccanici e ingranaggi dorati','un polpo che suona la chitarra elettrica su un palco rock','un gatto samurai con katana sotto la pioggia notturna neon','un orso grizzly che medita su una montagna al tramonto'],
-  '🚀 Fantascienza':['una città futuristica sospesa tra le nuvole, architettura biopunk','un robot antico abbandonato nella giungla ricoperto di muschio','un astronauta solitario su un pianeta viola con due lune','una navicella spaziale vintage degli anni 50 che atterra su Marte','un cyborg donna con capelli neon in un vicolo cyberpunk piovoso','un portale dimensionale che si apre in una foresta di cristallo'],
-  '🌿 Natura':['una cascata che scende tra montagne innevate al tramonto dorato','una foresta bioluminescente di notte con funghi luminosi blu','un oceano tempestoso con onde enormi sotto un cielo viola','un campo di girasoli con aurora boreale sullo sfondo','una grotta di ghiaccio con stalattiti di cristallo iridescente','un vulcano attivo al tramonto con colata lavica arancione'],
-  '🎨 Arte & Design':['un ritratto in stile pop art anni 60 con colori saturi e mezzitoni','una composizione astratta geometrica ispirata al Bauhaus','uno skyline di città in stile Art Nouveau con ornamenti floreali','un mandala intricato con simboli cosmici e colori vivaci','una scena surrealista stile Dalì con orologi che si sciolgono','un poster vintage da viaggio anni 30 con grafica retro lineare'],
-  '🏙 Urban':['un vicolo di Tokyo di notte con insegne neon che si riflettono nella pioggia','un muro di graffiti urbani coloratissimi stile street art','un mercato di spezie marocchino con colori vivaci e luce dorata','una stazione metropolitana futuristica con architettura organica','un rooftop newyorkese di notte con skyline illuminato','una bicicletta abbandonata con fiori che crescono tra i raggi'],
-  '✨ Magico':['una biblioteca infinita con libri che volano tra scaffali dorati','un drago di cristallo che dorme avvolto in una foresta incantata','un castello di nuvole che galleggia sopra un mare di nebbia','una strega con cappello che prepara una pozione luminosa verde','una porta di legno antico che si apre su un mondo parallelo colorato','un unicorno di nebbia che corre attraverso un campo stellato'],
-  '🍕 Cibo & Vita':['una pizza napoletana stilizzata come opera d\'arte pop art','un mercato del pesce giapponese all\'alba con luci calde','un caffè parigino di notte con luci dorate e passanti sfocati','una cucina italiana rustica con pasta fresca e pomodori','un cocktail bar anni 20 con atmosfera jazz e luci soffuse','una gelateria colorata con gusti impossibili e colori surreali'],
-  '🎵 Musica':['una chitarra elettrica esplosa in schegge di luce colorata','un DJ in una discoteca anni 80 con luci laser e fumo','un pianoforte a coda in una foresta nebbiosa di notte','una band jazz in un club buio con luci calde soffuse','cuffie da studio che emettono onde sonore visibili come colori','un violinista di strada sotto la pioggia a Parigi'],
-};
+/* DATI FAQ DEFAULT */
+const DEFAULT_FAQ_DATA=[
+  {
+    id:'fq',
+    cat:'❓ Domande frequenti',
+    items:[
+      {q:'L\'app è gratuita?',a:'Sì, ImmaginAI è completamente gratuita. Puoi generare quante immagini vuoi senza registrarti e senza inserire dati di pagamento. L\'unico limite è un breve cooldown di qualche secondo tra una generazione e l\'altra per non sovraccaricare il servizio.',active:true},
+      {q:'Le immagini generate sono mie?',a:'Le immagini che generi sono tue da usare come preferisci, incluso metterle su prodotti WonderSpit. Ti consigliamo però di non usarle per scopi commerciali fuori dalla piattaforma senza verificare le condizioni del servizio di generazione.',active:true},
+      {q:'Posso scaricare l\'immagine?',a:'Sì! Dopo ogni generazione appare il bottone "Scarica" sotto l\'anteprima. L\'immagine viene salvata direttamente sul tuo dispositivo in alta qualità.',active:true},
+      {q:'Devo registrarmi per usare l\'app?',a:'No, nessuna registrazione richiesta. Apri l\'app, scrivi quello che vuoi vedere e premi Genera. Le immagini vengono salvate nella Galleria finché non chiudi il browser.',active:true},
+    ]
+  },
+  {
+    id:'du',
+    cat:'💭 Dubbi comuni',
+    items:[
+      {q:'Perché l\'immagine non corrisponde a quello che ho scritto?',a:'L\'intelligenza artificiale interpreta le parole in modo creativo. Se il risultato non ti convince, prova ad essere più specifico nel prompt (es: "un gatto arancione seduto su un tetto di notte" invece di "un gatto") oppure usa i Dettagli visivi per aggiungere stile e atmosfera.',active:true},
+      {q:'Cosa significa "cooldown"?',a:'Dopo ogni generazione l\'app attende qualche secondo prima di permettere una nuova richiesta. È una pausa tecnica necessaria per il servizio gratuito. Vedrai una barra di attesa che si svuota — quando sparisce puoi generare di nuovo.',active:true},
+      {q:'Perché alcune immagini ci mettono più tempo?',a:'Il tempo di generazione dipende dal carico del server in quel momento. Di solito sono 15-30 secondi. Se l\'attesa supera il minuto, l\'app prova automaticamente con un modello alternativo.',active:true},
+      {q:'L\'immagine viene salvata automaticamente?',a:'Sì, ogni immagine generata viene salvata nella sezione Galleria del tuo browser. Attenzione: se cancelli i dati del browser o usi una finestra in incognito, la galleria viene persa. Per conservare un\'immagine in modo sicuro, scaricala subito.',active:true},
+    ]
+  },
+  {
+    id:'gu',
+    cat:'📖 Come funziona',
+    items:[
+      {q:'Come scrivo un buon prompt?',a:'Descrivi la scena come se la stessi spiegando a un artista: soggetto principale, ambientazione, luce, colori e stile. Esempio: "una volpe rossa nella neve al tramonto, stile acquerello, colori caldi". Più dettagli dai, più l\'immagine si avvicina alla tua idea.',active:true},
+      {q:'A cosa servono i Dettagli visivi?',a:'I Dettagli visivi sono chip cliccabili che aggiungono istruzioni tecniche al tuo prompt in automatico — senza che tu debba conoscere i termini giusti. Ad esempio, cliccando "Luce cinema" aggiungi un effetto di illuminazione drammatica professionale. Puoi selezionarne quanti vuoi.',active:true},
+      {q:'Cosa cambia tra gli Stili artistici?',a:'Ogni stile guida l\'AI verso un tipo di immagine diverso: Foto produce risultati realistici, Digital crea illustrazioni vivide, Anime si ispira all\'animazione giapponese, Cyber ha atmosfere futuristiche neon, Minimal è pulito ed essenziale. Auto lascia decidere all\'AI.',active:true},
+      {q:'Come uso il bottone Modifica?',a:'Dopo aver generato un\'immagine, clicca "Modifica" e scrivi cosa vuoi cambiare — ad esempio "aggiungi una luna piena" o "rendi i colori più caldi". L\'app rigenera l\'immagine tenendo conto della tua richiesta e ti mostra le due versioni a confronto per scegliere.',active:true},
+      {q:'Come metto l\'immagine su un prodotto WonderSpit?',a:'Dopo aver generato un\'immagine che ti piace, clicca il bottone "Usa nel Designer" che appare sotto l\'anteprima. Verrai portato direttamente al designer di WonderSpit dove potrai posizionare l\'immagine su magliette, felpe e altri prodotti.',active:true},
+    ]
+  },
+];
 
 const DICE_FULL=[
   {p:'un gatto nero con occhi galattici seduto su un libro antico aperto, sfondo candele accese, atmosfera misteriosa',s:'fantasy art, magical, epic scene, dramatic lighting'},
@@ -1027,7 +1104,7 @@ const isMobile=()=>window.innerWidth<1024;
 /* ── INIT ── */
 document.addEventListener('DOMContentLoaded',()=>{
   detectLayout();
-  loadSaved();loadStyles();loadCats();loadNavBtns();loadBtnColors();
+  loadSaved();loadStyles();loadCats();loadFaqs();loadNavBtns();loadBtnColors();
   buildStyles();buildRatios();buildDvTabs();initLongPress();
   loadLogoFromStorage();applyNavBtns();loadUiSettings();
   window.addEventListener('resize',detectLayout);
@@ -1303,7 +1380,91 @@ function addTagToCat(ci){const icon=document.getElementById('newTagIcon-'+ci).va
 function addNewCat(){const icon=document.getElementById('newCatIcon').value.trim()||'◈';const label=document.getElementById('newCatLabel').value.trim();if(!label){alert('Inserisci un nome');return;}CATS.push({id:'cat_'+Date.now(),label,icon,active:true,tags:[]});document.getElementById('newCatIcon').value='';document.getElementById('newCatLabel').value='';renderAdminCats();msg('Categoria aggiunta — premi Salva');}
 
 
-/* ── DADO ── */
+/* ── TOGGLE NEG ── */
+function toggleNeg(){
+  const btn=document.getElementById('negToggle');
+  const wrap=document.getElementById('negWrap');
+  if(!btn||!wrap) return;
+  btn.classList.toggle('open');
+  wrap.classList.toggle('open');
+}
+
+/* ── FAQ ── */
+let FAQS=[];
+function loadFaqs(){const s=localStorage.getItem('ig_faqs');FAQS=s?JSON.parse(s):JSON.parse(JSON.stringify(DEFAULT_FAQ_DATA));}
+function saveFaqs(){localStorage.setItem('ig_faqs',JSON.stringify(FAQS));renderFaq();renderAdminFaq();msg('✓ FAQ salvate!');}
+
+function renderFaq(){
+  const el=document.getElementById('faqContent');if(!el) return;
+  const activeCats=FAQS.filter(c=>c.items.some(i=>i.active));
+  if(!activeCats.length){el.innerHTML='<p style="color:var(--muted);font-size:13px;">Nessuna FAQ disponibile.</p>';return;}
+  el.innerHTML=activeCats.map(cat=>`
+    <div class="faq-block">
+      <div class="faq-section-title">${cat.cat}</div>
+      ${cat.items.filter(i=>i.active).map((item,idx)=>`
+        <div class="faq-item" id="faq-${cat.id}-${idx}">
+          <button class="faq-q" onclick="toggleFaq('${cat.id}',${idx})">
+            <span class="faq-q-text">${item.q}</span>
+            <span class="faq-q-icon">+</span>
+          </button>
+          <div class="faq-a"><p class="faq-a-text">${item.a}</p></div>
+        </div>`).join('')}
+    </div>`).join('');
+}
+
+function toggleFaq(catId,idx){
+  const el=document.getElementById('faq-'+catId+'-'+idx);
+  if(!el) return;
+  // Chiudi gli altri nella stessa categoria
+  document.querySelectorAll('.faq-item.open').forEach(o=>{if(o!==el) o.classList.remove('open');});
+  el.classList.toggle('open');
+}
+
+/* Admin FAQ */
+function renderAdminFaq(){
+  const el=document.getElementById('adminFaqList');if(!el) return;
+  el.innerHTML=FAQS.map((cat,ci)=>`
+    <div class="cat-admin-block" style="margin-bottom:10px;">
+      <div class="cat-admin-header" onclick="toggleCatAdmin('faq${ci}',this)" style="display:flex;align-items:center;gap:8px;padding:12px 14px;cursor:pointer;">
+        <span class="cat-admin-name" style="flex:1;">${cat.cat}</span>
+        <input type="text" class="a-input" value="${cat.cat}" id="faqCatLabel-${ci}" onclick="event.stopPropagation()" style="width:200px;font-size:11px;" placeholder="Nome categoria">
+        <button class="a-btn ghost" onclick="event.stopPropagation();updateFaqCat(${ci})" style="padding:3px 8px;font-size:10px;">OK</button>
+        <button class="a-btn danger" onclick="event.stopPropagation();deleteFaqCat(${ci})" style="padding:3px 7px;font-size:10px;">✕</button>
+        <span class="cat-admin-arrow">▼</span>
+      </div>
+      <div class="cat-admin-body" id="catBody-faq${ci}">
+        ${cat.items.map((item,ii)=>`
+          <div class="dv-item" style="flex-direction:column;align-items:flex-start;gap:6px;padding:10px 0;">
+            <div style="display:flex;width:100%;align-items:center;gap:6px;">
+              <div class="dv-item-info" style="flex:1;">
+                <div class="dv-item-label">${item.q}</div>
+              </div>
+              <button class="s-toggle ${item.active?'on':''}" onclick="toggleFaqItem(${ci},${ii},this)"><div class="s-toggle-thumb"></div></button>
+              <button class="a-btn danger" style="padding:2px 7px;font-size:10px;" onclick="deleteFaqItem(${ci},${ii})">✕</button>
+            </div>
+            <input type="text" class="a-input" value="${item.q}" id="faqQ-${ci}-${ii}" placeholder="Domanda" style="width:100%;font-size:11px;">
+            <textarea class="a-input" id="faqA-${ci}-${ii}" placeholder="Risposta" style="width:100%;font-size:11px;resize:vertical;min-height:60px;">${item.a}</textarea>
+            <button class="a-btn ghost" onclick="updateFaqItem(${ci},${ii})" style="padding:3px 10px;font-size:10px;">💾 Salva modifica</button>
+          </div>`).join('')}
+        <div style="padding:10px 0;border-top:1px solid #1e1e35;margin-top:6px;">
+          <div style="font-size:10px;color:#7a78a0;margin-bottom:6px;font-weight:700;">+ Nuova domanda</div>
+          <input type="text" class="a-input" id="newFaqQ-${ci}" placeholder="Domanda" style="width:100%;margin-bottom:5px;">
+          <textarea class="a-input" id="newFaqA-${ci}" placeholder="Risposta" style="width:100%;resize:vertical;min-height:50px;"></textarea>
+          <button class="a-btn primary" onclick="addFaqItem(${ci})" style="margin-top:6px;padding:5px 12px;font-size:10px;">+ Aggiungi</button>
+        </div>
+      </div>
+    </div>`).join('');
+}
+
+function toggleFaqItem(ci,ii,btn){FAQS[ci].items[ii].active=!FAQS[ci].items[ii].active;btn.classList.toggle('on',FAQS[ci].items[ii].active);btn.querySelector('.s-toggle-thumb').style.left=FAQS[ci].items[ii].active?'19px':'3px';}
+function deleteFaqItem(ci,ii){if(!confirm('Eliminare questa FAQ?')) return;FAQS[ci].items.splice(ii,1);renderAdminFaq();}
+function updateFaqItem(ci,ii){FAQS[ci].items[ii].q=document.getElementById('faqQ-'+ci+'-'+ii)?.value||FAQS[ci].items[ii].q;FAQS[ci].items[ii].a=document.getElementById('faqA-'+ci+'-'+ii)?.value||FAQS[ci].items[ii].a;msg('Modificato — premi Salva');}
+function updateFaqCat(ci){FAQS[ci].cat=document.getElementById('faqCatLabel-'+ci)?.value||FAQS[ci].cat;renderAdminFaq();msg('Categoria aggiornata — premi Salva');}
+function deleteFaqCat(ci){if(!confirm(`Eliminare categoria "${FAQS[ci].cat}"?`)) return;FAQS.splice(ci,1);renderAdminFaq();}
+function addFaqItem(ci){const q=document.getElementById('newFaqQ-'+ci)?.value.trim();const a=document.getElementById('newFaqA-'+ci)?.value.trim();if(!q){alert('Inserisci la domanda');return;}FAQS[ci].items.push({q,a:a||'',active:true});renderAdminFaq();msg('Aggiunta — premi Salva');}
+function addFaqCat(){const label=document.getElementById('newFaqCat')?.value.trim();if(!label){alert('Inserisci il nome');return;}FAQS.push({id:'cat_'+Date.now(),cat:label,items:[]});document.getElementById('newFaqCat').value='';renderAdminFaq();msg('Categoria aggiunta — premi Salva');}
+
+
 function rollDice(){
   const btn=document.getElementById('diceBtn');
   btn.classList.add('rolling');
@@ -1442,7 +1603,7 @@ function deleteUser(i){const users=loadUsers();if(users[i].username==='WONDERSPI
 function initLongPress(){['sidebarLogo','mobileLogoTitle'].forEach(id=>{const el=document.getElementById(id);if(!el) return;el.addEventListener('mousedown',()=>{lpTimer=setTimeout(openAdmin,3000);});el.addEventListener('touchstart',()=>{lpTimer=setTimeout(openAdmin,3000);},{passive:true});['mouseup','mouseleave','touchend'].forEach(ev=>el.addEventListener(ev,()=>clearTimeout(lpTimer)));});}
 function openAdmin(){document.getElementById('adminOverlay').classList.add('open');if(adminLoggedIn){showAdminPanel(currentAdminUser);}else{document.getElementById('adminLogin').style.display='flex';document.getElementById('adminPanel').classList.remove('open');}}
 function doAdminLogin(){const u=document.getElementById('adminUser').value.trim();const p=document.getElementById('adminPass').value;const users=loadUsers();const found=users.find(x=>x.username===u&&x.password===p);if(found){adminLoggedIn=true;currentAdminUser=found;document.getElementById('loginError').style.display='none';document.getElementById('adminUser').value='';document.getElementById('adminPass').value='';showAdminPanel(found);}else{document.getElementById('loginError').style.display='block';}}
-function showAdminPanel(user){document.getElementById('adminLogin').style.display='none';document.getElementById('adminPanel').classList.add('open');document.getElementById('adminUserLabel').textContent='👤 '+user.username;loadSavedApiKeys();updateApiCards();renderAdminStyleList();renderAdminCats();renderUserList();buildNavBtnList();loadLogoFromStorage();document.getElementById('aThemeSelect').value=ST.theme;document.getElementById('infoTheme').textContent=ST.theme==='dark'?'Dark':'Light';document.getElementById('infoGalleryCount').textContent=ST.gallery.length;buildBrandSwatches();}
+function showAdminPanel(user){document.getElementById('adminLogin').style.display='none';document.getElementById('adminPanel').classList.add('open');document.getElementById('adminUserLabel').textContent='👤 '+user.username;loadSavedApiKeys();updateApiCards();renderAdminStyleList();renderAdminCats();renderAdminFaq();renderUserList();buildNavBtnList();loadLogoFromStorage();document.getElementById('aThemeSelect').value=ST.theme;document.getElementById('infoTheme').textContent=ST.theme==='dark'?'Dark':'Light';document.getElementById('infoGalleryCount').textContent=ST.gallery.length;buildBrandSwatches();}
 function closeAdmin(){document.getElementById('adminOverlay').classList.remove('open');}
 function aTab(n,btn){document.querySelectorAll('.admin-section').forEach(s=>s.classList.remove('active'));document.querySelectorAll('.admin-tab').forEach(b=>b.classList.remove('active'));document.getElementById('asec-'+n).classList.add('active');btn.classList.add('active');}
 function msg(m){const el=document.getElementById('adminSaveMsg');if(!el) return;el.textContent=m;el.classList.add('ok');setTimeout(()=>{el.textContent='Modifica e salva';el.classList.remove('ok');},3000);}
@@ -1639,6 +1800,7 @@ function switchTab(tab){
   const mob=isMobile();
   document.getElementById('controls').classList.add('tab-hidden');
   document.getElementById('screen-gallery').classList.remove('active');
+  document.getElementById('screen-faq').classList.remove('active');
   if(!mob) document.getElementById('preview-col').style.display='none';
   if(mob) document.getElementById('preview-col').classList.remove('output-active');
   if(tab==='create'){
@@ -1651,6 +1813,7 @@ function switchTab(tab){
     document.getElementById('screen-'+tab).classList.add('active');
     document.getElementById('genBtnMobile').classList.remove('tab-visible');
     if(tab==='gallery') renderGallery();
+    if(tab==='faq') renderFaq();
   }
   document.querySelectorAll('.snav-btn').forEach(b=>b.classList.remove('active'));
   const sn=document.getElementById('snav-'+tab);if(sn) sn.classList.add('active');
