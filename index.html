@@ -787,7 +787,7 @@ body:not(.light) .adv-input{background:#1e1a3a;color:var(--text);}
           <div class="a-title">Info sistema</div><div class="a-desc">Stato e manutenzione.</div>
           <div class="a-card">
             <!-- MODIFICA 02 — versione aggiornata a v2.7 -->
-            <div class="a-row"><div class="a-row-label">Versione</div><span style="color:var(--c-accent);font-weight:700;font-size:12px;">v3.9</span></div>
+            <div class="a-row"><div class="a-row-label">Versione</div><span style="color:var(--c-accent);font-weight:700;font-size:12px;">v4.0</span></div>
             <div class="a-row"><div class="a-row-label">API attiva</div><span id="infoActiveApi" style="color:var(--c-accent);font-weight:700;font-size:12px;">Pollinations AI</span></div>
             <div class="a-row"><div class="a-row-label">Tema</div><span id="infoTheme" style="color:#ccc;font-size:12px;">Dark</span></div>
             <div class="a-row"><div class="a-row-label">Immagini galleria</div><span id="infoGalleryCount" style="color:#ccc;font-size:12px;">0</span></div>
@@ -1618,14 +1618,14 @@ function buildUrl(model){
   const prompt=document.getElementById('promptInput').value.trim();
   const tags=getActiveTagsPrompt();
   const ratio=RATIOS.find(r=>r.id===ST.ratio);
-  const full=prompt+(ST.style?', '+ST.style:'')+(tags?', '+tags:'');
-  const seed=Math.floor(Math.random()*999999);
   const neg=document.getElementById('negPrompt');
   const negVal=neg&&neg.value.trim()?neg.value.trim():'';
-  // Se c'è un negative prompt, disabilita enhance per rispettarlo
+  // Incorpora il negative direttamente nel prompt — più efficace con Flux
+  const negInPrompt=negVal?`, avoid: ${negVal}, no ${negVal}`:'';
+  const full=prompt+(ST.style?', '+ST.style:'')+(tags?', '+tags:'')+negInPrompt;
+  const seed=Math.floor(Math.random()*999999);
   const enhanceVal=negVal?'false':(ST.enhance?'true':'false');
   const p=new URLSearchParams({width:ratio.w,height:ratio.h,model,nologo:'true',enhance:enhanceVal,safe:ST.safe?'true':'false',seed});
-  if(negVal) p.append('negative',negVal);
   return `https://image.pollinations.ai/prompt/${encodeURIComponent(full)}?${p}`;
 }
 function tryLoad(url){return new Promise((res,rej)=>{const t=setTimeout(()=>rej('timeout'),ST.timeout);const img=new Image();img.onload=()=>{clearTimeout(t);res(url);};img.onerror=()=>{clearTimeout(t);rej('error');};img.src=url;});}
