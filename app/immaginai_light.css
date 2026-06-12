@@ -100,11 +100,11 @@ body:not(.light) .adv-input {
 #controls-scroll  { background: var(--bg) !important; }
 #controls-footer  { background: #d8dce6 !important; border-top: none !important; padding-top: 14px !important; padding-bottom: 18px !important; }
 
-/* Controls occupa tutto lo spazio disponibile */
-#controls         { width: auto !important; flex: 1 !important; }
+/* Controls larghezza fissa ragionevole */
+#controls         { width: 520px !important; flex: none !important; }
 
-/* Preview colonna fissa e compatta */
-#preview-col      { flex: none !important; width: 280px !important; min-width: 280px !important; }
+/* Preview occupa il resto */
+#preview-col      { flex: 1 !important; min-width: 260px !important; }
 
 /* Fix overflow: permetti scroll verticale invece di tagliare il contenuto */
 #controls-scroll  { overflow-y: auto !important; overflow-x: hidden !important; }
