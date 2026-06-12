@@ -208,9 +208,9 @@ body:not(.light) .adv-input {
 .neg-toggle:hover,
 .neg-toggle.open      { background: #2d3142 !important; }
 
-.transp-toggle        { background: #00E5C8 !important; color: #080810 !important; border: none !important; font-size: 12px !important; }
-.transp-toggle:hover  { background: #00cdb8 !important; }
-.transp-toggle.on     { background: #00b8a2 !important; color: #080810 !important; border: none !important; }
+.transp-toggle        { background: #1e2132 !important; color: #ffffff !important; border: none !important; font-size: 12px !important; }
+.transp-toggle:hover  { background: #2d3142 !important; }
+.transp-toggle.on     { background: #00E5C8 !important; color: #080810 !important; border: none !important; }
 
 #negPrompt              { background: #ffffff !important; border: 1.5px solid var(--border) !important; color: var(--text) !important; font-family: var(--font-body) !important; }
 #negPrompt:focus        { border-color: #5B35C8 !important; outline: none !important; }
