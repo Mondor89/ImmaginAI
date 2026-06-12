@@ -97,9 +97,8 @@ body:not(.light) .adv-input {
    4. CONTROLS — area centrale
 ════════════════════════════════════════════════════ */
 #controls,
-#controls-scroll,
-#controls-footer { background: var(--bg) !important; }
-#controls-footer  { border-top: 1px solid var(--border) !important; }
+#controls-scroll  { background: var(--bg) !important; }
+#controls-footer  { background: #d8dce6 !important; border-top: none !important; padding-top: 14px !important; padding-bottom: 18px !important; }
 
 /* Controls occupa tutto lo spazio disponibile */
 #controls         { width: auto !important; flex: 1 !important; }
@@ -140,8 +139,8 @@ body:not(.light) .adv-input {
 }
 #promptInput::placeholder { color: #b0b8c8 !important; }
 
-#diceBtn       { background: #FFE600 !important; border-left: 1px solid rgba(0,0,0,.06) !important; }
-#diceBtn:hover { background: #f0d800 !important; }
+#diceBtn       { background: #F0008C !important; border-left: 1px solid rgba(0,0,0,.08) !important; }
+#diceBtn:hover { background: #d4007c !important; }
 
 /* ── DV Tabs — tinta viola leggera default, pieno attivo ── */
 .dv-tab {
