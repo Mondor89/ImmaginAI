@@ -70,8 +70,9 @@ body:not(.light) .adv-input {
   border-right: none !important;
   width:        180px !important;
 }
-.sidebar-logo { border-bottom: 1px solid rgba(255,255,255,.08) !important; }
-.logo-ai      { color: #ffffff !important; font-size: 14px !important; }
+.sidebar-logo   { border-bottom: 1px solid rgba(255,255,255,.08) !important; }
+.logo-ai        { color: #ffffff !important; font-size: 14px !important; }
+.sidebar-footer { display: none !important; }
 
 .snav-btn {
   color:       rgba(255,255,255,.55) !important;
@@ -99,6 +100,12 @@ body:not(.light) .adv-input {
 #controls-scroll,
 #controls-footer { background: var(--bg) !important; }
 #controls-footer  { border-top: 1px solid var(--border) !important; }
+
+/* Controls occupa tutto lo spazio disponibile */
+#controls         { width: auto !important; flex: 1 !important; }
+
+/* Preview colonna fissa e compatta */
+#preview-col      { flex: none !important; width: 280px !important; min-width: 280px !important; }
 
 /* Fix overflow: permetti scroll verticale invece di tagliare il contenuto */
 #controls-scroll  { overflow-y: auto !important; overflow-x: hidden !important; }
