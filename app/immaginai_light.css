@@ -109,6 +109,9 @@ body:not(.light) .adv-input {
 /* Fix overflow: permetti scroll verticale invece di tagliare il contenuto */
 #controls-scroll  { overflow-y: auto !important; overflow-x: hidden !important; }
 
+/* Status bar nascosta — info già visibili nel pannello anteprima */
+#statusBar        { display: none !important; }
+
 /* Tab DV: wrap su più righe — nessun taglio, niente frecce */
 .dv-tab-row   { flex-wrap: wrap !important; overflow-x: visible !important; }
 #dvArrowLeft,
