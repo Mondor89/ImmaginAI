@@ -1,0 +1,76 @@
+/*
+ * ══════════════════════════════════════════════════════════════════
+ *  WONDERSPIT — CSS AGGIUNTIVO PER SPREADSHOP
+ *  Da incollare in: Partner Area → Avanzate → Modifica il CSS del Negozio
+ *  Aggiornato: Maggio 2026 — S7/S8 FINALE
+ *
+ *  HTML HEADER:
+ *  <a id="ws-immaginai-btn" href="https://wonderspit-ai.netlify.app/" target="_blank" style="display:none">
+ *    Immagini - AI ✨
+ *  </a>
+ *
+ *  HTML FOOTER:
+ *  <!-- Google tag (gtag.js) -->
+ *  <a id="ws-immaginai-btn2" href="https://wonderspit-ai.netlify.app/" target="_blank"
+ *     style="position:fixed;top:8px;right:150px;z-index:999999;background:#ff00c8;
+ *            color:#ffffff;text-decoration:none;font-family:Space Grotesk,Arial,sans-serif;
+ *            font-weight:700;font-size:15px;letter-spacing:0.04em;border-radius:8px;
+ *            padding:10px 14px;border:1.5px solid rgba(0,229,200,0.35);
+ *            box-shadow:0 4px 18px rgba(255,0,200,0.45);">
+ *    <span class="ws-full">Immagini - AI ✨</span><span class="ws-mini">AI ✨</span>
+ *  </a>
+ * ══════════════════════════════════════════════════════════════════
+ */
+
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@600;700&display=swap');
+
+#ws-immaginai-btn {
+  display: none !important;
+}
+
+#ws-immaginai-btn2 {
+  position: fixed;
+  z-index: 999999;
+  background: #ff00c8;
+  color: #FFFFFF !important;
+  text-decoration: none !important;
+  font-family: 'Space Grotesk', Arial, sans-serif;
+  font-weight: 700;
+  font-size: 15px;
+  letter-spacing: 0.04em;
+  border-radius: 8px;
+  border: 1.5px solid rgba(0, 229, 200, 0.35);
+  box-shadow: 0 4px 18px rgba(255, 0, 200, 0.45);
+  transition: background 0.2s ease, box-shadow 0.2s ease;
+  cursor: pointer;
+  top: 70px;
+  right: 150px;
+  padding: 10px 14px;
+}
+
+#ws-immaginai-btn2:hover {
+  background: #cc00a0;
+  box-shadow: 0 6px 24px rgba(255, 0, 200, 0.65);
+}
+
+.ws-mini {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  #ws-immaginai-btn2 {
+    top: 8px !important;
+    right: 90px !important;
+    padding: 7px 10px !important;
+    font-size: 12px !important;
+    border-radius: 8px !important;
+  }
+
+  .ws-full {
+    display: none !important;
+  }
+
+  .ws-mini {
+    display: inline !important;
+  }
+}

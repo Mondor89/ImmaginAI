@@ -26,7 +26,7 @@ Modelli in cascata: flux → turbo → flux-realism → flux-anime
 - Spreadshop: https://wonderspit.myspreadshop.net
 - Designer Spreadshop: https://wonderspit.myspreadshop.net/create
 - ImmaginAI Netlify: https://wonderspit-ai.netlify.app/
-- GitHub: da configurare
+- GitHub: https://github.com/Mondor89/ImmaginAI
 
 ## CTA Spreadshop — variante attiva
 ```javascript
@@ -35,10 +35,11 @@ const CTA_VARIANT = 'B'; // A=semplice · B=card elaborata · C=banner fisso
 File CSS Spreadshop pronto: wonderspit_spreadshop.css (manca URL Netlify reale)
 
 ## File di riferimento
-- @file-progetto/immaginai_stato.md → stato, task, log, note tecniche
-- @file-progetto/Immaginai.html → ultima versione funzionante
-- @file-progetto/immaginai_light.css → override CSS light theme
-- @wonderspit_spreadshop.css → CSS pronto per pannello Spreadshop
+- @docs/immaginai_stato.md → stato, task, log, note tecniche
+- @app/Immaginai.html → ultima versione funzionante
+- @app/immaginai_light.css → override CSS light theme
+- @app/immaginai_admin.html → pannello admin separato
+- @spreadshop/wonderspit_spreadshop.css → CSS pronto per pannello Spreadshop
 - @../_Condivisi/WonderSpit_Ecosistema_Visione.html → visione 3 moduli
 - @../_Condivisi/wonderspit_brand_kit.md → colori e font
 

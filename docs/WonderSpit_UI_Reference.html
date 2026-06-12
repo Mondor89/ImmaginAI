@@ -1,0 +1,1076 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WonderSpit AI — UI Reference</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+body{background:#0f0f1a;color:#fff;font-family:'Space Grotesk',sans-serif;padding:40px 24px;}
+
+/* NAV */
+.ref-nav{position:sticky;top:0;z-index:100;background:#0f0f1a;border-bottom:1px solid #2a2050;padding:12px 0 10px;margin-bottom:40px;display:flex;gap:8px;flex-wrap:wrap;}
+.ref-nav a{padding:6px 14px;border-radius:20px;font-size:11px;font-weight:700;color:#7a78a0;text-decoration:none;border:1px solid #2a2050;transition:all .15s;}
+.ref-nav a:hover,.ref-nav a.active{background:#5B35C8;color:#fff;border-color:#5B35C8;}
+
+/* SECTION */
+.section{margin-bottom:80px;}
+.section-title{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.2em;color:#5B35C8;margin-bottom:6px;}
+.section-desc{font-size:13px;color:#7a78a0;margin-bottom:28px;}
+.screens-row{display:flex;gap:32px;flex-wrap:wrap;align-items:flex-start;}
+.screen-wrap{display:flex;flex-direction:column;gap:10px;}
+.screen-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.15em;color:#7a78a0;}
+
+/* ══════════════════════════════
+   APP CHROME — DESKTOP
+══════════════════════════════ */
+.app-desktop{width:900px;height:560px;border-radius:16px;overflow:hidden;display:flex;border:1px solid #2a2050;box-shadow:0 20px 60px rgba(0,0,0,.5);flex-shrink:0;}
+.app-desktop.light{border-color:#DDDDE8;}
+
+/* SIDEBAR */
+.sidebar{width:186px;flex-shrink:0;display:flex;flex-direction:column;padding:22px 13px;gap:0;}
+.sidebar.dark{background:#1A1A2E;border-right:1px solid #2a2050;}
+.sidebar.light{background:#F5F5F7;border-right:1px solid #DDDDE8;}
+.sb-logo{padding-bottom:16px;border-bottom:1px solid;margin-bottom:16px;}
+.sidebar.dark .sb-logo{border-color:#2a2050;}
+.sidebar.light .sb-logo{border-color:#DDDDE8;}
+.sb-logo-text{font-size:13px;font-weight:800;letter-spacing:1px;color:#7a78a0;}
+.sb-logo-img{font-size:22px;font-weight:900;background:linear-gradient(90deg,#00E5C8,#5B35C8,#F0008C);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;font-family:'Space Grotesk',sans-serif;letter-spacing:-1px;}
+.snav{display:flex;flex-direction:column;gap:3px;}
+.snav-btn{display:flex;align-items:center;gap:9px;padding:9px 11px;border-radius:11px;font-size:12px;font-weight:600;cursor:pointer;border:none;background:none;width:100%;text-align:left;}
+.snav-btn.dark{color:#7a78a0;}
+.snav-btn.light{color:#6B6B80;}
+.snav-btn.active.dark{background:rgba(91,53,200,.1);color:#5B35C8;border:1px solid rgba(91,53,200,.25);}
+.snav-btn.active.light{background:rgba(91,53,200,.08);color:#5B35C8;border:1px solid rgba(91,53,200,.2);}
+
+/* CONTROLS */
+.controls{width:460px;flex-shrink:0;display:flex;flex-direction:column;padding:18px 22px;gap:10px;overflow-y:auto;}
+.controls.dark{background:#0f0f1a;border-right:1px solid #2a2050;}
+.controls.light{background:#fff;border-right:1px solid #DDDDE8;}
+.ctrl-label{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.14em;display:block;margin-bottom:5px;}
+.controls.dark .ctrl-label{color:#7a78a0;}
+.controls.light .ctrl-label{color:#6B6B80;}
+
+/* PROMPT */
+.prompt-wrap{border-radius:14px;overflow:hidden;border:1.5px solid;display:flex;flex-shrink:0;}
+.prompt-wrap.dark{background:#1A1A2E;border-color:#2a2050;}
+.prompt-wrap.light{background:#fff;border-color:#DDDDE8;}
+.prompt-wrap.active{border-color:#5B35C8;}
+.prompt-ta{flex:1;background:transparent;border:none;font-size:12px;font-family:'Space Grotesk',sans-serif;padding:10px 10px 10px 13px;resize:none;height:72px;line-height:1.5;}
+.prompt-ta.dark{color:#fff;}
+.prompt-ta.light{color:#0A0A14;}
+.prompt-ta::placeholder{color:#7a78a0;}
+.dice{width:42px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:18px;background:#5B35C8;border-left:1px solid rgba(255,255,255,.1);}
+
+/* ACCORDION BTN */
+.acc-btn{display:flex;align-items:center;justify-content:center;gap:8px;padding:9px 13px;background:#5B35C8;border:none;border-radius:9px;cursor:pointer;width:100%;flex-shrink:0;}
+.acc-btn span{font-size:11px;font-weight:700;color:#fff;}
+.acc-btn .arr{font-size:9px;color:rgba(255,255,255,.7);}
+
+/* STYLE GRID */
+.style-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:5px;flex-shrink:0;}
+.style-btn{padding:7px 3px 6px;border-radius:9px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:3px;border:1.5px solid;background:none;}
+.style-btn.dark{border-color:#2a2050;background:#1e1a3a;}
+.style-btn.light{border-color:#DDDDE8;background:#EBEBF0;}
+.style-btn.sel.dark{border-color:#5B35C8;background:rgba(91,53,200,.15);}
+.style-btn.sel.light{border-color:#5B35C8;background:rgba(91,53,200,.07);}
+.style-emoji{font-size:16px;}
+.style-lbl{font-size:8px;font-weight:700;}
+.style-btn.dark .style-lbl{color:#7a78a0;}
+.style-btn.light .style-lbl{color:#6B6B80;}
+.style-btn.sel .style-lbl{color:#5B35C8;}
+
+/* RATIO */
+.ratio-row{display:flex;gap:5px;flex-shrink:0;}
+.ratio-btn{flex:1;padding:7px 4px;border-radius:9px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:2px;border:1.5px solid;background:none;}
+.ratio-btn.dark{border-color:#2a2050;background:#1e1a3a;}
+.ratio-btn.light{border-color:#DDDDE8;background:#EBEBF0;}
+.ratio-btn.sel.dark{border-color:#5B35C8;background:rgba(91,53,200,.15);}
+.ratio-btn.sel.light{border-color:#5B35C8;background:rgba(91,53,200,.07);}
+.ratio-icon{font-size:11px;}
+.ratio-btn.dark .ratio-icon{color:#7a78a0;}
+.ratio-btn.light .ratio-icon{color:#6B6B80;}
+.ratio-btn.sel .ratio-icon{color:#5B35C8;}
+.ratio-lbl{font-size:9px;font-weight:700;}
+.ratio-btn.dark .ratio-lbl{color:#7a78a0;}
+.ratio-btn.light .ratio-lbl{color:#6B6B80;}
+.ratio-btn.sel .ratio-lbl{color:#5B35C8;}
+
+/* GEN BTN */
+.gen-btn{width:100%;padding:13px;background:#5B35C8;color:#fff;border:none;border-radius:13px;font-size:14px;font-weight:800;font-family:'Space Grotesk',sans-serif;cursor:pointer;letter-spacing:.8px;flex-shrink:0;box-shadow:0 4px 20px rgba(91,53,200,.3);}
+
+/* PREVIEW */
+.preview-col{flex:1;display:flex;flex-direction:column;padding:18px 18px;}
+.preview-col.dark{background:#080810;}
+.preview-col.light{background:#F5F5F7;}
+.preview-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;flex-shrink:0;}
+.preview-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.14em;}
+.preview-col.dark .preview-label{color:#7a78a0;}
+.preview-col.light .preview-label{color:#6B6B80;}
+.theme-toggle{display:flex;align-items:center;gap:7px;background:#fff;border:1px solid #DDDDE8;border-radius:20px;padding:4px 12px 4px 7px;font-size:10px;font-weight:700;}
+.theme-toggle.dark{background:#1A1A2E;border-color:#2a2050;color:#7a78a0;}
+.theme-toggle.light{background:#fff;border-color:#DDDDE8;color:#6B6B80;}
+.toggle-pill{width:28px;height:16px;border-radius:8px;position:relative;flex-shrink:0;}
+.toggle-pill.dark{background:#2a2050;}
+.toggle-pill.light{background:#5B35C8;}
+.toggle-dot{position:absolute;width:10px;height:10px;border-radius:50%;top:3px;}
+.toggle-pill.dark .toggle-dot{background:#7a78a0;left:3px;}
+.toggle-pill.light .toggle-dot{background:#fff;left:15px;}
+.preview-area{flex:1;border-radius:18px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;border:2px dashed;}
+.preview-area.dark{border-color:#2a2050;background:linear-gradient(135deg,rgba(91,53,200,.04),rgba(0,229,200,.02));}
+.preview-area.light{border-color:#DDDDE8;background:linear-gradient(135deg,rgba(91,53,200,.03),rgba(0,229,200,.01));}
+.preview-icon{font-size:42px;opacity:.5;}
+.preview-text{font-size:16px;font-weight:700;}
+.preview-area.dark .preview-text{color:#7a78a0;}
+.preview-area.light .preview-text{color:#6B6B80;}
+.preview-sub{font-size:11px;}
+.preview-area.dark .preview-sub{color:#7a78a0;opacity:.7;}
+.preview-area.light .preview-sub{color:#6B6B80;opacity:.7;}
+
+/* ── GALLERY DESKTOP ── */
+.gallery-main{flex:1;display:flex;flex-direction:column;padding:28px 36px;overflow:hidden;}
+.gallery-main.dark{background:#080810;}
+.gallery-main.light{background:#F5F5F7;}
+.gallery-title{font-size:28px;font-weight:700;background:linear-gradient(90deg,#5B35C8,#00E5C8);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:2px;}
+.gallery-sub{font-size:12px;margin-bottom:18px;}
+.gallery-main.dark .gallery-sub{color:#7a78a0;}
+.gallery-main.light .gallery-sub{color:#6B6B80;}
+.gallery-grid-ui{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;}
+.gal-card{border-radius:12px;overflow:hidden;border:1px solid;}
+.gal-card.dark{background:#141428;border-color:#2a2050;}
+.gal-card.light{background:#fff;border-color:#DDDDE8;}
+.gal-img{width:100%;aspect-ratio:1;object-fit:cover;display:flex;align-items:center;justify-content:center;font-size:28px;}
+.gal-img.c1{background:linear-gradient(135deg,#3D2F8F,#1a0a30);}
+.gal-img.c2{background:linear-gradient(135deg,#8B0000,#FF4500);}
+.gal-img.c3{background:linear-gradient(135deg,#00509d,#00b4d8);}
+.gal-img.c4{background:linear-gradient(135deg,#2d6a4f,#52b788);}
+.gal-cap{font-size:9px;padding:5px 8px 3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:500;}
+.gal-card.dark .gal-cap{color:#7a78a0;}
+.gal-card.light .gal-cap{color:#6B6B80;}
+.gal-acts{display:flex;gap:4px;padding:4px 6px 7px;}
+.gal-act{flex:1;padding:4px;border-radius:6px;font-size:9px;font-weight:600;text-align:center;border:1px solid;cursor:pointer;background:none;}
+.gal-act.dark{border-color:#2a2050;color:#7a78a0;background:#1A1A2E;}
+.gal-act.light{border-color:#DDDDE8;color:#6B6B80;background:#F5F5F7;}
+.gal-act.violet{background:#5B35C8;border-color:#5B35C8;color:#fff;}
+
+/* ══════════════════════════════
+   APP CHROME — MOBILE
+══════════════════════════════ */
+.app-mobile{width:320px;border-radius:32px;overflow:hidden;display:flex;flex-direction:column;border:1px solid #2a2050;box-shadow:0 20px 60px rgba(0,0,0,.5);flex-shrink:0;position:relative;}
+.app-mobile.light{border-color:#DDDDE8;}
+.mob-header{height:52px;display:flex;align-items:center;justify-content:space-between;padding:0 16px;flex-shrink:0;border-bottom:1px solid;}
+.mob-header.dark{background:#1A1A2E;border-color:#2a2050;}
+.mob-header.light{background:#F5F5F7;border-color:#DDDDE8;}
+.mob-logo{font-size:20px;font-weight:900;background:linear-gradient(90deg,#00E5C8,#5B35C8,#F0008C);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.mob-body{flex:1;overflow-y:auto;padding:14px 14px 0;}
+.mob-body.dark{background:#080810;}
+.mob-body.light{background:#fff;}
+.mob-body .ctrl-label{margin-bottom:4px;}
+.mob-style-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:5px;margin-bottom:10px;}
+.mob-ratio-row{display:flex;gap:5px;margin-bottom:10px;}
+.mob-bottom{flex-shrink:0;}
+.mob-genbtn{width:100%;padding:14px;background:#5B35C8;color:#fff;border:none;font-size:13px;font-weight:800;font-family:'Space Grotesk',sans-serif;cursor:pointer;letter-spacing:.8px;}
+.mob-nav{display:flex;height:60px;border-top:2px solid;}
+.mob-nav.dark{background:#1A1A2E;border-color:#2a2050;}
+.mob-nav.light{background:#F5F5F7;border-color:#DDDDE8;}
+.mob-nav-btn{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;border:none;background:none;cursor:pointer;position:relative;}
+.mob-nav-btn:first-child{border-right:1px solid;}
+.mob-nav-btn.dark:first-child{border-color:#2a2050;}
+.mob-nav-btn.light:first-child{border-color:#DDDDE8;}
+.mob-nav-icon{font-size:20px;}
+.mob-nav-lbl{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;}
+.mob-nav-btn.dark .mob-nav-lbl{color:#7a78a0;}
+.mob-nav-btn.light .mob-nav-lbl{color:#6B6B80;}
+.mob-nav-btn.active .mob-nav-lbl{color:#5B35C8;}
+
+/* MOBILE GALLERY */
+.mob-gal-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:14px;}
+.mob-gal-card{border-radius:10px;overflow:hidden;border:1px solid;}
+.mob-gal-card.dark{background:#141428;border-color:#2a2050;}
+.mob-gal-card.light{background:#fff;border-color:#DDDDE8;}
+.mob-gal-img{width:100%;aspect-ratio:1;display:flex;align-items:center;justify-content:center;font-size:24px;}
+
+/* ══════════════════════════════
+   PROPOSAL — TAG SECTION
+══════════════════════════════ */
+.tag-section{flex-shrink:0;}
+.tag-category{margin-bottom:8px;}
+.tag-cat-label{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.12em;margin-bottom:5px;display:block;}
+.controls.dark .tag-cat-label{color:#7a78a0;}
+.controls.light .tag-cat-label{color:#6B6B80;}
+.tags-row{display:flex;flex-wrap:wrap;gap:4px;}
+.tag-chip{padding:4px 10px;border-radius:20px;font-size:10px;font-weight:700;border:1.5px solid;cursor:pointer;transition:all .15s;}
+.tag-chip.dark{border-color:#2a2050;background:#1e1a3a;color:#7a78a0;}
+.tag-chip.light{border-color:#DDDDE8;background:#EBEBF0;color:#6B6B80;}
+.tag-chip.sel.dark{border-color:#5B35C8;background:rgba(91,53,200,.2);color:#9d7fff;}
+.tag-chip.sel.light{border-color:#5B35C8;background:rgba(91,53,200,.08);color:#5B35C8;}
+.tag-note{font-size:9px;margin-top:4px;padding:5px 9px;border-radius:7px;display:inline-flex;align-items:center;gap:5px;}
+.tag-note.dark{background:rgba(0,229,200,.06);color:#00E5C8;border:1px solid rgba(0,229,200,.15);}
+.tag-note.light{background:rgba(91,53,200,.06);color:#5B35C8;border:1px solid rgba(91,53,200,.15);}
+
+/* ══════════════════════════════
+   FAQ SCREEN
+══════════════════════════════ */
+.faq-main{flex:1;display:flex;flex-direction:column;padding:28px 32px;overflow:hidden;}
+.faq-main.dark{background:#080810;}
+.faq-main.light{background:#F5F5F7;}
+.faq-title{font-size:26px;font-weight:700;background:linear-gradient(90deg,#5B35C8,#00E5C8);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:18px;}
+.faq-cards{display:flex;flex-direction:column;gap:8px;}
+.faq-card{border-radius:12px;padding:12px 14px;border:1px solid;}
+.faq-card.dark{background:#141428;border-color:#2a2050;}
+.faq-card.light{background:#fff;border-color:#DDDDE8;}
+.faq-q{font-size:12px;font-weight:700;margin-bottom:4px;}
+.faq-card.dark .faq-q{color:#fff;}
+.faq-card.light .faq-q{color:#0A0A14;}
+.faq-a{font-size:11px;line-height:1.5;}
+.faq-card.dark .faq-a{color:#7a78a0;}
+.faq-card.light .faq-a{color:#6B6B80;}
+
+/* ── OUTPUT AREA (post generazione) ── */
+.output-area{flex:1;display:flex;flex-direction:column;border:1px solid;border-radius:18px;overflow:hidden;}
+.output-area.dark{border-color:#2a2050;background:#141428;}
+.output-area.light{border-color:#DDDDE8;background:#fff;}
+.output-img{width:100%;flex:1;display:flex;align-items:center;justify-content:center;font-size:48px;min-height:200px;}
+.output-img.sample{background:linear-gradient(135deg,#1a0a30,#3D2F8F,#00E5C8);}
+.img-actions-bar{display:flex;gap:7px;padding:9px 10px;border-top:1px solid;flex-shrink:0;}
+.output-area.dark .img-actions-bar{border-color:#2a2050;}
+.output-area.light .img-actions-bar{border-color:#DDDDE8;}
+.img-act-btn{flex:1;padding:8px 5px;border-radius:9px;font-size:10px;font-weight:700;font-family:'Space Grotesk',sans-serif;cursor:pointer;border:1px solid;text-align:center;}
+.img-act-btn.dark{border-color:#2a2050;background:#1A1A2E;color:#fff;}
+.img-act-btn.light{border-color:#DDDDE8;background:#F5F5F7;color:#0A0A14;}
+.img-act-btn.primary{background:linear-gradient(135deg,#5B35C8,#3D2F8F);color:#fff;border:none;}
+.cta-bar{padding:9px 10px;border-top:1px solid;flex-shrink:0;}
+.output-area.dark .cta-bar{border-color:#2a2050;}
+.output-area.light .cta-bar{border-color:#DDDDE8;}
+.cta-inner{background:linear-gradient(135deg,rgba(91,53,200,.15),rgba(0,229,200,.08));border:1px solid rgba(91,53,200,.3);border-radius:10px;padding:10px 12px;display:flex;align-items:center;justify-content:space-between;gap:10px;}
+.cta-texts{flex:1;}
+.cta-tag{font-size:8px;font-weight:700;color:#5B35C8;text-transform:uppercase;letter-spacing:.1em;margin-bottom:2px;}
+.cta-title{font-size:13px;font-weight:700;}
+.output-area.dark .cta-title{color:#fff;}
+.output-area.light .cta-title{color:#0A0A14;}
+.cta-btn{padding:8px 12px;background:linear-gradient(135deg,#5B35C8,#3D2F8F);border-radius:8px;border:none;color:#fff;font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap;}
+
+/* MODIFICA PANEL */
+.modifica-panel{padding:9px 10px;border-top:1px solid;flex-shrink:0;}
+.output-area.dark .modifica-panel{border-color:#2a2050;background:#1A1A2E;}
+.output-area.light .modifica-panel{border-color:#DDDDE8;background:#F5F5F7;}
+.mod-label{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.12em;margin-bottom:5px;display:block;color:#7a78a0;}
+.mod-input{width:100%;background:#fff;border:1.5px solid #DDDDE8;border-radius:9px;font-size:11px;font-family:'Space Grotesk',sans-serif;padding:7px 10px;margin-bottom:7px;color:#0A0A14;}
+.output-area.dark .mod-input{background:#080810;border-color:#2a2050;color:#fff;}
+.mod-go{width:100%;padding:9px;background:linear-gradient(135deg,#5B35C8,#3D2F8F);color:#fff;border:none;border-radius:9px;font-size:11px;font-weight:800;cursor:pointer;}
+
+/* DIVIDER */
+.divider{width:100%;height:1px;background:linear-gradient(90deg,transparent,#2a2050,transparent);margin:60px 0;}
+.prop-badge{display:inline-block;padding:3px 10px;background:rgba(0,229,200,.1);border:1px solid rgba(0,229,200,.3);border-radius:20px;font-size:9px;font-weight:700;color:#00E5C8;text-transform:uppercase;letter-spacing:.1em;margin-bottom:8px;}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<div class="ref-nav">
+  <a href="#desktop-crea">Desktop — Crea</a>
+  <a href="#desktop-galleria">Desktop — Galleria</a>
+  <a href="#desktop-output">Desktop — Output</a>
+  <a href="#mobile-crea">Mobile — Crea</a>
+  <a href="#mobile-galleria">Mobile — Galleria</a>
+  <a href="#proposta-tag">🆕 Proposta Tag</a>
+  <a href="#proposta-faq">🆕 Proposta FAQ</a>
+  <a href="#mobile-proposta">🆕 Mobile Proposta</a>
+</div>
+
+<!-- ══════════════════════════════════════════
+     SEZIONE 1 — DESKTOP CREA
+══════════════════════════════════════════ -->
+<div class="section" id="desktop-crea">
+  <div class="section-title">01 — Desktop · Pagina Crea</div>
+  <div class="section-desc">Stato attuale — Light e Dark</div>
+  <div class="screens-row">
+
+    <!-- LIGHT -->
+    <div class="screen-wrap">
+      <div class="screen-label">☀️ Light mode</div>
+      <div class="app-desktop light">
+        <div class="sidebar light">
+          <div class="sb-logo"><div class="sb-logo-img">WonderSpit</div></div>
+          <div class="snav">
+            <button class="snav-btn active light">✨ Crea</button>
+            <button class="snav-btn light">🖼 Galleria</button>
+          </div>
+        </div>
+        <div class="controls light">
+          <span class="ctrl-label">Il tuo prompt</span>
+          <div class="prompt-wrap light active">
+            <textarea class="prompt-ta light" placeholder="Descrivi la tua immagine… oppure premi 🎲 per un'idea" readonly></textarea>
+            <div class="dice">🎲</div>
+          </div>
+          <button class="acc-btn"><span>💡 Suggerimenti prompt</span><span class="arr">▼</span></button>
+          <div>
+            <span class="ctrl-label">Stile artistico</span>
+            <div class="style-grid">
+              <div class="style-btn light sel"><span class="style-emoji">✨</span><span class="style-lbl">Auto</span></div>
+              <div class="style-btn light"><span class="style-emoji">📷</span><span class="style-lbl">Foto</span></div>
+              <div class="style-btn light"><span class="style-emoji">🎨</span><span class="style-lbl">Digital</span></div>
+              <div class="style-btn light"><span class="style-emoji">🌸</span><span class="style-lbl">Anime</span></div>
+              <div class="style-btn light"><span class="style-emoji">🤖</span><span class="style-lbl">Cyber</span></div>
+              <div class="style-btn light"><span class="style-emoji">⬜</span><span class="style-lbl">Minimal</span></div>
+            </div>
+          </div>
+          <div>
+            <span class="ctrl-label">Formato</span>
+            <div class="ratio-row">
+              <div class="ratio-btn light sel"><span class="ratio-icon">▪</span><span class="ratio-lbl">1:1</span></div>
+              <div class="ratio-btn light"><span class="ratio-icon">▬</span><span class="ratio-lbl">16:9</span></div>
+              <div class="ratio-btn light"><span class="ratio-icon">▮</span><span class="ratio-lbl">9:16</span></div>
+              <div class="ratio-btn light"><span class="ratio-icon">▭</span><span class="ratio-lbl">4:3</span></div>
+            </div>
+          </div>
+          <button class="acc-btn"><span>⚙ Opzioni avanzate</span><span class="arr">▼</span></button>
+          <button class="gen-btn">✨ GENERA IMMAGINE</button>
+        </div>
+        <div class="preview-col light">
+          <div class="preview-header">
+            <span class="preview-label">Anteprima</span>
+            <div class="theme-toggle light"><div class="toggle-pill light"><div class="toggle-dot"></div></div>Light</div>
+          </div>
+          <div class="preview-area light">
+            <div class="preview-icon">🎨</div>
+            <div class="preview-text">La tua immagine apparirà qui</div>
+            <div class="preview-sub">Scrivi un prompt e premi Genera</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- DARK -->
+    <div class="screen-wrap">
+      <div class="screen-label">🌙 Dark mode</div>
+      <div class="app-desktop">
+        <div class="sidebar dark">
+          <div class="sb-logo"><div class="sb-logo-img">WonderSpit</div></div>
+          <div class="snav">
+            <button class="snav-btn active dark">✨ Crea</button>
+            <button class="snav-btn dark">🖼 Galleria</button>
+          </div>
+        </div>
+        <div class="controls dark">
+          <span class="ctrl-label">Il tuo prompt</span>
+          <div class="prompt-wrap dark active">
+            <textarea class="prompt-ta dark" placeholder="Descrivi la tua immagine… oppure premi 🎲 per un'idea" readonly></textarea>
+            <div class="dice">🎲</div>
+          </div>
+          <button class="acc-btn"><span>💡 Suggerimenti prompt</span><span class="arr">▼</span></button>
+          <div>
+            <span class="ctrl-label">Stile artistico</span>
+            <div class="style-grid">
+              <div class="style-btn dark sel"><span class="style-emoji">✨</span><span class="style-lbl">Auto</span></div>
+              <div class="style-btn dark"><span class="style-emoji">📷</span><span class="style-lbl">Foto</span></div>
+              <div class="style-btn dark"><span class="style-emoji">🎨</span><span class="style-lbl">Digital</span></div>
+              <div class="style-btn dark"><span class="style-emoji">🌸</span><span class="style-lbl">Anime</span></div>
+              <div class="style-btn dark"><span class="style-emoji">🤖</span><span class="style-lbl">Cyber</span></div>
+              <div class="style-btn dark"><span class="style-emoji">⬜</span><span class="style-lbl">Minimal</span></div>
+            </div>
+          </div>
+          <div>
+            <span class="ctrl-label">Formato</span>
+            <div class="ratio-row">
+              <div class="ratio-btn dark sel"><span class="ratio-icon">▪</span><span class="ratio-lbl">1:1</span></div>
+              <div class="ratio-btn dark"><span class="ratio-icon">▬</span><span class="ratio-lbl">16:9</span></div>
+              <div class="ratio-btn dark"><span class="ratio-icon">▮</span><span class="ratio-lbl">9:16</span></div>
+              <div class="ratio-btn dark"><span class="ratio-icon">▭</span><span class="ratio-lbl">4:3</span></div>
+            </div>
+          </div>
+          <button class="acc-btn"><span>⚙ Opzioni avanzate</span><span class="arr">▼</span></button>
+          <button class="gen-btn">✨ GENERA IMMAGINE</button>
+        </div>
+        <div class="preview-col dark">
+          <div class="preview-header">
+            <span class="preview-label">Anteprima</span>
+            <div class="theme-toggle dark"><div class="toggle-pill dark"><div class="toggle-dot"></div></div>Dark</div>
+          </div>
+          <div class="preview-area dark">
+            <div class="preview-icon">🎨</div>
+            <div class="preview-text">La tua immagine apparirà qui</div>
+            <div class="preview-sub">Scrivi un prompt e premi Genera</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="divider"></div>
+
+<!-- ══════════════════════════════════════════
+     SEZIONE 2 — DESKTOP GALLERIA
+══════════════════════════════════════════ -->
+<div class="section" id="desktop-galleria">
+  <div class="section-title">02 — Desktop · Galleria</div>
+  <div class="section-desc">Stato attuale — Light e Dark</div>
+  <div class="screens-row">
+
+    <div class="screen-wrap">
+      <div class="screen-label">☀️ Light mode</div>
+      <div class="app-desktop light">
+        <div class="sidebar light">
+          <div class="sb-logo"><div class="sb-logo-img">WonderSpit</div></div>
+          <div class="snav">
+            <button class="snav-btn light">✨ Crea</button>
+            <button class="snav-btn active light">🖼 Galleria</button>
+          </div>
+        </div>
+        <div class="gallery-main light" style="flex:1;">
+          <div class="preview-header" style="margin-bottom:4px;">
+            <span></span>
+            <div class="theme-toggle light"><div class="toggle-pill light"><div class="toggle-dot"></div></div>Light</div>
+          </div>
+          <div class="gallery-title">Galleria</div>
+          <div class="gallery-sub">15 immagini generate</div>
+          <div class="gallery-grid-ui">
+            <div class="gal-card light"><div class="gal-img c1">🐺</div><div class="gal-cap">un orso boscaiolo con una camicia a…</div><div class="gal-acts"><div class="gal-act light">⬇</div><div class="gal-act violet">↺ Riusa</div><div class="gal-act light">🗑</div></div></div>
+            <div class="gal-card light"><div class="gal-img c2">🦅</div><div class="gal-cap">una fenice che rinasce dalle fiamme…</div><div class="gal-acts"><div class="gal-act light">⬇</div><div class="gal-act violet">↺ Riusa</div><div class="gal-act light">🗑</div></div></div>
+            <div class="gal-card light"><div class="gal-img c3">🎨</div><div class="gal-cap">un ritratto cubista di una donna in s…</div><div class="gal-acts"><div class="gal-act light">⬇</div><div class="gal-act violet">↺ Riusa</div><div class="gal-act light">🗑</div></div></div>
+            <div class="gal-card light"><div class="gal-img c4">🌿</div><div class="gal-cap">un ritratto cubista di una donna in s…</div><div class="gal-acts"><div class="gal-act light">⬇</div><div class="gal-act violet">↺ Riusa</div><div class="gal-act light">🗑</div></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="screen-wrap">
+      <div class="screen-label">🌙 Dark mode</div>
+      <div class="app-desktop">
+        <div class="sidebar dark">
+          <div class="sb-logo"><div class="sb-logo-img">WonderSpit</div></div>
+          <div class="snav">
+            <button class="snav-btn dark">✨ Crea</button>
+            <button class="snav-btn active dark">🖼 Galleria</button>
+          </div>
+        </div>
+        <div class="gallery-main dark" style="flex:1;">
+          <div class="preview-header" style="margin-bottom:4px;">
+            <span></span>
+            <div class="theme-toggle dark"><div class="toggle-pill dark"><div class="toggle-dot"></div></div>Dark</div>
+          </div>
+          <div class="gallery-title">Galleria</div>
+          <div class="gallery-sub">15 immagini generate</div>
+          <div class="gallery-grid-ui">
+            <div class="gal-card dark"><div class="gal-img c1">🐺</div><div class="gal-cap">un orso boscaiolo con una camicia a…</div><div class="gal-acts"><div class="gal-act dark">⬇</div><div class="gal-act violet">↺ Riusa</div><div class="gal-act dark">🗑</div></div></div>
+            <div class="gal-card dark"><div class="gal-img c2">🦅</div><div class="gal-cap">una fenice che rinasce dalle fiamme…</div><div class="gal-acts"><div class="gal-act dark">⬇</div><div class="gal-act violet">↺ Riusa</div><div class="gal-act dark">🗑</div></div></div>
+            <div class="gal-card dark"><div class="gal-img c3">🎨</div><div class="gal-cap">un ritratto cubista di una donna in s…</div><div class="gal-acts"><div class="gal-act dark">⬇</div><div class="gal-act violet">↺ Riusa</div><div class="gal-act dark">🗑</div></div></div>
+            <div class="gal-card dark"><div class="gal-img c4">🌿</div><div class="gal-cap">un ritratto cubista di una donna in s…</div><div class="gal-acts"><div class="gal-act dark">⬇</div><div class="gal-act violet">↺ Riusa</div><div class="gal-act dark">🗑</div></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="divider"></div>
+
+<!-- ══════════════════════════════════════════
+     SEZIONE 3 — DESKTOP OUTPUT (post generazione)
+══════════════════════════════════════════ -->
+<div class="section" id="desktop-output">
+  <div class="section-title">03 — Desktop · Output post-generazione</div>
+  <div class="section-desc">Stato attuale — con bottoni Scarica / Rigenera / Modifica + pannello Modifica aperto</div>
+  <div class="screens-row">
+    <div class="screen-wrap">
+      <div class="screen-label">☀️ Light — immagine generata + modifica aperta</div>
+      <div class="app-desktop light">
+        <div class="sidebar light">
+          <div class="sb-logo"><div class="sb-logo-img">WonderSpit</div></div>
+          <div class="snav">
+            <button class="snav-btn active light">✨ Crea</button>
+            <button class="snav-btn light">🖼 Galleria</button>
+          </div>
+        </div>
+        <div class="controls light">
+          <span class="ctrl-label">Il tuo prompt</span>
+          <div class="prompt-wrap light">
+            <textarea class="prompt-ta light" readonly>un gatto nero con occhi galattici seduto su un libro antico</textarea>
+            <div class="dice">🎲</div>
+          </div>
+          <button class="acc-btn"><span>💡 Suggerimenti prompt</span><span class="arr">▼</span></button>
+          <div>
+            <span class="ctrl-label">Stile artistico</span>
+            <div class="style-grid">
+              <div class="style-btn light"><span class="style-emoji">✨</span><span class="style-lbl">Auto</span></div>
+              <div class="style-btn light"><span class="style-emoji">📷</span><span class="style-lbl">Foto</span></div>
+              <div class="style-btn light sel"><span class="style-emoji">🎨</span><span class="style-lbl">Digital</span></div>
+              <div class="style-btn light"><span class="style-emoji">🌸</span><span class="style-lbl">Anime</span></div>
+              <div class="style-btn light"><span class="style-emoji">🤖</span><span class="style-lbl">Cyber</span></div>
+              <div class="style-btn light"><span class="style-emoji">⬜</span><span class="style-lbl">Minimal</span></div>
+            </div>
+          </div>
+          <div>
+            <span class="ctrl-label">Formato</span>
+            <div class="ratio-row">
+              <div class="ratio-btn light sel"><span class="ratio-icon">▪</span><span class="ratio-lbl">1:1</span></div>
+              <div class="ratio-btn light"><span class="ratio-icon">▬</span><span class="ratio-lbl">16:9</span></div>
+              <div class="ratio-btn light"><span class="ratio-icon">▮</span><span class="ratio-lbl">9:16</span></div>
+              <div class="ratio-btn light"><span class="ratio-icon">▭</span><span class="ratio-lbl">4:3</span></div>
+            </div>
+          </div>
+          <button class="acc-btn"><span>⚙ Opzioni avanzate</span><span class="arr">▼</span></button>
+          <button class="gen-btn">✨ GENERA IMMAGINE</button>
+        </div>
+        <div class="preview-col light">
+          <div class="preview-header">
+            <span class="preview-label">Anteprima</span>
+            <div class="theme-toggle light"><div class="toggle-pill light"><div class="toggle-dot"></div></div>Light</div>
+          </div>
+          <div class="output-area light">
+            <div class="output-img sample">🐱</div>
+            <div class="img-actions-bar">
+              <div class="img-act-btn primary">⬇ Scarica</div>
+              <div class="img-act-btn light">🔁 Rigenera</div>
+              <div class="img-act-btn light" style="border-color:#5B35C8;color:#5B35C8;">✏️ Modifica</div>
+            </div>
+            <div class="modifica-panel">
+              <span class="mod-label">Aggiungi al prompt</span>
+              <input class="mod-input" placeholder="Es: aggiungi una palla rossa, togli lo sfondo…" readonly>
+              <button class="mod-go">✨ Genera modifica</button>
+            </div>
+            <div class="cta-bar">
+              <div class="cta-inner">
+                <div class="cta-texts"><div class="cta-tag">✨ Prossimo step</div><div class="cta-title">Mettila su un prodotto!</div></div>
+                <button class="cta-btn">🛒 Usa nel Designer →</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="divider"></div>
+
+<!-- ══════════════════════════════════════════
+     SEZIONE 4 — MOBILE CREA
+══════════════════════════════════════════ -->
+<div class="section" id="mobile-crea">
+  <div class="section-title">04 — Mobile · Pagina Crea</div>
+  <div class="section-desc">Stato attuale — Light e Dark</div>
+  <div class="screens-row">
+
+    <div class="screen-wrap">
+      <div class="screen-label">☀️ Light</div>
+      <div class="app-mobile light">
+        <div class="mob-header light">
+          <div class="mob-logo">W</div>
+          <div class="theme-toggle light"><div class="toggle-pill light"><div class="toggle-dot"></div></div>Light</div>
+        </div>
+        <div class="mob-body light" style="padding-bottom:0;">
+          <span class="ctrl-label">Il tuo prompt</span>
+          <div class="prompt-wrap light active" style="margin-bottom:10px;">
+            <textarea class="prompt-ta light" placeholder="Descrivi la tua immagine…" readonly style="height:60px;"></textarea>
+            <div class="dice" style="height:60px;">🎲</div>
+          </div>
+          <button class="acc-btn" style="margin-bottom:10px;"><span>💡 Suggerimenti prompt</span><span class="arr">▼</span></button>
+          <span class="ctrl-label">Stile artistico</span>
+          <div class="mob-style-grid">
+            <div class="style-btn light sel"><span class="style-emoji">✨</span><span class="style-lbl">Auto</span></div>
+            <div class="style-btn light"><span class="style-emoji">📷</span><span class="style-lbl">Foto</span></div>
+            <div class="style-btn light"><span class="style-emoji">🎨</span><span class="style-lbl">Digital</span></div>
+            <div class="style-btn light"><span class="style-emoji">🌸</span><span class="style-lbl">Anime</span></div>
+            <div class="style-btn light"><span class="style-emoji">🤖</span><span class="style-lbl">Cyber</span></div>
+            <div class="style-btn light"><span class="style-emoji">⬜</span><span class="style-lbl">Minimal</span></div>
+          </div>
+          <span class="ctrl-label">Formato</span>
+          <div class="mob-ratio-row">
+            <div class="ratio-btn light sel"><span class="ratio-icon">▪</span><span class="ratio-lbl">1:1</span></div>
+            <div class="ratio-btn light"><span class="ratio-icon">▬</span><span class="ratio-lbl">16:9</span></div>
+            <div class="ratio-btn light"><span class="ratio-icon">▮</span><span class="ratio-lbl">9:16</span></div>
+            <div class="ratio-btn light"><span class="ratio-icon">▭</span><span class="ratio-lbl">4:3</span></div>
+          </div>
+        </div>
+        <div class="mob-bottom">
+          <div class="mob-genbtn">✨ GENERA IMMAGINE</div>
+          <div class="mob-nav light">
+            <button class="mob-nav-btn light active"><span class="mob-nav-icon">✨</span><span class="mob-nav-lbl">Crea</span></button>
+            <button class="mob-nav-btn light"><span class="mob-nav-icon">🖼</span><span class="mob-nav-lbl">Galleria</span></button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="screen-wrap">
+      <div class="screen-label">🌙 Dark</div>
+      <div class="app-mobile">
+        <div class="mob-header dark">
+          <div class="mob-logo">W</div>
+          <div class="theme-toggle dark"><div class="toggle-pill dark"><div class="toggle-dot"></div></div>Dark</div>
+        </div>
+        <div class="mob-body dark" style="padding-bottom:0;">
+          <span class="ctrl-label">Il tuo prompt</span>
+          <div class="prompt-wrap dark active" style="margin-bottom:10px;">
+            <textarea class="prompt-ta dark" placeholder="Descrivi la tua immagine…" readonly style="height:60px;"></textarea>
+            <div class="dice" style="height:60px;">🎲</div>
+          </div>
+          <button class="acc-btn" style="margin-bottom:10px;"><span>💡 Suggerimenti prompt</span><span class="arr">▼</span></button>
+          <span class="ctrl-label">Stile artistico</span>
+          <div class="mob-style-grid">
+            <div class="style-btn dark sel"><span class="style-emoji">✨</span><span class="style-lbl">Auto</span></div>
+            <div class="style-btn dark"><span class="style-emoji">📷</span><span class="style-lbl">Foto</span></div>
+            <div class="style-btn dark"><span class="style-emoji">🎨</span><span class="style-lbl">Digital</span></div>
+            <div class="style-btn dark"><span class="style-emoji">🌸</span><span class="style-lbl">Anime</span></div>
+            <div class="style-btn dark"><span class="style-emoji">🤖</span><span class="style-lbl">Cyber</span></div>
+            <div class="style-btn dark"><span class="style-emoji">⬜</span><span class="style-lbl">Minimal</span></div>
+          </div>
+          <span class="ctrl-label">Formato</span>
+          <div class="mob-ratio-row">
+            <div class="ratio-btn dark sel"><span class="ratio-icon">▪</span><span class="ratio-lbl">1:1</span></div>
+            <div class="ratio-btn dark"><span class="ratio-icon">▬</span><span class="ratio-lbl">16:9</span></div>
+            <div class="ratio-btn dark"><span class="ratio-icon">▮</span><span class="ratio-lbl">9:16</span></div>
+            <div class="ratio-btn dark"><span class="ratio-icon">▭</span><span class="ratio-lbl">4:3</span></div>
+          </div>
+        </div>
+        <div class="mob-bottom">
+          <div class="mob-genbtn">✨ GENERA IMMAGINE</div>
+          <div class="mob-nav dark">
+            <button class="mob-nav-btn dark active"><span class="mob-nav-icon">✨</span><span class="mob-nav-lbl">Crea</span></button>
+            <button class="mob-nav-btn dark"><span class="mob-nav-icon">🖼</span><span class="mob-nav-lbl">Galleria</span></button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- MOBILE OUTPUT -->
+    <div class="screen-wrap">
+      <div class="screen-label">☀️ Light — Output generato</div>
+      <div class="app-mobile light">
+        <div class="mob-header light">
+          <div class="mob-logo">W</div>
+          <div class="theme-toggle light"><div class="toggle-pill light"><div class="toggle-dot"></div></div>Light</div>
+        </div>
+        <div class="mob-body light" style="padding:0;">
+          <div class="output-area light" style="border-radius:0;border:none;flex:1;min-height:380px;">
+            <div class="output-img sample" style="min-height:240px;">🐱</div>
+            <div class="img-actions-bar">
+              <div class="img-act-btn primary">⬇ Scarica</div>
+              <div class="img-act-btn light">🔁 Rigenera</div>
+              <div class="img-act-btn light" style="border-color:#5B35C8;color:#5B35C8;">✏️ Modifica</div>
+            </div>
+            <div class="cta-bar">
+              <div class="cta-inner">
+                <div class="cta-texts"><div class="cta-tag">✨ Step</div><div class="cta-title" style="font-size:11px;">Mettila su un prodotto!</div></div>
+                <button class="cta-btn" style="font-size:10px;padding:7px 10px;">🛒 Designer →</button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="mob-bottom">
+          <div class="mob-nav light">
+            <button class="mob-nav-btn light active"><span class="mob-nav-icon">✨</span><span class="mob-nav-lbl">Crea</span></button>
+            <button class="mob-nav-btn light"><span class="mob-nav-icon">🖼</span><span class="mob-nav-lbl">Galleria</span></button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="divider"></div>
+
+<!-- ══════════════════════════════════════════
+     SEZIONE 5 — MOBILE GALLERIA
+══════════════════════════════════════════ -->
+<div class="section" id="mobile-galleria">
+  <div class="section-title">05 — Mobile · Galleria</div>
+  <div class="section-desc">Stato attuale — Light e Dark</div>
+  <div class="screens-row">
+    <div class="screen-wrap">
+      <div class="screen-label">☀️ Light</div>
+      <div class="app-mobile light">
+        <div class="mob-header light">
+          <div class="mob-logo">W</div>
+          <div class="theme-toggle light"><div class="toggle-pill light"><div class="toggle-dot"></div></div>Light</div>
+        </div>
+        <div class="mob-body light" style="padding:0;">
+          <div style="padding:14px 14px 6px;">
+            <div class="gallery-title" style="font-size:22px;">Galleria</div>
+            <div class="gallery-sub">15 immagini generate</div>
+          </div>
+          <div class="mob-gal-grid">
+            <div class="mob-gal-card light"><div class="mob-gal-img c1">🐺</div><div class="gal-cap" style="padding:5px 8px 3px;font-size:9px;">un orso boscaiolo con una ca…</div><div class="gal-acts"><div class="gal-act light" style="font-size:9px;">⬇</div><div class="gal-act violet" style="font-size:9px;">↺ Riusa</div><div class="gal-act light" style="font-size:9px;">🗑</div></div></div>
+            <div class="mob-gal-card light"><div class="mob-gal-img c2">🦅</div><div class="gal-cap" style="padding:5px 8px 3px;font-size:9px;">una fenice che rinasce dalle…</div><div class="gal-acts"><div class="gal-act light" style="font-size:9px;">⬇</div><div class="gal-act violet" style="font-size:9px;">↺ Riusa</div><div class="gal-act light" style="font-size:9px;">🗑</div></div></div>
+            <div class="mob-gal-card light"><div class="mob-gal-img c3">🎨</div><div class="gal-cap" style="padding:5px 8px 3px;font-size:9px;">un ritratto cubista di una…</div><div class="gal-acts"><div class="gal-act light" style="font-size:9px;">⬇</div><div class="gal-act violet" style="font-size:9px;">↺ Riusa</div><div class="gal-act light" style="font-size:9px;">🗑</div></div></div>
+            <div class="mob-gal-card light"><div class="mob-gal-img c4">🌿</div><div class="gal-cap" style="padding:5px 8px 3px;font-size:9px;">aurora boreale sullo sfondo…</div><div class="gal-acts"><div class="gal-act light" style="font-size:9px;">⬇</div><div class="gal-act violet" style="font-size:9px;">↺ Riusa</div><div class="gal-act light" style="font-size:9px;">🗑</div></div></div>
+          </div>
+        </div>
+        <div class="mob-nav light">
+          <button class="mob-nav-btn light"><span class="mob-nav-icon">✨</span><span class="mob-nav-lbl">Crea</span></button>
+          <button class="mob-nav-btn light active"><span class="mob-nav-icon">🖼</span><span class="mob-nav-lbl">Galleria</span></button>
+        </div>
+      </div>
+    </div>
+
+    <div class="screen-wrap">
+      <div class="screen-label">🌙 Dark</div>
+      <div class="app-mobile">
+        <div class="mob-header dark">
+          <div class="mob-logo">W</div>
+          <div class="theme-toggle dark"><div class="toggle-pill dark"><div class="toggle-dot"></div></div>Dark</div>
+        </div>
+        <div class="mob-body dark" style="padding:0;">
+          <div style="padding:14px 14px 6px;">
+            <div class="gallery-title" style="font-size:22px;">Galleria</div>
+            <div class="gallery-sub">15 immagini generate</div>
+          </div>
+          <div class="mob-gal-grid">
+            <div class="mob-gal-card dark"><div class="mob-gal-img c1">🐺</div><div class="gal-cap" style="padding:5px 8px 3px;font-size:9px;color:#7a78a0;">un orso boscaiolo con una ca…</div><div class="gal-acts"><div class="gal-act dark" style="font-size:9px;">⬇</div><div class="gal-act violet" style="font-size:9px;">↺ Riusa</div><div class="gal-act dark" style="font-size:9px;">🗑</div></div></div>
+            <div class="mob-gal-card dark"><div class="mob-gal-img c2">🦅</div><div class="gal-cap" style="padding:5px 8px 3px;font-size:9px;color:#7a78a0;">una fenice che rinasce dalle…</div><div class="gal-acts"><div class="gal-act dark" style="font-size:9px;">⬇</div><div class="gal-act violet" style="font-size:9px;">↺ Riusa</div><div class="gal-act dark" style="font-size:9px;">🗑</div></div></div>
+            <div class="mob-gal-card dark"><div class="mob-gal-img c3">🎨</div><div class="gal-cap" style="padding:5px 8px 3px;font-size:9px;color:#7a78a0;">un ritratto cubista di una…</div><div class="gal-acts"><div class="gal-act dark" style="font-size:9px;">⬇</div><div class="gal-act violet" style="font-size:9px;">↺ Riusa</div><div class="gal-act dark" style="font-size:9px;">🗑</div></div></div>
+            <div class="mob-gal-card dark"><div class="mob-gal-img c4">🌿</div><div class="gal-cap" style="padding:5px 8px 3px;font-size:9px;color:#7a78a0;">aurora boreale sullo sfondo…</div><div class="gal-acts"><div class="gal-act dark" style="font-size:9px;">⬇</div><div class="gal-act violet" style="font-size:9px;">↺ Riusa</div><div class="gal-act dark" style="font-size:9px;">🗑</div></div></div>
+          </div>
+        </div>
+        <div class="mob-nav dark">
+          <button class="mob-nav-btn dark"><span class="mob-nav-icon">✨</span><span class="mob-nav-lbl">Crea</span></button>
+          <button class="mob-nav-btn dark active"><span class="mob-nav-icon">🖼</span><span class="mob-nav-lbl">Galleria</span></button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="divider"></div>
+
+<!-- ══════════════════════════════════════════
+     SEZIONE 6 — PROPOSTA: TAG DETTAGLI VISIVI
+══════════════════════════════════════════ -->
+<div class="section" id="proposta-tag">
+  <div class="prop-badge">🆕 Proposta</div>
+  <div class="section-title">06 — Desktop · Proposta Tag "Dettagli Visivi"</div>
+  <div class="section-desc">Sostituisce "Suggerimenti prompt". Tag multipli selezionabili, invisibili nel campo prompt, arricchiscono silenziosamente la generazione.</div>
+  <div class="screens-row">
+    <div class="screen-wrap">
+      <div class="screen-label">☀️ Light — con tag selezionati</div>
+      <div class="app-desktop light">
+        <div class="sidebar light">
+          <div class="sb-logo"><div class="sb-logo-img">WonderSpit</div></div>
+          <div class="snav">
+            <button class="snav-btn active light">✨ Crea</button>
+            <button class="snav-btn light">🖼 Galleria</button>
+            <button class="snav-btn light">❓ FAQ</button>
+          </div>
+        </div>
+        <div class="controls light">
+          <span class="ctrl-label">Il tuo prompt</span>
+          <div class="prompt-wrap light active">
+            <textarea class="prompt-ta light" readonly>un gatto nero con occhi galattici</textarea>
+            <div class="dice">🎲</div>
+          </div>
+
+          <!-- TAG SECTION -->
+          <div class="tag-section">
+            <span class="ctrl-label">🎯 Dettagli visivi <span style="font-size:8px;color:#5B35C8;font-weight:600;text-transform:none;letter-spacing:0;">(arricchiscono il prompt automaticamente)</span></span>
+            <div class="tag-category">
+              <span class="tag-cat-label">Soggetto</span>
+              <div class="tags-row">
+                <span class="tag-chip light sel">👤 Persona</span>
+                <span class="tag-chip light">🐾 Animale</span>
+                <span class="tag-chip light sel">🌄 Paesaggio</span>
+                <span class="tag-chip light">📦 Oggetto</span>
+                <span class="tag-chip light">🌀 Astratto</span>
+                <span class="tag-chip light">🏙 Città</span>
+              </div>
+            </div>
+            <div class="tag-category">
+              <span class="tag-cat-label">🌈 Colori</span>
+              <div class="tags-row">
+                <span class="tag-chip light">🔥 Caldi</span>
+                <span class="tag-chip light sel">❄️ Freddi</span>
+                <span class="tag-chip light">⚡ Neon</span>
+                <span class="tag-chip light">🌸 Pastello</span>
+                <span class="tag-chip light">🎨 Vivaci</span>
+                <span class="tag-chip light">⬛ Mono</span>
+              </div>
+            </div>
+            <div class="tag-category">
+              <span class="tag-cat-label">💡 Luce</span>
+              <div class="tags-row">
+                <span class="tag-chip light">🌅 Tramonto</span>
+                <span class="tag-chip light sel">🌙 Notturna</span>
+                <span class="tag-chip light">💡 Studio</span>
+                <span class="tag-chip light">⚡ Drammatica</span>
+                <span class="tag-chip light">☁️ Soffusa</span>
+              </div>
+            </div>
+            <div class="tag-category">
+              <span class="tag-cat-label">✨ Atmosfera</span>
+              <div class="tags-row">
+                <span class="tag-chip light sel">🔮 Magico</span>
+                <span class="tag-chip light">📷 Realistico</span>
+                <span class="tag-chip light">💭 Onirico</span>
+                <span class="tag-chip light">⚔️ Epico</span>
+                <span class="tag-chip light">🤍 Minimal</span>
+              </div>
+            </div>
+            <div class="tag-category">
+              <span class="tag-cat-label">📐 Composizione</span>
+              <div class="tags-row">
+                <span class="tag-chip light">🔍 Primo piano</span>
+                <span class="tag-chip light sel">🚁 Vista aerea</span>
+                <span class="tag-chip light">🌐 Grandangolo</span>
+                <span class="tag-chip light">⚖️ Simmetrica</span>
+              </div>
+            </div>
+            <div class="tag-note light">✨ 4 dettagli selezionati — aggiunti al prompt invisibilmente</div>
+          </div>
+
+          <div>
+            <span class="ctrl-label">Stile artistico</span>
+            <div class="style-grid">
+              <div class="style-btn light"><span class="style-emoji">✨</span><span class="style-lbl">Auto</span></div>
+              <div class="style-btn light"><span class="style-emoji">📷</span><span class="style-lbl">Foto</span></div>
+              <div class="style-btn light sel"><span class="style-emoji">🎨</span><span class="style-lbl">Digital</span></div>
+              <div class="style-btn light"><span class="style-emoji">🌸</span><span class="style-lbl">Anime</span></div>
+              <div class="style-btn light"><span class="style-emoji">🤖</span><span class="style-lbl">Cyber</span></div>
+              <div class="style-btn light"><span class="style-emoji">⬜</span><span class="style-lbl">Minimal</span></div>
+            </div>
+          </div>
+          <div>
+            <span class="ctrl-label">Formato</span>
+            <div class="ratio-row">
+              <div class="ratio-btn light sel"><span class="ratio-icon">▪</span><span class="ratio-lbl">1:1</span></div>
+              <div class="ratio-btn light"><span class="ratio-icon">▬</span><span class="ratio-lbl">16:9</span></div>
+              <div class="ratio-btn light"><span class="ratio-icon">▮</span><span class="ratio-lbl">9:16</span></div>
+              <div class="ratio-btn light"><span class="ratio-icon">▭</span><span class="ratio-lbl">4:3</span></div>
+            </div>
+          </div>
+          <button class="gen-btn">✨ GENERA IMMAGINE</button>
+        </div>
+        <div class="preview-col light">
+          <div class="preview-header">
+            <span class="preview-label">Anteprima</span>
+            <div class="theme-toggle light"><div class="toggle-pill light"><div class="toggle-dot"></div></div>Light</div>
+          </div>
+          <div class="preview-area light">
+            <div class="preview-icon">🎨</div>
+            <div class="preview-text">La tua immagine apparirà qui</div>
+            <div class="preview-sub">Scrivi un prompt e premi Genera</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="divider"></div>
+
+<!-- ══════════════════════════════════════════
+     SEZIONE 7 — PROPOSTA FAQ
+══════════════════════════════════════════ -->
+<div class="section" id="proposta-faq">
+  <div class="prop-badge">🆕 Proposta</div>
+  <div class="section-title">07 — Desktop · Proposta Tab FAQ</div>
+  <div class="section-desc">Terza voce nella sidebar — domande frequenti per guidare i nuovi utenti</div>
+  <div class="screens-row">
+    <div class="screen-wrap">
+      <div class="screen-label">☀️ Light</div>
+      <div class="app-desktop light">
+        <div class="sidebar light">
+          <div class="sb-logo"><div class="sb-logo-img">WonderSpit</div></div>
+          <div class="snav">
+            <button class="snav-btn light">✨ Crea</button>
+            <button class="snav-btn light">🖼 Galleria</button>
+            <button class="snav-btn active light">❓ FAQ</button>
+          </div>
+        </div>
+        <div class="faq-main light" style="flex:1;">
+          <div class="preview-header" style="margin-bottom:12px;">
+            <span></span>
+            <div class="theme-toggle light"><div class="toggle-pill light"><div class="toggle-dot"></div></div>Light</div>
+          </div>
+          <div class="faq-title">Come funziona?</div>
+          <div class="faq-cards">
+            <div class="faq-card light"><div class="faq-q">🖊 Cosa scrivo nel prompt?</div><div class="faq-a">Descrivi quello che vuoi vedere: un animale, un paesaggio, una scena. Più dettagli dai, meglio è. Puoi anche usare i tag "Dettagli visivi" per arricchire automaticamente la ricerca.</div></div>
+            <div class="faq-card light"><div class="faq-q">⏱ Quanto tempo ci vuole?</div><div class="faq-a">Di solito 15–30 secondi. In momenti di alto traffico può richiedere qualche secondo in più — l'app riprova automaticamente.</div></div>
+            <div class="faq-card light"><div class="faq-q">🛒 Posso usare le immagini sui prodotti?</div><div class="faq-a">Sì! Dopo aver generato l'immagine, clicca "Usa nel Designer" per personalizzare un prodotto WonderSpit direttamente con la tua immagine AI.</div></div>
+            <div class="faq-card light"><div class="faq-q">🎨 Cos'è lo stile artistico?</div><div class="faq-a">Definisce l'aspetto visivo dell'immagine: Foto per risultati realistici, Digital per arte digitale, Anime per stile giapponese, e così via.</div></div>
+            <div class="faq-card light"><div class="faq-q">💾 Dove vanno le immagini generate?</div><div class="faq-a">Vengono salvate automaticamente nella Galleria, accessibile dal menu a sinistra. Puoi scaricarle o riusare i prompt in qualsiasi momento.</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="screen-wrap">
+      <div class="screen-label">🌙 Dark</div>
+      <div class="app-desktop">
+        <div class="sidebar dark">
+          <div class="sb-logo"><div class="sb-logo-img">WonderSpit</div></div>
+          <div class="snav">
+            <button class="snav-btn dark">✨ Crea</button>
+            <button class="snav-btn dark">🖼 Galleria</button>
+            <button class="snav-btn active dark">❓ FAQ</button>
+          </div>
+        </div>
+        <div class="faq-main dark" style="flex:1;">
+          <div class="preview-header" style="margin-bottom:12px;">
+            <span></span>
+            <div class="theme-toggle dark"><div class="toggle-pill dark"><div class="toggle-dot"></div></div>Dark</div>
+          </div>
+          <div class="faq-title">Come funziona?</div>
+          <div class="faq-cards">
+            <div class="faq-card dark"><div class="faq-q">🖊 Cosa scrivo nel prompt?</div><div class="faq-a">Descrivi quello che vuoi vedere: un animale, un paesaggio, una scena. Più dettagli dai, meglio è. Puoi anche usare i tag "Dettagli visivi" per arricchire automaticamente la ricerca.</div></div>
+            <div class="faq-card dark"><div class="faq-q">⏱ Quanto tempo ci vuole?</div><div class="faq-a">Di solito 15–30 secondi. In momenti di alto traffico può richiedere qualche secondo in più — l'app riprova automaticamente.</div></div>
+            <div class="faq-card dark"><div class="faq-q">🛒 Posso usare le immagini sui prodotti?</div><div class="faq-a">Sì! Dopo aver generato l'immagine, clicca "Usa nel Designer" per personalizzare un prodotto WonderSpit direttamente con la tua immagine AI.</div></div>
+            <div class="faq-card dark"><div class="faq-q">🎨 Cos'è lo stile artistico?</div><div class="faq-a">Definisce l'aspetto visivo dell'immagine: Foto per risultati realistici, Digital per arte digitale, Anime per stile giapponese, e così via.</div></div>
+            <div class="faq-card dark"><div class="faq-q">💾 Dove vanno le immagini generate?</div><div class="faq-a">Vengono salvate automaticamente nella Galleria, accessibile dal menu a sinistra. Puoi scaricarle o riusare i prompt in qualsiasi momento.</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="divider"></div>
+
+<!-- ══════════════════════════════════════════
+     SEZIONE 8 — MOBILE PROPOSTA
+══════════════════════════════════════════ -->
+<div class="section" id="mobile-proposta">
+  <div class="prop-badge">🆕 Proposta</div>
+  <div class="section-title">08 — Mobile · Proposta con Tag + FAQ nav</div>
+  <div class="section-desc">Come apparirebbe su smartphone — nav con 3 tab: Crea / Galleria / FAQ</div>
+  <div class="screens-row">
+
+    <div class="screen-wrap">
+      <div class="screen-label">☀️ Crea con tag</div>
+      <div class="app-mobile light" style="height:700px;">
+        <div class="mob-header light">
+          <div class="mob-logo">W</div>
+          <div class="theme-toggle light"><div class="toggle-pill light"><div class="toggle-dot"></div></div>Light</div>
+        </div>
+        <div class="mob-body light" style="padding-bottom:0;overflow-y:auto;flex:1;">
+          <span class="ctrl-label">Il tuo prompt</span>
+          <div class="prompt-wrap light active" style="margin-bottom:10px;">
+            <textarea class="prompt-ta light" placeholder="Descrivi la tua immagine…" readonly style="height:55px;"></textarea>
+            <div class="dice" style="height:55px;">🎲</div>
+          </div>
+          <span class="ctrl-label">🎯 Dettagli visivi</span>
+          <div class="tag-category">
+            <span class="tag-cat-label">Soggetto</span>
+            <div class="tags-row"><span class="tag-chip light sel">🐾 Animale</span><span class="tag-chip light">🌄 Paesaggio</span><span class="tag-chip light">👤 Persona</span><span class="tag-chip light">🌀 Astratto</span></div>
+          </div>
+          <div class="tag-category">
+            <span class="tag-cat-label">🌈 Colori</span>
+            <div class="tags-row"><span class="tag-chip light sel">⚡ Neon</span><span class="tag-chip light">🔥 Caldi</span><span class="tag-chip light">❄️ Freddi</span><span class="tag-chip light">🌸 Pastello</span></div>
+          </div>
+          <div class="tag-category">
+            <span class="tag-cat-label">✨ Atmosfera</span>
+            <div class="tags-row"><span class="tag-chip light sel">🔮 Magico</span><span class="tag-chip light">⚔️ Epico</span><span class="tag-chip light">💭 Onirico</span></div>
+          </div>
+          <div class="tag-note light" style="margin-bottom:10px;">✨ 3 tag selezionati</div>
+          <span class="ctrl-label">Stile artistico</span>
+          <div class="mob-style-grid">
+            <div class="style-btn light sel"><span class="style-emoji">✨</span><span class="style-lbl">Auto</span></div>
+            <div class="style-btn light"><span class="style-emoji">📷</span><span class="style-lbl">Foto</span></div>
+            <div class="style-btn light"><span class="style-emoji">🎨</span><span class="style-lbl">Digital</span></div>
+            <div class="style-btn light"><span class="style-emoji">🌸</span><span class="style-lbl">Anime</span></div>
+            <div class="style-btn light"><span class="style-emoji">🤖</span><span class="style-lbl">Cyber</span></div>
+            <div class="style-btn light"><span class="style-emoji">⬜</span><span class="style-lbl">Minimal</span></div>
+          </div>
+          <span class="ctrl-label">Formato</span>
+          <div class="mob-ratio-row" style="margin-bottom:0;">
+            <div class="ratio-btn light sel"><span class="ratio-icon">▪</span><span class="ratio-lbl">1:1</span></div>
+            <div class="ratio-btn light"><span class="ratio-icon">▬</span><span class="ratio-lbl">16:9</span></div>
+            <div class="ratio-btn light"><span class="ratio-icon">▮</span><span class="ratio-lbl">9:16</span></div>
+            <div class="ratio-btn light"><span class="ratio-icon">▭</span><span class="ratio-lbl">4:3</span></div>
+          </div>
+        </div>
+        <div class="mob-bottom">
+          <div class="mob-genbtn">✨ GENERA IMMAGINE</div>
+          <div class="mob-nav light">
+            <button class="mob-nav-btn light active" style="flex:1;"><span class="mob-nav-icon">✨</span><span class="mob-nav-lbl">Crea</span></button>
+            <button class="mob-nav-btn light" style="flex:1;border-right:1px solid #DDDDE8;"><span class="mob-nav-icon">🖼</span><span class="mob-nav-lbl">Galleria</span></button>
+            <button class="mob-nav-btn light" style="flex:1;"><span class="mob-nav-icon">❓</span><span class="mob-nav-lbl">FAQ</span></button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="screen-wrap">
+      <div class="screen-label">🌙 Dark con tag</div>
+      <div class="app-mobile" style="height:700px;">
+        <div class="mob-header dark">
+          <div class="mob-logo">W</div>
+          <div class="theme-toggle dark"><div class="toggle-pill dark"><div class="toggle-dot"></div></div>Dark</div>
+        </div>
+        <div class="mob-body dark" style="padding-bottom:0;overflow-y:auto;flex:1;">
+          <span class="ctrl-label">Il tuo prompt</span>
+          <div class="prompt-wrap dark active" style="margin-bottom:10px;">
+            <textarea class="prompt-ta dark" placeholder="Descrivi la tua immagine…" readonly style="height:55px;"></textarea>
+            <div class="dice" style="height:55px;">🎲</div>
+          </div>
+          <span class="ctrl-label">🎯 Dettagli visivi</span>
+          <div class="tag-category">
+            <span class="tag-cat-label">Soggetto</span>
+            <div class="tags-row"><span class="tag-chip dark sel">🐾 Animale</span><span class="tag-chip dark">🌄 Paesaggio</span><span class="tag-chip dark">👤 Persona</span><span class="tag-chip dark">🌀 Astratto</span></div>
+          </div>
+          <div class="tag-category">
+            <span class="tag-cat-label">🌈 Colori</span>
+            <div class="tags-row"><span class="tag-chip dark sel">⚡ Neon</span><span class="tag-chip dark">🔥 Caldi</span><span class="tag-chip dark">❄️ Freddi</span><span class="tag-chip dark">🌸 Pastello</span></div>
+          </div>
+          <div class="tag-category">
+            <span class="tag-cat-label">✨ Atmosfera</span>
+            <div class="tags-row"><span class="tag-chip dark sel">🔮 Magico</span><span class="tag-chip dark">⚔️ Epico</span><span class="tag-chip dark">💭 Onirico</span></div>
+          </div>
+          <div class="tag-note dark" style="margin-bottom:10px;">✨ 3 tag selezionati</div>
+          <span class="ctrl-label">Stile artistico</span>
+          <div class="mob-style-grid">
+            <div class="style-btn dark sel"><span class="style-emoji">✨</span><span class="style-lbl">Auto</span></div>
+            <div class="style-btn dark"><span class="style-emoji">📷</span><span class="style-lbl">Foto</span></div>
+            <div class="style-btn dark"><span class="style-emoji">🎨</span><span class="style-lbl">Digital</span></div>
+            <div class="style-btn dark"><span class="style-emoji">🌸</span><span class="style-lbl">Anime</span></div>
+            <div class="style-btn dark"><span class="style-emoji">🤖</span><span class="style-lbl">Cyber</span></div>
+            <div class="style-btn dark"><span class="style-emoji">⬜</span><span class="style-lbl">Minimal</span></div>
+          </div>
+          <span class="ctrl-label">Formato</span>
+          <div class="mob-ratio-row" style="margin-bottom:0;">
+            <div class="ratio-btn dark sel"><span class="ratio-icon">▪</span><span class="ratio-lbl">1:1</span></div>
+            <div class="ratio-btn dark"><span class="ratio-icon">▬</span><span class="ratio-lbl">16:9</span></div>
+            <div class="ratio-btn dark"><span class="ratio-icon">▮</span><span class="ratio-lbl">9:16</span></div>
+            <div class="ratio-btn dark"><span class="ratio-icon">▭</span><span class="ratio-lbl">4:3</span></div>
+          </div>
+        </div>
+        <div class="mob-bottom">
+          <div class="mob-genbtn">✨ GENERA IMMAGINE</div>
+          <div class="mob-nav dark">
+            <button class="mob-nav-btn dark active" style="flex:1;"><span class="mob-nav-icon">✨</span><span class="mob-nav-lbl">Crea</span></button>
+            <button class="mob-nav-btn dark" style="flex:1;border-right:1px solid #2a2050;"><span class="mob-nav-icon">🖼</span><span class="mob-nav-lbl">Galleria</span></button>
+            <button class="mob-nav-btn dark" style="flex:1;"><span class="mob-nav-icon">❓</span><span class="mob-nav-lbl">FAQ</span></button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="screen-wrap">
+      <div class="screen-label">☀️ FAQ mobile</div>
+      <div class="app-mobile light" style="height:700px;">
+        <div class="mob-header light">
+          <div class="mob-logo">W</div>
+          <div class="theme-toggle light"><div class="toggle-pill light"><div class="toggle-dot"></div></div>Light</div>
+        </div>
+        <div class="mob-body light" style="padding:14px;overflow-y:auto;flex:1;">
+          <div class="gallery-title" style="font-size:20px;margin-bottom:14px;">Come funziona?</div>
+          <div class="faq-cards">
+            <div class="faq-card light"><div class="faq-q">🖊 Cosa scrivo nel prompt?</div><div class="faq-a">Descrivi quello che vuoi vedere. I tag "Dettagli visivi" arricchiscono il prompt automaticamente.</div></div>
+            <div class="faq-card light"><div class="faq-q">⏱ Quanto tempo ci vuole?</div><div class="faq-a">Di solito 15–30 secondi. L'app riprova automaticamente se il servizio è lento.</div></div>
+            <div class="faq-card light"><div class="faq-q">🛒 Posso usarle sui prodotti?</div><div class="faq-a">Sì! Clicca "Usa nel Designer" dopo la generazione per personalizzare un prodotto WonderSpit.</div></div>
+            <div class="faq-card light"><div class="faq-q">💾 Dove vanno le immagini?</div><div class="faq-a">Salvate automaticamente nella Galleria. Scaricale o riusa i prompt quando vuoi.</div></div>
+          </div>
+        </div>
+        <div class="mob-nav light">
+          <button class="mob-nav-btn light" style="flex:1;"><span class="mob-nav-icon">✨</span><span class="mob-nav-lbl">Crea</span></button>
+          <button class="mob-nav-btn light" style="flex:1;border-right:1px solid #DDDDE8;"><span class="mob-nav-icon">🖼</span><span class="mob-nav-lbl">Galleria</span></button>
+          <button class="mob-nav-btn light active" style="flex:1;"><span class="mob-nav-icon">❓</span><span class="mob-nav-lbl">FAQ</span></button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>
