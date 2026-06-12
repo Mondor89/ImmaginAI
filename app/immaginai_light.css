@@ -204,9 +204,9 @@ body:not(.light) .adv-input {
 .ratio-btn.active .ratio-label { color: #ffffff !important; }
 
 /* ── Footer pills ── */
-.neg-toggle           { background: #F0008C !important; color: #ffffff !important; box-shadow: none !important; font-size: 12px !important; border: none !important; }
+.neg-toggle           { background: #1e2132 !important; color: #ffffff !important; box-shadow: none !important; font-size: 12px !important; border: none !important; }
 .neg-toggle:hover,
-.neg-toggle.open      { background: #d4007c !important; }
+.neg-toggle.open      { background: #2d3142 !important; }
 
 .transp-toggle        { background: #00E5C8 !important; color: #080810 !important; border: none !important; font-size: 12px !important; }
 .transp-toggle:hover  { background: #00cdb8 !important; }
