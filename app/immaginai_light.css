@@ -100,8 +100,8 @@ body:not(.light) .adv-input {
 #controls-scroll  { background: var(--bg) !important; }
 #controls-footer  { background: #d8dce6 !important; border-top: none !important; padding-top: 14px !important; padding-bottom: 18px !important; }
 
-/* Controls larghezza fissa ragionevole */
-#controls         { width: 520px !important; flex: none !important; }
+/* Controls larghezza fissa — via di mezzo */
+#controls         { width: 620px !important; flex: none !important; }
 
 /* Preview occupa il resto */
 #preview-col      { flex: 1 !important; min-width: 260px !important; }
