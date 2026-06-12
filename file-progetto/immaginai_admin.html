@@ -1,0 +1,926 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ImmaginAI — Admin</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="immaginai_light.css">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Inter', sans-serif; background: #f0f2f5; color: #2d3142; overflow: hidden; height: 100vh; }
+button, input, select, textarea { font-family: 'Inter', sans-serif; }
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: #f1f1f1; }
+::-webkit-scrollbar-thumb { background: #ccc; border-radius: 3px; }
+
+/* ── LOGIN ── */
+#loginPage {
+  display: flex; align-items: center; justify-content: center;
+  height: 100vh; background: #1a237e;
+}
+.login-card {
+  background: #fff; border-radius: 12px; padding: 40px 48px;
+  width: 380px; box-shadow: 0 8px 40px rgba(0,0,0,.3); text-align: center;
+}
+.login-card h1 { font-size: 22px; font-weight: 700; color: #1a237e; margin-bottom: 6px; }
+.login-card p  { color: #888; font-size: 13px; margin-bottom: 28px; }
+.login-card input {
+  width: 100%; border: 1.5px solid #ddd; border-radius: 8px;
+  padding: 11px 14px; font-size: 14px; outline: none; margin-bottom: 14px;
+  transition: border-color .2s;
+}
+.login-card input:focus { border-color: #3fc7ba; }
+#loginError { color: #e53935; font-size: 12px; margin-bottom: 10px; display: none; }
+.login-btn {
+  width: 100%; background: #1a237e; color: #fff; border: none;
+  border-radius: 8px; padding: 12px; font-size: 15px; font-weight: 600;
+  cursor: pointer; transition: background .2s;
+}
+.login-btn:hover { background: #283593; }
+.login-back {
+  margin-top: 16px; background: none; border: none;
+  color: #aaa; font-size: 12px; cursor: pointer; display: block; width: 100%;
+}
+.login-back:hover { color: #1a237e; }
+
+/* ── PANEL LAYOUT ── */
+#adminPage { display: none; height: 100vh; flex-direction: column; }
+.admin-wrap { display: flex; flex: 1; overflow: hidden; }
+
+/* ── TOPBAR ── */
+.topbar {
+  background: #fff; padding: 0 28px; height: 58px; display: flex;
+  align-items: center; justify-content: space-between;
+  border-bottom: 1px solid #e8eaf0; flex-shrink: 0;
+}
+.topbar-title { font-size: 17px; font-weight: 700; color: #1a237e; }
+.topbar-right { display: flex; align-items: center; gap: 14px; }
+#adminUserLabel { font-size: 12px; color: #888; font-weight: 600; }
+.back-btn {
+  background: #1a237e; color: #fff; border: none; border-radius: 7px;
+  padding: 7px 14px; font-size: 12px; font-weight: 600; cursor: pointer;
+  transition: background .2s; text-decoration: none;
+  display: flex; align-items: center; gap: 6px;
+}
+.back-btn:hover { background: #283593; }
+.logout-btn {
+  background: none; border: 1.5px solid #e0e0e0; border-radius: 7px;
+  padding: 6px 12px; font-size: 12px; color: #666; cursor: pointer;
+}
+.logout-btn:hover { border-color: #e53935; color: #e53935; }
+
+/* ── SIDEBAR ── */
+.sidebar {
+  width: 220px; background: #1a237e; flex-shrink: 0;
+  display: flex; flex-direction: column; overflow-y: auto;
+}
+.sidebar-section {
+  color: rgba(255,255,255,.4); font-size: 10px; font-weight: 600;
+  text-transform: uppercase; letter-spacing: .8px; padding: 14px 20px 6px;
+}
+.nav-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 20px; cursor: pointer; color: rgba(255,255,255,.7);
+  font-size: 13px; font-weight: 500; transition: all .15s;
+  border-left: 3px solid transparent; border: none; background: none;
+  width: 100%; text-align: left;
+}
+.nav-item:hover { background: rgba(255,255,255,.07); color: #fff; }
+.nav-item.active { background: rgba(255,255,255,.12); color: #fff; border-left: 3px solid #3fc7ba; }
+.nav-item-icon { font-size: 15px; width: 20px; text-align: center; }
+
+/* ── CONTENT ── */
+.admin-content { flex: 1; overflow-y: auto; padding: 24px 28px; background: #f0f2f5; }
+.admin-section { display: none; }
+.admin-section.active { display: block; }
+
+/* ── PAGE HEADER ── */
+.page-title { font-size: 20px; font-weight: 700; color: #1a237e; margin-bottom: 4px; }
+.page-sub { font-size: 13px; color: #888; margin-bottom: 22px; }
+
+/* ── CARDS ── */
+.card {
+  background: #fff; border-radius: 10px; box-shadow: 0 1px 4px rgba(0,0,0,.07);
+  overflow: hidden; margin-bottom: 14px;
+}
+.card-header {
+  padding: 13px 18px; border-bottom: 1px solid #f0f0f0;
+  font-size: 11px; font-weight: 700; color: #888;
+  text-transform: uppercase; letter-spacing: .5px;
+}
+.card-body { padding: 4px 0; }
+
+/* ── ROWS ── */
+.a-row {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 11px 18px; border-bottom: 1px solid #f7f7f7; gap: 12px;
+}
+.a-row:last-child { border-bottom: none; }
+.a-row-label { font-size: 13px; font-weight: 500; color: #2d3142; flex: 1; }
+.a-row-sub { font-size: 11px; color: #aaa; margin-top: 2px; }
+
+/* ── INPUTS ── */
+.a-input {
+  background: #f5f7ff; border: 1px solid #e0e3f0; border-radius: 7px;
+  color: #2d3142; font-size: 12px; font-family: 'Inter',sans-serif;
+  padding: 7px 11px; transition: border-color .2s; outline: none;
+}
+.a-input:focus { border-color: #1a237e; }
+.a-select {
+  background: #f5f7ff; border: 1px solid #e0e3f0; border-radius: 7px;
+  color: #2d3142; font-size: 12px; font-family: 'Inter',sans-serif;
+  padding: 7px 11px; cursor: pointer; outline: none;
+}
+.a-select:focus { border-color: #1a237e; }
+textarea.a-input { resize: vertical; min-height: 50px; }
+
+/* ── BUTTONS ── */
+.a-btn {
+  padding: 7px 14px; border-radius: 7px; font-size: 12px; font-weight: 600;
+  font-family: 'Inter',sans-serif; cursor: pointer; transition: all .15s;
+  display: inline-flex; align-items: center; gap: 5px;
+}
+.a-btn.primary { background: #1a237e; color: #fff; border: none; }
+.a-btn.primary:hover { background: #283593; }
+.a-btn.ghost { background: #fff; border: 1px solid #e0e0e0; color: #444; }
+.a-btn.ghost:hover { border-color: #1a237e; }
+.a-btn.danger { background: none; border: 1px solid #e53935; color: #e53935; }
+.a-btn.danger:hover { background: #fff5f5; }
+.a-btn.sm { padding: 4px 10px; font-size: 11px; }
+
+/* ── SAVE BAR ── */
+.save-bar {
+  background: #fff; border-top: 1px solid #e8eaf0;
+  padding: 12px 28px; display: flex; align-items: center;
+  justify-content: space-between; flex-shrink: 0;
+}
+#saveMsg { font-size: 12px; color: #aaa; font-weight: 600; }
+#saveMsg.ok { color: #3fc7ba; }
+
+/* ── TOGGLE ── */
+.s-toggle {
+  width: 36px; height: 20px; border-radius: 10px; background: #ddd;
+  position: relative; cursor: pointer; border: none; transition: background .2s; flex-shrink: 0;
+}
+.s-toggle.on { background: linear-gradient(90deg,#3fc7ba,#1a237e); }
+.s-toggle-thumb {
+  position: absolute; width: 14px; height: 14px; border-radius: 50%;
+  background: #fff; top: 3px; left: 3px; transition: left .2s;
+}
+.s-toggle.on .s-toggle-thumb { left: 19px; }
+
+/* ── MISC ITEMS ── */
+.item-row {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 18px; border-bottom: 1px solid #f7f7f7;
+}
+.item-row:last-child { border-bottom: none; }
+.item-emoji { font-size: 20px; width: 28px; text-align: center; flex-shrink: 0; }
+.item-info { flex: 1; min-width: 0; }
+.item-name { font-size: 13px; font-weight: 600; color: #2d3142; }
+.item-sub { font-size: 11px; color: #aaa; margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+/* Cat admin */
+.cat-block { background: #fff; border: 1px solid #e8eaf0; border-radius: 10px; margin-bottom: 10px; overflow: hidden; }
+.cat-header { display: flex; align-items: center; gap: 8px; padding: 12px 14px; cursor: pointer; user-select: none; }
+.cat-header:hover { background: rgba(26,35,126,.03); }
+.cat-name { font-size: 13px; font-weight: 600; color: #2d3142; flex: 1; }
+.cat-count { font-size: 11px; color: #aaa; }
+.cat-arrow { font-size: 9px; color: #aaa; transition: transform .2s; }
+.cat-header.open .cat-arrow { transform: rotate(180deg); }
+.cat-body { display: none; padding: 0 14px 12px; border-top: 1px solid #f0f0f0; }
+.cat-body.open { display: block; }
+.dv-item { display: flex; align-items: center; gap: 8px; padding: 8px 0; border-bottom: 1px solid #f5f5f5; }
+.dv-item:last-child { border-bottom: none; }
+.dv-item-info { flex: 1; min-width: 0; }
+.dv-item-label { font-size: 12px; font-weight: 600; color: #2d3142; }
+.dv-item-prompt { font-size: 10px; color: #aaa; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+/* User */
+.user-item { display: flex; align-items: center; gap: 10px; padding: 10px 18px; border-bottom: 1px solid #f7f7f7; }
+.user-item:last-child { border-bottom: none; }
+.user-avatar { width: 32px; height: 32px; border-radius: 50%; background: linear-gradient(135deg,#3fc7ba,#1a237e); display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; color: #fff; flex-shrink: 0; }
+.user-info { flex: 1; }
+.user-name { font-size: 13px; font-weight: 600; color: #2d3142; display: flex; align-items: center; gap: 7px; }
+.user-badge { font-size: 10px; padding: 2px 7px; border-radius: 4px; font-weight: 700; }
+.user-badge.admin { background: rgba(63,199,186,.1); color: #1a7a6e; }
+.user-badge.user { background: rgba(26,35,126,.08); color: #1a237e; }
+.user-role { font-size: 11px; color: #aaa; margin-top: 2px; }
+
+/* API */
+.api-card { background: #fff; border: 1px solid #e8eaf0; border-radius: 10px; padding: 14px 18px; margin-bottom: 10px; position: relative; }
+.api-active-badge { display: none; position: absolute; top: 10px; right: 10px; background: rgba(63,199,186,.1); border: 1px solid rgba(63,199,186,.3); color: #1a7a6e; font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 5px; }
+.api-active-badge.show { display: block; }
+.api-name { font-size: 13px; font-weight: 700; color: #2d3142; margin-bottom: 4px; }
+.api-desc { font-size: 12px; color: #888; margin-bottom: 10px; }
+.api-key-row { display: flex; gap: 7px; margin-bottom: 8px; }
+.api-key-input { flex: 1; background: #f5f7ff; border: 1px solid #e0e3f0; border-radius: 7px; color: #2d3142; font-size: 12px; font-family: 'Inter',sans-serif; padding: 7px 11px; outline: none; }
+.api-key-input:focus { border-color: #1a237e; }
+
+/* Brand swatches */
+.brand-palette-row { display: flex; align-items: center; gap: 7px; padding: 7px 0; border-bottom: 1px solid #f5f5f5; }
+.brand-palette-row:last-child { border-bottom: none; }
+.swatch-dot { width: 20px; height: 20px; border-radius: 5px; border: 1px solid #e0e0e0; flex-shrink: 0; }
+
+/* ── ACTIONS ROW ── */
+.actions-row { display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap; }
+
+/* ── RESPONSIVE MOBILE ── */
+@media(max-width:600px) {
+  .admin-wrap { flex-direction: column; }
+  .sidebar { width: 100%; height: auto; flex-direction: row; overflow-x: auto; padding: 6px; }
+  .nav-item { flex-direction: column; gap: 2px; padding: 8px 10px; font-size: 10px; border-left: none; border-bottom: 3px solid transparent; }
+  .nav-item.active { border-left: none; border-bottom-color: #3fc7ba; }
+  .sidebar-section { display: none; }
+  .admin-content { padding: 16px; }
+  .a-row { flex-wrap: wrap; }
+  .login-card { padding: 28px 24px; width: 90%; }
+}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="loginPage">
+  <div class="login-card">
+    <h1>⚙ ImmaginAI Admin</h1>
+    <p>Pannello di controllo</p>
+    <input type="text" id="adminUser" placeholder="Nome utente" autocomplete="off">
+    <input type="password" id="adminPass" placeholder="Password" onkeydown="if(event.key==='Enter')doLogin()">
+    <div id="loginError">⚠ Credenziali errate</div>
+    <button class="login-btn" onclick="doLogin()">Accedi →</button>
+    <button class="login-back" onclick="goBack()">← Torna all'app</button>
+  </div>
+</div>
+
+<!-- ADMIN PANEL -->
+<div id="adminPage">
+  <!-- Topbar -->
+  <div class="topbar">
+    <div class="topbar-title">⚙ ImmaginAI — Admin</div>
+    <div class="topbar-right">
+      <span id="adminUserLabel"></span>
+      <button class="back-btn" onclick="goBack()">← App</button>
+      <button class="logout-btn" onclick="doLogout()">Esci</button>
+    </div>
+  </div>
+
+  <div class="admin-wrap">
+    <!-- Sidebar -->
+    <div class="sidebar">
+      <div class="sidebar-section">Contenuto</div>
+      <button class="nav-item active" onclick="showTab('tema',this)"><span class="nav-item-icon">🎨</span> Tema</button>
+      <button class="nav-item" onclick="showTab('colori',this)"><span class="nav-item-icon">🌈</span> Colori</button>
+      <button class="nav-item" onclick="showTab('ui',this)"><span class="nav-item-icon">◧</span> UI Sezioni</button>
+      <button class="nav-item" onclick="showTab('font',this)"><span class="nav-item-icon">Aa</span> Font</button>
+      <button class="nav-item" onclick="showTab('logo',this)"><span class="nav-item-icon">🖼</span> Logo & Nav</button>
+      <div class="sidebar-section">AI</div>
+      <button class="nav-item" onclick="showTab('stili',this)"><span class="nav-item-icon">✦</span> Stili AI</button>
+      <button class="nav-item" onclick="showTab('tag',this)"><span class="nav-item-icon">🏷</span> Tag visivi</button>
+      <button class="nav-item" onclick="showTab('faq',this)"><span class="nav-item-icon">❓</span> FAQ</button>
+      <div class="sidebar-section">Sistema</div>
+      <button class="nav-item" onclick="showTab('api',this)"><span class="nav-item-icon">🔌</span> API</button>
+      <button class="nav-item" onclick="showTab('utenti',this)"><span class="nav-item-icon">👤</span> Utenti</button>
+      <button class="nav-item" onclick="showTab('info',this)"><span class="nav-item-icon">ℹ</span> Info</button>
+    </div>
+
+    <!-- Content -->
+    <div class="admin-content">
+
+      <!-- TEMA -->
+      <div class="admin-section active" id="tab-tema">
+        <div class="page-title">Tema App</div>
+        <div class="page-sub">Modalità visiva dell'interfaccia</div>
+        <div class="card">
+          <div class="card-header">Modalità</div>
+          <div class="card-body">
+            <div class="a-row">
+              <div class="a-row-label">Tema<div class="a-row-sub">Salvato in localStorage</div></div>
+              <select class="a-select" id="aThemeSelect" onchange="adminSaveTheme(this.value)">
+                <option value="light">☀️ Light</option>
+                <option value="dark">🌙 Dark</option>
+              </select>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- COLORI -->
+      <div class="admin-section" id="tab-colori">
+        <div class="page-title">Colori</div>
+        <div class="page-sub">Palette brand o colori personalizzati</div>
+        <div class="card">
+          <div class="card-header">Palette Brand Kit</div>
+          <div class="card-body" id="brandSwatches"></div>
+        </div>
+        <div class="card">
+          <div class="card-header">Colori personalizzati</div>
+          <div class="card-body">
+            <div class="a-row"><div class="a-row-label">Accento principale<div class="a-row-sub">Bordi attivi, teal</div></div><div style="display:flex;gap:7px;align-items:center;"><input type="color" id="colorAccent" value="#3fc7ba" oninput="previewColor('--c-accent',this.value)" style="width:44px;height:32px;padding:2px;cursor:pointer;border:1px solid #e0e3f0;border-radius:7px;"><button class="a-btn ghost sm" onclick="resetColor('Accent','#3fc7ba','--c-accent')">Reset</button></div></div>
+            <div class="a-row"><div class="a-row-label">Accento secondario<div class="a-row-sub">Navy, bottone genera</div></div><div style="display:flex;gap:7px;align-items:center;"><input type="color" id="colorAccent2" value="#1a237e" oninput="previewColor('--c-accent2',this.value)" style="width:44px;height:32px;padding:2px;cursor:pointer;border:1px solid #e0e3f0;border-radius:7px;"><button class="a-btn ghost sm" onclick="resetColor('Accent2','#1a237e','--c-accent2')">Reset</button></div></div>
+            <div class="a-row"><div class="a-row-label">Viola/Primario</div><div style="display:flex;gap:7px;align-items:center;"><input type="color" id="colorViolet" value="#1a237e" oninput="previewColor('--c-violet',this.value)" style="width:44px;height:32px;padding:2px;cursor:pointer;border:1px solid #e0e3f0;border-radius:7px;"><button class="a-btn ghost sm" onclick="resetColor('Violet','#1a237e','--c-violet')">Reset</button></div></div>
+          </div>
+        </div>
+        <div class="actions-row">
+          <button class="a-btn primary" onclick="saveColors()">💾 Salva colori</button>
+          <button class="a-btn ghost" onclick="resetAllColors()">↺ Reset</button>
+        </div>
+      </div>
+
+      <!-- UI SEZIONI -->
+      <div class="admin-section" id="tab-ui">
+        <div class="page-title">UI Sezioni</div>
+        <div class="page-sub">Rinomina icona e colore di ogni sezione</div>
+        <div class="card"><div class="card-header">✐ Prompt</div><div class="card-body">
+          <div class="a-row"><div class="a-row-label">Icona</div><input type="text" id="uiPromptIcon" class="a-input" value="✐" style="width:60px;"></div>
+          <div class="a-row"><div class="a-row-label">Etichetta</div><input type="text" id="uiPromptLabel" class="a-input" value="Il tuo prompt" style="width:200px;"></div>
+        </div></div>
+        <div class="card"><div class="card-header">◈ Dettagli visivi</div><div class="card-body">
+          <div class="a-row"><div class="a-row-label">Icona</div><input type="text" id="uiDvIcon" class="a-input" value="◈" style="width:60px;"></div>
+          <div class="a-row"><div class="a-row-label">Etichetta</div><input type="text" id="uiDvLabel" class="a-input" value="Dettagli visivi" style="width:200px;"></div>
+          <div class="a-row"><div class="a-row-label">Colore tab attiva</div><input type="color" id="uiTabActiveBg" value="#1a237e" style="width:40px;height:28px;padding:1px;cursor:pointer;border:1px solid #e0e3f0;border-radius:5px;"></div>
+          <div class="a-row"><div class="a-row-label">Colore chip attivo</div><input type="color" id="uiChipActiveBg" value="#1a237e" style="width:40px;height:28px;padding:1px;cursor:pointer;border:1px solid #e0e3f0;border-radius:5px;"></div>
+        </div></div>
+        <div class="card"><div class="card-header">❋ Stile artistico</div><div class="card-body">
+          <div class="a-row"><div class="a-row-label">Icona</div><input type="text" id="uiStileIcon" class="a-input" value="❋" style="width:60px;"></div>
+          <div class="a-row"><div class="a-row-label">Etichetta</div><input type="text" id="uiStileLabel" class="a-input" value="Stile artistico" style="width:200px;"></div>
+        </div></div>
+        <div class="card"><div class="card-header">▣ Formato</div><div class="card-body">
+          <div class="a-row"><div class="a-row-label">Icona</div><input type="text" id="uiFormatoIcon" class="a-input" value="▣" style="width:60px;"></div>
+          <div class="a-row"><div class="a-row-label">Etichetta</div><input type="text" id="uiFormatoLabel" class="a-input" value="Formato" style="width:200px;"></div>
+          <div class="a-row"><div class="a-row-label">Colore bottone attivo</div><input type="color" id="uiRatioActiveBg" value="#1a237e" style="width:40px;height:28px;padding:1px;cursor:pointer;border:1px solid #e0e3f0;border-radius:5px;"></div>
+        </div></div>
+        <div class="card"><div class="card-header">✨ Bottone Genera</div><div class="card-body">
+          <div class="a-row"><div class="a-row-label">Testo</div><input type="text" id="uiGeneraLabel" class="a-input" value="GENERA IMMAGINE" style="width:200px;"></div>
+          <div class="a-row"><div class="a-row-label">Sfondo</div><input type="color" id="uiGeneraBg" value="#1a237e" style="width:40px;height:28px;padding:1px;cursor:pointer;border:1px solid #e0e3f0;border-radius:5px;"></div>
+          <div class="a-row"><div class="a-row-label">Colore testo</div><input type="color" id="uiGeneraColor" value="#ffffff" style="width:40px;height:28px;padding:1px;cursor:pointer;border:1px solid #e0e3f0;border-radius:5px;"></div>
+        </div></div>
+        <div class="actions-row">
+          <button class="a-btn primary" onclick="saveUiSettings()">💾 Salva UI</button>
+          <button class="a-btn ghost" onclick="resetUiSettings()">↺ Reset</button>
+        </div>
+      </div>
+
+      <!-- FONT -->
+      <div class="admin-section" id="tab-font">
+        <div class="page-title">Font</div>
+        <div class="page-sub">Font titoli e corpo dell'app</div>
+        <div class="card"><div class="card-header">Font titoli</div><div class="card-body">
+          <div class="a-row">
+            <div class="a-row-label">Titoli<div id="fontTitlePreview" style="font-size:18px;margin-top:6px;color:#1a237e;font-family:'Inter',sans-serif;">ImmaginAI — GENERA</div></div>
+            <select class="a-select" id="fontTitleSelect" onchange="previewFontTitle(this.value)">
+              <option value="Inter">Inter (default)</option>
+              <option value="Space Grotesk">Space Grotesk</option>
+              <option value="Bangers">Bangers</option>
+              <option value="Nunito">Nunito ExtraBold</option>
+            </select>
+          </div>
+        </div></div>
+        <div class="card"><div class="card-header">Font corpo</div><div class="card-body">
+          <div class="a-row">
+            <div class="a-row-label">Testo UI<div id="fontBodyPreview" style="font-size:13px;margin-top:6px;color:#888;font-family:'Inter',sans-serif;">Stile · Formato · Galleria</div></div>
+            <select class="a-select" id="fontBodySelect" onchange="previewFontBody(this.value)">
+              <option value="Inter">Inter (default)</option>
+              <option value="Space Grotesk">Space Grotesk</option>
+              <option value="Bangers">Bangers</option>
+            </select>
+          </div>
+        </div></div>
+        <button class="a-btn primary" onclick="saveFonts()">💾 Salva font</button>
+      </div>
+
+      <!-- LOGO & NAV -->
+      <div class="admin-section" id="tab-logo">
+        <div class="page-title">Logo & Nav</div>
+        <div class="page-sub">URL logo e bottoni di navigazione</div>
+        <div class="card"><div class="card-header">Logo — URL immagine</div><div class="card-body">
+          <div class="a-row"><div class="a-row-label">Logo desktop<div class="a-row-sub">URL immagine (GitHub raw o Netlify)</div></div><input type="text" id="logoDesktopUrl" class="a-input" placeholder="WonderSpit_Logo_esteso.png" style="width:280px;"></div>
+          <div class="a-row"><div class="a-row-label">Logo mobile</div><input type="text" id="logoMobileUrl" class="a-input" placeholder="WonderSpit_Logo.png" style="width:280px;"></div>
+        </div></div>
+        <div class="actions-row">
+          <button class="a-btn primary" onclick="saveLogo()">💾 Salva logo</button>
+          <button class="a-btn ghost" onclick="resetLogo()">↺ Reset</button>
+        </div>
+        <div class="card" style="margin-top:14px;"><div class="card-header">Bottoni navigazione</div><div class="card-body" id="navBtnList"></div></div>
+        <button class="a-btn primary" onclick="saveNavBtns()" style="margin-top:10px;">💾 Salva nav</button>
+      </div>
+
+      <!-- STILI AI -->
+      <div class="admin-section" id="tab-stili">
+        <div class="page-title">Stili AI</div>
+        <div class="page-sub">Attiva/disattiva stili. Aggiungi stili personalizzati.</div>
+        <div class="card"><div class="card-header">Stili disponibili</div><div class="card-body" id="adminStyleList"></div></div>
+        <div class="card"><div class="card-header">Aggiungi stile</div><div class="card-body">
+          <div class="a-row"><div class="a-row-label">Emoji</div><input type="text" id="newStyleEmoji" class="a-input" placeholder="🌟" style="width:65px;"></div>
+          <div class="a-row"><div class="a-row-label">Nome</div><input type="text" id="newStyleLabel" class="a-input" placeholder="Es: Vaporwave" style="width:200px;"></div>
+          <div class="a-row"><div class="a-row-label">Prompt</div><input type="text" id="newStylePrompt" class="a-input" placeholder="Es: vaporwave, pastel, retro" style="width:280px;"></div>
+        </div></div>
+        <div class="actions-row">
+          <button class="a-btn primary" onclick="addNewStyle()">+ Aggiungi</button>
+          <button class="a-btn primary" onclick="saveStyles()">💾 Salva stili</button>
+        </div>
+      </div>
+
+      <!-- TAG VISIVI -->
+      <div class="admin-section" id="tab-tag">
+        <div class="page-title">Tag visivi</div>
+        <div class="page-sub">Categorie con chip cliccabili</div>
+        <div id="adminCatList"></div>
+        <div class="card" style="margin-top:12px;"><div class="card-header">Nuova categoria</div><div class="card-body">
+          <div class="a-row">
+            <input type="text" class="a-input" placeholder="◈ Icona" id="newCatIcon" style="width:70px;">
+            <input type="text" class="a-input" placeholder="Nome categoria" id="newCatLabel" style="flex:1;margin:0 8px;">
+            <button class="a-btn primary sm" onclick="addNewCat()">+ Aggiungi</button>
+          </div>
+        </div></div>
+        <button class="a-btn primary" onclick="saveCats()" style="margin-top:10px;">💾 Salva tutto</button>
+      </div>
+
+      <!-- FAQ -->
+      <div class="admin-section" id="tab-faq">
+        <div class="page-title">FAQ</div>
+        <div class="page-sub">Gestisci domande e risposte</div>
+        <div id="adminFaqList"></div>
+        <div class="card" style="margin-top:12px;"><div class="card-header">Nuova categoria FAQ</div><div class="card-body">
+          <div class="a-row">
+            <input type="text" class="a-input" placeholder="es: 🎓 Guida avanzata" id="newFaqCat" style="flex:1;margin-right:8px;">
+            <button class="a-btn primary sm" onclick="addFaqCat()">+ Aggiungi</button>
+          </div>
+        </div></div>
+        <button class="a-btn primary" onclick="saveFaqs()" style="margin-top:10px;">💾 Salva tutto</button>
+      </div>
+
+      <!-- API -->
+      <div class="admin-section" id="tab-api">
+        <div class="page-title">API</div>
+        <div class="page-sub">Provider di generazione immagini</div>
+        <div class="api-card" id="apiCard-pollinations">
+          <div class="api-active-badge" id="apiBadge-pollinations">✓ ATTIVO</div>
+          <div class="api-name">🆓 Pollinations AI</div>
+          <div class="api-desc">Gratuito, illimitato, senza API key. Cooldown 16s.</div>
+          <button class="a-btn primary sm" onclick="setActiveApi('pollinations')">Usa questo</button>
+        </div>
+        <div class="api-card" id="apiCard-openai">
+          <div class="api-active-badge" id="apiBadge-openai">✓ ATTIVO</div>
+          <div class="api-name">🤖 OpenAI — DALL·E 3</div>
+          <div class="api-desc">Alta qualità. Richiede API key. ~$0.04/img.</div>
+          <div class="api-key-row"><input type="password" class="api-key-input" id="key-openai" placeholder="sk-..."><button class="a-btn ghost sm" onclick="toggleKey('key-openai',this)">👁</button></div>
+          <div style="display:flex;gap:7px;"><button class="a-btn primary sm" onclick="saveAndActivateApi('openai')">Salva e attiva</button><button class="a-btn ghost sm" onclick="saveApiKey('openai')">Solo salva</button></div>
+        </div>
+        <div class="api-card" id="apiCard-stability">
+          <div class="api-active-badge" id="apiBadge-stability">✓ ATTIVO</div>
+          <div class="api-name">🎨 Stability AI</div>
+          <div class="api-desc">SDXL. Richiede API key.</div>
+          <div class="api-key-row"><input type="password" class="api-key-input" id="key-stability" placeholder="sk-..."><button class="a-btn ghost sm" onclick="toggleKey('key-stability',this)">👁</button></div>
+          <div style="display:flex;gap:7px;"><button class="a-btn primary sm" onclick="saveAndActivateApi('stability')">Salva e attiva</button><button class="a-btn ghost sm" onclick="saveApiKey('stability')">Solo salva</button></div>
+        </div>
+        <div class="card" style="margin-top:12px;"><div class="card-header">Impostazioni generazione</div><div class="card-body">
+          <div class="a-row"><div class="a-row-label">Cooldown (secondi)<div class="a-row-sub">Min 16s per Pollinations</div></div><input type="number" id="aCooldown" class="a-input" value="16" min="0" max="120" style="width:75px;"></div>
+          <div class="a-row"><div class="a-row-label">Timeout (secondi)</div><input type="number" id="aTimeout" class="a-input" value="55" min="10" max="300" style="width:75px;"></div>
+        </div></div>
+        <button class="a-btn primary" onclick="saveApiSettings()" style="margin-top:10px;">💾 Salva</button>
+      </div>
+
+      <!-- UTENTI -->
+      <div class="admin-section" id="tab-utenti">
+        <div class="page-title">Utenti</div>
+        <div class="page-sub">Chi può accedere al pannello admin</div>
+        <div class="card"><div class="card-header">Utenti attivi</div><div class="card-body" id="userList"></div></div>
+        <div class="card" style="margin-top:12px;"><div class="card-header">Aggiungi utente</div><div class="card-body">
+          <div class="a-row"><div class="a-row-label">Nome utente</div><input type="text" id="newUsername" class="a-input" placeholder="es: marco" style="width:180px;"></div>
+          <div class="a-row"><div class="a-row-label">Password</div><input type="password" id="newUserPass" class="a-input" placeholder="min 6 caratteri" style="width:180px;"></div>
+          <div class="a-row"><div class="a-row-label">Ruolo</div><select class="a-select" id="newUserRole"><option value="admin">Admin</option><option value="user">Viewer</option></select></div>
+        </div></div>
+        <button class="a-btn primary" onclick="addUser()" style="margin-top:10px;">+ Aggiungi utente</button>
+      </div>
+
+      <!-- INFO -->
+      <div class="admin-section" id="tab-info">
+        <div class="page-title">Info sistema</div>
+        <div class="page-sub">Stato e manutenzione</div>
+        <div class="card"><div class="card-header">Stato</div><div class="card-body">
+          <div class="a-row"><div class="a-row-label">Versione</div><span style="color:#3fc7ba;font-weight:700;font-size:13px;">v4.4</span></div>
+          <div class="a-row"><div class="a-row-label">API attiva</div><span id="infoActiveApi" style="color:#1a237e;font-weight:700;font-size:13px;">Pollinations AI</span></div>
+          <div class="a-row"><div class="a-row-label">Tema</div><span id="infoTheme" style="color:#888;font-size:13px;">light</span></div>
+          <div class="a-row"><div class="a-row-label">Immagini galleria</div><span id="infoGalleryCount" style="color:#888;font-size:13px;">0</span></div>
+        </div></div>
+        <div class="card" style="margin-top:12px;"><div class="card-header">Manutenzione</div><div class="card-body">
+          <div class="a-row"><div class="a-row-label">Svuota galleria</div><button class="a-btn danger sm" onclick="clearGallery()">🗑 Svuota</button></div>
+          <div class="a-row"><div class="a-row-label">Reset impostazioni</div><button class="a-btn danger sm" onclick="resetAllAdmin()">↺ Reset tutto</button></div>
+        </div></div>
+      </div>
+
+    </div><!-- /admin-content -->
+  </div><!-- /admin-wrap -->
+
+  <!-- Save bar -->
+  <div class="save-bar">
+    <span id="saveMsg">Modifica e salva</span>
+    <button class="a-btn primary" onclick="goBack()">✓ Chiudi e torna all'app</button>
+  </div>
+</div><!-- /adminPage -->
+
+<script>
+/* ── DEFAULTS ── */
+const DEFAULT_USERS = [{username:'WONDERSPIT',password:'369852147',role:'admin'}];
+
+const DEFAULT_STYLES_DATA = [
+  {id:'',emoji:'✨',label:'Auto',active:true},
+  {id:'photorealistic, ultra detailed, real photo, sharp focus',emoji:'📷',label:'Foto',active:true},
+  {id:'digital art, concept art, vibrant colors, highly detailed',emoji:'🎨',label:'Digital',active:true},
+  {id:'anime style, manga, japanese animation, clean lines',emoji:'🌸',label:'Anime',active:true},
+  {id:'cyberpunk, neon lights, futuristic city, dark atmosphere',emoji:'🤖',label:'Cyber',active:true},
+  {id:'minimalist, clean composition, elegant, negative space',emoji:'⬜',label:'Minimal',active:true},
+  {id:'oil painting, classical art, rich colors, painterly brushstrokes',emoji:'🖼️',label:'Pittura',active:false},
+  {id:'watercolor painting, soft flowing colors, artistic',emoji:'💧',label:'Acquarell',active:false},
+  {id:'pixel art, 8-bit, retro game style, vibrant',emoji:'👾',label:'Pixel',active:false},
+  {id:'pencil sketch, hand drawn, crosshatching, black and white',emoji:'✏️',label:'Sketch',active:false},
+  {id:'fantasy art, magical, epic scene, dramatic lighting',emoji:'🐉',label:'Fantasy',active:false},
+  {id:'3D render, octane render, CGI, volumetric lighting',emoji:'🔮',label:'3D',active:false},
+];
+
+const DEFAULT_CATS_DATA = [
+  {id:'luce',label:'Luce',icon:'✦',active:true,tags:[
+    {icon:'◐',label:'Luce cinema',prompt:'cinematic lighting',active:true},
+    {icon:'◌',label:'Ora dorata',prompt:'golden hour lighting, warm sunset glow',active:true},
+    {icon:'◕',label:'Ombre dram.',prompt:'dramatic shadows, moody lighting',active:true},
+    {icon:'○',label:'Luce soffusa',prompt:'soft diffused light, gentle illumination',active:true},
+    {icon:'⊛',label:'Neon',prompt:'neon lights, glowing neon',active:true},
+  ]},
+  {id:'colore',label:'Colore',icon:'◈',active:true,tags:[
+    {icon:'◉',label:'Vivaci',prompt:'vibrant colors, highly saturated',active:true},
+    {icon:'◌',label:'Pastello',prompt:'pastel colors, soft palette',active:true},
+    {icon:'◧',label:'B&N',prompt:'black and white, monochromatic',active:true},
+    {icon:'◼',label:'Dark',prompt:'dark moody atmosphere, deep shadows',active:true},
+  ]},
+  {id:'sfondo',label:'Sfondo',icon:'▣',active:true,tags:[
+    {icon:'□',label:'Bianco',prompt:'white background, clean background, isolated',active:true},
+    {icon:'◎',label:'Sfocato',prompt:'depth of field, bokeh background blur',active:true},
+  ]},
+  {id:'qualita',label:'Qualità',icon:'◎',active:true,tags:[
+    {icon:'◈',label:'Ultra dett.',prompt:'ultra detailed, 8K resolution, sharp focus',active:true},
+    {icon:'⊕',label:'Macro',prompt:'macro photography, extreme close-up, intricate details',active:true},
+    {icon:'▦',label:'Sticker',prompt:'sticker design, flat vector, bold outline, no background',active:true},
+  ]},
+  {id:'prospettiva',label:'Prospettiva',icon:'⌖',active:true,tags:[
+    {icon:'▲',label:'Dall\'alto',prompt:'bird eye view, aerial view, top down',active:true},
+    {icon:'▼',label:'Dal basso',prompt:'worms eye view, dramatic low angle',active:true},
+    {icon:'◆',label:'Simmetrico',prompt:'symmetrical composition, perfectly centered',active:true},
+  ]},
+  {id:'atmosfera',label:'Atmosfera',icon:'≋',active:true,tags:[
+    {icon:'≈',label:'Nebbia',prompt:'foggy misty atmosphere, ethereal haze',active:true},
+    {icon:'◷',label:'Vintage',prompt:'retro vintage style, aged film grain',active:true},
+  ]},
+];
+
+const DEFAULT_FAQ_DATA = [
+  {id:'fq',cat:'❓ Domande frequenti',items:[
+    {q:'L\'app è gratuita?',a:'Sì, ImmaginAI è completamente gratuita. Puoi generare quante immagini vuoi senza registrarti e senza inserire dati di pagamento. L\'unico limite è un breve cooldown di qualche secondo tra una generazione e l\'altra per non sovraccaricare il servizio.',active:true},
+    {q:'Le immagini generate sono mie?',a:'Le immagini che generi sono tue da usare come preferisci, incluso metterle su prodotti WonderSpit.',active:true},
+    {q:'Posso scaricare l\'immagine?',a:'Sì! Dopo ogni generazione appare il bottone "Scarica" sotto l\'anteprima.',active:true},
+    {q:'Devo registrarmi?',a:'No, nessuna registrazione richiesta.',active:true},
+  ]},
+  {id:'du',cat:'💭 Dubbi comuni',items:[
+    {q:'Perché l\'immagine non corrisponde?',a:'L\'AI interpreta le parole in modo creativo. Prova a essere più specifico nel prompt.',active:true},
+    {q:'Cosa significa "cooldown"?',a:'Dopo ogni generazione l\'app attende qualche secondo. È una pausa tecnica necessaria per il servizio gratuito.',active:true},
+  ]},
+  {id:'gu',cat:'📖 Come funziona',items:[
+    {q:'Come scrivo un buon prompt?',a:'Descrivi la scena come se la stessi spiegando a un artista: soggetto, ambientazione, luce, colori e stile.',active:true},
+    {q:'A cosa servono i Dettagli visivi?',a:'Sono chip cliccabili che aggiungono istruzioni tecniche al prompt in automatico.',active:true},
+  ]},
+];
+
+const BRAND_PALETTES = [
+  {name:'Designer (default)',c:{accent:'#3fc7ba',accent2:'#1a237e',violet:'#1a237e'}},
+  {name:'Teal + Navy',c:{accent:'#3fc7ba',accent2:'#283593',violet:'#283593'}},
+  {name:'Viola Brand',c:{accent:'#5B35C8',accent2:'#00E5C8',violet:'#3D2F8F'}},
+  {name:'Dark Originale',c:{accent:'#00E5C8',accent2:'#F0008C',violet:'#5B35C8'}},
+];
+
+const DEFAULT_NAV_BTNS = [
+  {id:'create',label:'Crea',icon:'✦',bg:null,color:null},
+  {id:'gallery',label:'Galleria',icon:'🖼',bg:null,color:null}
+];
+
+let STYLES=[], CATS=[], FAQS=[], NAV_BTNS=[];
+let adminLoggedIn=false, currentAdminUser=null;
+
+/* ── INIT ── */
+document.addEventListener('DOMContentLoaded',()=>{
+  const saved = localStorage.getItem('ig_admin_session');
+  if(saved){
+    try{
+      const u = JSON.parse(saved);
+      const users = loadUsers();
+      const found = users.find(x=>x.username===u.username&&x.password===u.password);
+      if(found){ adminLoggedIn=true; currentAdminUser=found; showPanel(found); return; }
+    }catch(e){}
+  }
+  document.getElementById('loginPage').style.display='flex';
+});
+
+/* ── LOGIN ── */
+function doLogin(){
+  const u=document.getElementById('adminUser').value.trim();
+  const p=document.getElementById('adminPass').value;
+  const users=loadUsers();
+  const found=users.find(x=>x.username===u&&x.password===p);
+  if(found){
+    adminLoggedIn=true; currentAdminUser=found;
+    localStorage.setItem('ig_admin_session',JSON.stringify({username:found.username,password:found.password}));
+    document.getElementById('loginError').style.display='none';
+    showPanel(found);
+  } else {
+    document.getElementById('loginError').style.display='block';
+  }
+}
+function doLogout(){
+  localStorage.removeItem('ig_admin_session');
+  adminLoggedIn=false; currentAdminUser=null;
+  document.getElementById('adminPage').style.display='none';
+  document.getElementById('adminUser').value='';
+  document.getElementById('adminPass').value='';
+  document.getElementById('loginPage').style.display='flex';
+}
+function goBack(){ window.location.href='Immaginai.html'; }
+
+function showPanel(user){
+  document.getElementById('loginPage').style.display='none';
+  document.getElementById('adminPage').style.display='flex';
+  document.getElementById('adminUserLabel').textContent='👤 '+user.username;
+  // Carica dati
+  STYLES=loadStyles(); CATS=loadCats(); FAQS=loadFaqs();
+  loadNavBtns();
+  renderAdminStyleList(); renderAdminCats(); renderAdminFaq(); renderUserList();
+  buildNavBtnList(); buildBrandSwatches(); updateApiCards();
+  loadSavedApiKeys(); loadLogoFromStorage();
+  // Info
+  const activeApi=localStorage.getItem('ig_active_api')||'pollinations';
+  const names={pollinations:'Pollinations AI',openai:'OpenAI DALL·E 3',stability:'Stability AI'};
+  document.getElementById('infoActiveApi').textContent=names[activeApi]||activeApi;
+  document.getElementById('infoTheme').textContent=localStorage.getItem('ig_theme')||'light';
+  document.getElementById('aThemeSelect').value=localStorage.getItem('ig_theme')||'light';
+  try{const g=JSON.parse(localStorage.getItem('ig_gallery')||'[]');document.getElementById('infoGalleryCount').textContent=g.length;}catch(e){}
+  const cd=localStorage.getItem('ig_cooldown');if(cd) document.getElementById('aCooldown').value=Math.round(parseInt(cd)/1000);
+  const to=localStorage.getItem('ig_timeout');if(to) document.getElementById('aTimeout').value=Math.round(parseInt(to)/1000);
+  // UI settings prefill
+  const ui=JSON.parse(localStorage.getItem('ig_ui')||'{}');
+  ['promptIcon','promptLabel','dvIcon','dvLabel','stileIcon','stileLabel','formatoIcon','formatoLabel','generaLabel'].forEach(k=>{
+    const el=document.getElementById('ui'+k.charAt(0).toUpperCase()+k.slice(1));
+    if(el&&ui[k]) el.value=ui[k];
+  });
+  if(ui.tabActiveBg) document.getElementById('uiTabActiveBg').value=ui.tabActiveBg;
+  if(ui.chipActiveBg) document.getElementById('uiChipActiveBg').value=ui.chipActiveBg;
+  if(ui.ratioActiveBg) document.getElementById('uiRatioActiveBg').value=ui.ratioActiveBg;
+  if(ui.generaBg) document.getElementById('uiGeneraBg').value=ui.generaBg;
+  if(ui.generaColor) document.getElementById('uiGeneraColor').value=ui.generaColor;
+  // Colors prefill
+  const c=JSON.parse(localStorage.getItem('ig_colors')||'{}');
+  if(c.accent) document.getElementById('colorAccent').value=c.accent;
+  if(c.accent2) document.getElementById('colorAccent2').value=c.accent2;
+  if(c.violet) document.getElementById('colorViolet').value=c.violet;
+}
+
+function showTab(name, btn){
+  document.querySelectorAll('.admin-section').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(b=>b.classList.remove('active'));
+  document.getElementById('tab-'+name).classList.add('active');
+  if(btn) btn.classList.add('active');
+}
+
+function msg(m){
+  const el=document.getElementById('saveMsg');if(!el) return;
+  el.textContent=m; el.classList.add('ok');
+  setTimeout(()=>{el.textContent='Modifica e salva';el.classList.remove('ok');},3000);
+}
+
+/* ── STYLES ── */
+function loadStyles(){const s=localStorage.getItem('ig_styles');return s?JSON.parse(s):JSON.parse(JSON.stringify(DEFAULT_STYLES_DATA));}
+function saveStyles(){localStorage.setItem('ig_styles',JSON.stringify(STYLES));renderAdminStyleList();msg('✓ Stili salvati!');}
+function renderAdminStyleList(){
+  const el=document.getElementById('adminStyleList');if(!el) return;
+  el.innerHTML=STYLES.map((s,i)=>`
+    <div class="item-row">
+      <span class="item-emoji">${s.emoji}</span>
+      <div class="item-info"><div class="item-name">${s.label}</div><div class="item-sub">${s.id||'(nessun prompt)'}</div></div>
+      <button class="s-toggle ${s.active?'on':''}" onclick="toggleStyle(${i},this)"><div class="s-toggle-thumb"></div></button>
+      ${i>5?`<button class="a-btn danger sm" onclick="deleteStyle(${i})" style="margin-left:6px;">✕</button>`:''}
+    </div>`).join('');
+}
+function toggleStyle(i,btn){STYLES[i].active=!STYLES[i].active;btn.classList.toggle('on',STYLES[i].active);btn.querySelector('.s-toggle-thumb').style.left=STYLES[i].active?'19px':'3px';}
+function deleteStyle(i){if(!confirm(`Elimina "${STYLES[i].label}"?`)) return;STYLES.splice(i,1);renderAdminStyleList();}
+function addNewStyle(){const e=document.getElementById('newStyleEmoji').value.trim()||'⭐';const l=document.getElementById('newStyleLabel').value.trim();const p=document.getElementById('newStylePrompt').value.trim();if(!l){alert('Inserisci un nome');return;}STYLES.push({id:p,emoji:e,label:l,active:true});document.getElementById('newStyleEmoji').value='';document.getElementById('newStyleLabel').value='';document.getElementById('newStylePrompt').value='';renderAdminStyleList();msg('Aggiunto — premi Salva');}
+
+/* ── CATS ── */
+function loadCats(){const s=localStorage.getItem('ig_cats');return s?JSON.parse(s):JSON.parse(JSON.stringify(DEFAULT_CATS_DATA));}
+function saveCats(){localStorage.setItem('ig_cats',JSON.stringify(CATS));renderAdminCats();msg('✓ Tag salvati!');}
+function renderAdminCats(){
+  const el=document.getElementById('adminCatList');if(!el) return;
+  el.innerHTML=CATS.map((cat,ci)=>`
+    <div class="cat-block">
+      <div class="cat-header" onclick="toggleCatAdmin(${ci},this)">
+        <span style="font-size:15px;color:#1a237e;">${cat.icon}</span>
+        <span class="cat-name">${cat.label}</span>
+        <span class="cat-count">${cat.tags.length} tag</span>
+        <button class="s-toggle ${cat.active?'on':''}" style="margin-left:8px;" onclick="event.stopPropagation();toggleCatActive(${ci},this)"><div class="s-toggle-thumb"></div></button>
+        <button class="a-btn danger sm" onclick="event.stopPropagation();deleteCat(${ci})" style="margin-left:4px;">✕</button>
+        <span class="cat-arrow">▼</span>
+      </div>
+      <div class="cat-body" id="catBody-${ci}">
+        <div style="display:flex;gap:7px;margin:10px 0 8px;">
+          <input type="text" class="a-input" placeholder="Icona" id="catIcon-${ci}" value="${cat.icon}" style="width:60px;">
+          <input type="text" class="a-input" placeholder="Nome" id="catName-${ci}" value="${cat.label}" style="flex:1;">
+          <button class="a-btn ghost sm" onclick="updateCat(${ci})">Salva</button>
+        </div>
+        <div style="font-size:10px;color:#aaa;font-weight:700;text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px;">Tag</div>
+        ${cat.tags.map((t,ti)=>`<div class="dv-item"><span style="font-size:14px;width:20px;text-align:center;">${t.icon}</span><div class="dv-item-info"><div class="dv-item-label">${t.label}</div><div class="dv-item-prompt">${t.prompt}</div></div><button class="s-toggle ${t.active?'on':''}" onclick="toggleTagInCat(${ci},${ti},this)"><div class="s-toggle-thumb"></div></button><button class="a-btn danger sm" onclick="deleteTagInCat(${ci},${ti})" style="margin-left:4px;">✕</button></div>`).join('')}
+        <div style="margin-top:10px;padding-top:10px;border-top:1px solid #f0f0f0;">
+          <div style="font-size:10px;color:#aaa;font-weight:700;margin-bottom:6px;">+ Aggiungi tag</div>
+          <div style="display:flex;gap:5px;flex-wrap:wrap;">
+            <input type="text" class="a-input" placeholder="◌ Icona" id="newTagIcon-${ci}" style="width:60px;">
+            <input type="text" class="a-input" placeholder="Label IT" id="newTagLabel-${ci}" style="width:100px;">
+            <input type="text" class="a-input" placeholder="Prompt EN" id="newTagPrompt-${ci}" style="flex:1;min-width:100px;">
+            <button class="a-btn primary sm" onclick="addTagToCat(${ci})">+</button>
+          </div>
+        </div>
+      </div>
+    </div>`).join('');
+}
+function toggleCatAdmin(ci,hdr){const body=document.getElementById('catBody-'+ci);if(!body) return;const open=body.classList.toggle('open');hdr.classList.toggle('open',open);}
+function toggleCatActive(ci,btn){CATS[ci].active=!CATS[ci].active;btn.classList.toggle('on',CATS[ci].active);btn.querySelector('.s-toggle-thumb').style.left=CATS[ci].active?'19px':'3px';}
+function deleteCat(ci){if(!confirm(`Elimina "${CATS[ci].label}"?`)) return;CATS.splice(ci,1);renderAdminCats();}
+function updateCat(ci){CATS[ci].label=document.getElementById('catName-'+ci)?.value.trim()||CATS[ci].label;CATS[ci].icon=document.getElementById('catIcon-'+ci)?.value.trim()||CATS[ci].icon;renderAdminCats();msg('Aggiornata — premi Salva');}
+function toggleTagInCat(ci,ti,btn){CATS[ci].tags[ti].active=!CATS[ci].tags[ti].active;btn.classList.toggle('on',CATS[ci].tags[ti].active);btn.querySelector('.s-toggle-thumb').style.left=CATS[ci].tags[ti].active?'19px':'3px';}
+function deleteTagInCat(ci,ti){if(!confirm('Elimina tag?')) return;CATS[ci].tags.splice(ti,1);renderAdminCats();}
+function addTagToCat(ci){const icon=document.getElementById('newTagIcon-'+ci)?.value.trim()||'◌';const label=document.getElementById('newTagLabel-'+ci)?.value.trim();const prompt=document.getElementById('newTagPrompt-'+ci)?.value.trim();if(!label){alert('Inserisci label');return;}CATS[ci].tags.push({icon,label,prompt,active:true});renderAdminCats();msg('Tag aggiunto — premi Salva');}
+function addNewCat(){const icon=document.getElementById('newCatIcon')?.value.trim()||'◈';const label=document.getElementById('newCatLabel')?.value.trim();if(!label){alert('Inserisci nome');return;}CATS.push({id:'cat_'+Date.now(),label,icon,active:true,tags:[]});document.getElementById('newCatIcon').value='';document.getElementById('newCatLabel').value='';renderAdminCats();msg('Aggiunta — premi Salva');}
+
+/* ── FAQ ── */
+function loadFaqs(){const s=localStorage.getItem('ig_faqs');return s?JSON.parse(s):JSON.parse(JSON.stringify(DEFAULT_FAQ_DATA));}
+function saveFaqs(){localStorage.setItem('ig_faqs',JSON.stringify(FAQS));renderAdminFaq();msg('✓ FAQ salvate!');}
+function renderAdminFaq(){
+  const el=document.getElementById('adminFaqList');if(!el) return;
+  el.innerHTML=FAQS.map((cat,ci)=>`
+    <div class="cat-block" style="margin-bottom:10px;">
+      <div class="cat-header" onclick="toggleCatAdmin('faq${ci}',this)">
+        <span class="cat-name" style="flex:1;">${cat.cat}</span>
+        <input type="text" class="a-input" value="${cat.cat}" id="faqCatLabel-${ci}" onclick="event.stopPropagation()" style="width:180px;font-size:11px;">
+        <button class="a-btn ghost sm" onclick="event.stopPropagation();updateFaqCat(${ci})" style="margin-left:4px;">OK</button>
+        <button class="a-btn danger sm" onclick="event.stopPropagation();deleteFaqCat(${ci})" style="margin-left:4px;">✕</button>
+        <span class="cat-arrow">▼</span>
+      </div>
+      <div class="cat-body" id="catBody-faq${ci}">
+        ${cat.items.map((item,ii)=>`
+          <div class="dv-item" style="flex-direction:column;align-items:flex-start;gap:6px;padding:10px 0;">
+            <div style="display:flex;width:100%;align-items:center;gap:6px;">
+              <div class="dv-item-info" style="flex:1;"><div class="dv-item-label">${item.q}</div></div>
+              <button class="s-toggle ${item.active?'on':''}" onclick="toggleFaqItem(${ci},${ii},this)"><div class="s-toggle-thumb"></div></button>
+              <button class="a-btn danger sm" onclick="deleteFaqItem(${ci},${ii})" style="margin-left:4px;">✕</button>
+            </div>
+            <input type="text" class="a-input" value="${item.q.replace(/"/g,'&quot;')}" id="faqQ-${ci}-${ii}" placeholder="Domanda" style="width:100%;font-size:11px;">
+            <textarea class="a-input" id="faqA-${ci}-${ii}" placeholder="Risposta" style="width:100%;font-size:11px;resize:vertical;min-height:60px;">${item.a}</textarea>
+            <button class="a-btn ghost sm" onclick="updateFaqItem(${ci},${ii})">💾 Salva modifica</button>
+          </div>`).join('')}
+        <div style="padding:10px 0;border-top:1px solid #f0f0f0;margin-top:6px;">
+          <div style="font-size:10px;color:#aaa;font-weight:700;margin-bottom:6px;">+ Nuova domanda</div>
+          <input type="text" class="a-input" id="newFaqQ-${ci}" placeholder="Domanda" style="width:100%;margin-bottom:5px;">
+          <textarea class="a-input" id="newFaqA-${ci}" placeholder="Risposta" style="width:100%;resize:vertical;min-height:50px;"></textarea>
+          <button class="a-btn primary sm" onclick="addFaqItem(${ci})" style="margin-top:6px;">+ Aggiungi</button>
+        </div>
+      </div>
+    </div>`).join('');
+}
+function toggleFaqItem(ci,ii,btn){FAQS[ci].items[ii].active=!FAQS[ci].items[ii].active;btn.classList.toggle('on',FAQS[ci].items[ii].active);btn.querySelector('.s-toggle-thumb').style.left=FAQS[ci].items[ii].active?'19px':'3px';}
+function deleteFaqItem(ci,ii){if(!confirm('Eliminare?')) return;FAQS[ci].items.splice(ii,1);renderAdminFaq();}
+function updateFaqItem(ci,ii){FAQS[ci].items[ii].q=document.getElementById('faqQ-'+ci+'-'+ii)?.value||FAQS[ci].items[ii].q;FAQS[ci].items[ii].a=document.getElementById('faqA-'+ci+'-'+ii)?.value||FAQS[ci].items[ii].a;msg('Modificato — premi Salva');}
+function updateFaqCat(ci){FAQS[ci].cat=document.getElementById('faqCatLabel-'+ci)?.value||FAQS[ci].cat;renderAdminFaq();msg('Aggiornata — premi Salva');}
+function deleteFaqCat(ci){if(!confirm(`Eliminare categoria?`)) return;FAQS.splice(ci,1);renderAdminFaq();}
+function addFaqItem(ci){const q=document.getElementById('newFaqQ-'+ci)?.value.trim();const a=document.getElementById('newFaqA-'+ci)?.value.trim();if(!q){alert('Inserisci la domanda');return;}FAQS[ci].items.push({q,a:a||'',active:true});renderAdminFaq();msg('Aggiunta — premi Salva');}
+function addFaqCat(){const label=document.getElementById('newFaqCat')?.value.trim();if(!label){alert('Inserisci nome');return;}FAQS.push({id:'cat_'+Date.now(),cat:label,items:[]});document.getElementById('newFaqCat').value='';renderAdminFaq();msg('Aggiunta — premi Salva');}
+
+/* ── USERS ── */
+function loadUsers(){const s=localStorage.getItem('ig_users');return s?JSON.parse(s):JSON.parse(JSON.stringify(DEFAULT_USERS));}
+function saveUsers(u){localStorage.setItem('ig_users',JSON.stringify(u));}
+function renderUserList(){
+  const users=loadUsers(),el=document.getElementById('userList');if(!el) return;
+  el.innerHTML=users.map((u,i)=>`
+    <div class="user-item">
+      <div class="user-avatar">${u.username.charAt(0).toUpperCase()}</div>
+      <div class="user-info">
+        <div class="user-name">${u.username}<span class="user-badge ${u.role}">${u.role}</span></div>
+        <div class="user-role">${u.role==='admin'?'Accesso completo':'Sola lettura'}</div>
+      </div>
+      ${users.length>1?`<button class="a-btn danger sm" onclick="deleteUser(${i})">✕</button>`:''}
+    </div>`).join('');
+}
+function addUser(){const u=document.getElementById('newUsername')?.value.trim();const p=document.getElementById('newUserPass')?.value;const r=document.getElementById('newUserRole')?.value;if(!u||p.length<6){alert('Nome e password (min 6)');return;}const users=loadUsers();if(users.find(x=>x.username===u)){alert('Nome già esistente');return;}users.push({username:u,password:p,role:r});saveUsers(users);renderUserList();document.getElementById('newUsername').value='';document.getElementById('newUserPass').value='';msg('✓ Utente aggiunto');}
+function deleteUser(i){const users=loadUsers();if(users[i].username==='WONDERSPIT'){alert('Non puoi eliminare l\'utente principale');return;}if(!confirm(`Elimina "${users[i].username}"?`)) return;users.splice(i,1);saveUsers(users);renderUserList();}
+
+/* ── LOGO & NAV ── */
+function loadNavBtns(){const s=localStorage.getItem('ig_nav_btns');NAV_BTNS=s?JSON.parse(s):JSON.parse(JSON.stringify(DEFAULT_NAV_BTNS));}
+function buildNavBtnList(){
+  const el=document.getElementById('navBtnList');if(!el) return;
+  el.innerHTML=NAV_BTNS.map((b,i)=>`
+    <div class="a-row">
+      <div class="a-row-label">${b.id}</div>
+      <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+        <div style="display:flex;align-items:center;gap:4px;"><span style="font-size:10px;color:#aaa;">Icona</span><input type="text" value="${b.icon}" oninput="NAV_BTNS[${i}].icon=this.value" class="a-input" style="width:50px;"></div>
+        <div style="display:flex;align-items:center;gap:4px;"><span style="font-size:10px;color:#aaa;">Label</span><input type="text" value="${b.label}" oninput="NAV_BTNS[${i}].label=this.value" class="a-input" style="width:90px;"></div>
+      </div>
+    </div>`).join('');
+}
+function saveNavBtns(){localStorage.setItem('ig_nav_btns',JSON.stringify(NAV_BTNS));msg('✓ Nav salvata');}
+function saveLogo(){
+  const d=document.getElementById('logoDesktopUrl')?.value.trim();
+  const m=document.getElementById('logoMobileUrl')?.value.trim();
+  if(d) localStorage.setItem('ig_logo_desktop',d);
+  if(m) localStorage.setItem('ig_logo_mobile',m);
+  msg('✓ Logo salvato');
+}
+function resetLogo(){localStorage.removeItem('ig_logo_desktop');localStorage.removeItem('ig_logo_mobile');msg('✓ Logo ripristinato');}
+function loadLogoFromStorage(){
+  const d=localStorage.getItem('ig_logo_desktop');const m=localStorage.getItem('ig_logo_mobile');
+  if(d) document.getElementById('logoDesktopUrl').value=d;
+  if(m) document.getElementById('logoMobileUrl').value=m;
+}
+
+/* ── COLORS ── */
+function previewColor(cssVar,val){document.documentElement.style.setProperty(cssVar,val);}
+function resetColor(id,def,cssVar){document.getElementById('color'+id).value=def;document.documentElement.style.setProperty(cssVar,def);}
+function saveColors(){const c={accent:document.getElementById('colorAccent').value,accent2:document.getElementById('colorAccent2').value,violet:document.getElementById('colorViolet').value};localStorage.setItem('ig_colors',JSON.stringify(c));msg('✓ Colori salvati!');}
+function resetAllColors(){document.getElementById('colorAccent').value='#3fc7ba';document.getElementById('colorAccent2').value='#1a237e';document.getElementById('colorViolet').value='#1a237e';localStorage.removeItem('ig_colors');msg('✓ Reset');}
+function applyBrandPalette(i){const c=BRAND_PALETTES[i].c;document.getElementById('colorAccent').value=c.accent;document.getElementById('colorAccent2').value=c.accent2;document.getElementById('colorViolet').value=c.violet;msg('Palette applicata — premi Salva');}
+function buildBrandSwatches(){
+  const el=document.getElementById('brandSwatches');if(!el) return;
+  el.innerHTML=BRAND_PALETTES.map((p,i)=>`
+    <div class="brand-palette-row">
+      <div class="swatch-dot" style="background:${p.c.accent}"></div>
+      <div class="swatch-dot" style="background:${p.c.accent2}"></div>
+      <div class="swatch-dot" style="background:${p.c.violet}"></div>
+      <span style="font-size:12px;color:#888;flex:1;">${p.name}</span>
+      <button class="a-btn ghost sm" onclick="applyBrandPalette(${i})">Applica</button>
+    </div>`).join('');
+}
+
+/* ── FONTS ── */
+function previewFontTitle(v){document.getElementById('fontTitlePreview').style.fontFamily=`'${v}',sans-serif`;}
+function previewFontBody(v){document.getElementById('fontBodyPreview').style.fontFamily=`'${v}',sans-serif`;}
+function saveFonts(){const f={title:document.getElementById('fontTitleSelect').value,body:document.getElementById('fontBodySelect').value};localStorage.setItem('ig_fonts',JSON.stringify(f));msg('✓ Font salvati!');}
+
+/* ── UI SETTINGS ── */
+function saveUiSettings(){
+  const data={
+    promptIcon:document.getElementById('uiPromptIcon')?.value||'✐',
+    promptLabel:document.getElementById('uiPromptLabel')?.value||'Il tuo prompt',
+    dvIcon:document.getElementById('uiDvIcon')?.value||'◈',
+    dvLabel:document.getElementById('uiDvLabel')?.value||'Dettagli visivi',
+    stileIcon:document.getElementById('uiStileIcon')?.value||'❋',
+    stileLabel:document.getElementById('uiStileLabel')?.value||'Stile artistico',
+    formatoIcon:document.getElementById('uiFormatoIcon')?.value||'▣',
+    formatoLabel:document.getElementById('uiFormatoLabel')?.value||'Formato',
+    generaLabel:document.getElementById('uiGeneraLabel')?.value||'GENERA IMMAGINE',
+    generaBg:document.getElementById('uiGeneraBg')?.value||'#1a237e',
+    generaColor:document.getElementById('uiGeneraColor')?.value||'#ffffff',
+    tabActiveBg:document.getElementById('uiTabActiveBg')?.value||'#1a237e',
+    chipActiveBg:document.getElementById('uiChipActiveBg')?.value||'#1a237e',
+    ratioActiveBg:document.getElementById('uiRatioActiveBg')?.value||'#1a237e',
+  };
+  localStorage.setItem('ig_ui',JSON.stringify(data));
+  msg('✓ UI salvata! Ricarica l\'app per vedere le modifiche.');
+}
+function resetUiSettings(){localStorage.removeItem('ig_ui');msg('✓ UI reset. Ricarica l\'app.');}
+
+/* ── BTN COLORS ── */
+function saveBtnColors(){
+  const keys=['--btn-style-bg','--btn-style-active-bg','--btn-ratio-active-bg','--gen-btn-bg','--gen-btn-color'];
+  const saved={};
+  keys.forEach(k=>{saved[k]=document.getElementById('uiGeneraBg')?.value||'#1a237e';});
+  localStorage.setItem('ig_btn_colors',JSON.stringify(saved));
+  msg('✓ Colori bottoni salvati');
+}
+
+/* ── API ── */
+function setActiveApi(n){localStorage.setItem('ig_active_api',n);updateApiCards();document.getElementById('infoActiveApi').textContent={pollinations:'Pollinations AI',openai:'OpenAI DALL·E 3',stability:'Stability AI'}[n]||n;msg('✓ API: '+n);}
+function saveAndActivateApi(n){saveApiKey(n);setActiveApi(n);}
+function saveApiKey(n){const k=document.getElementById('key-'+n);if(k&&k.value) localStorage.setItem('ig_apikey_'+n,k.value);msg('✓ Key salvata');}
+function toggleKey(id,btn){const e=document.getElementById(id);e.type=e.type==='password'?'text':'password';btn.textContent=e.type==='password'?'👁':'🙈';}
+function updateApiCards(){const active=localStorage.getItem('ig_active_api')||'pollinations';['pollinations','openai','stability'].forEach(n=>{const badge=document.getElementById('apiBadge-'+n);if(badge) badge.classList.toggle('show',n===active);});}
+function loadSavedApiKeys(){['openai','stability'].forEach(n=>{const s=localStorage.getItem('ig_apikey_'+n);const e=document.getElementById('key-'+n);if(s&&e) e.value=s;});}
+function saveApiSettings(){const cd=parseInt(document.getElementById('aCooldown').value)||16;const to=parseInt(document.getElementById('aTimeout').value)||55;localStorage.setItem('ig_cooldown',cd*1000);localStorage.setItem('ig_timeout',to*1000);msg('✓ Salvato');}
+function adminSaveTheme(t){localStorage.setItem('ig_theme',t);document.getElementById('infoTheme').textContent=t;}
+
+/* ── SYSTEM ── */
+function clearGallery(){if(!confirm('Svuotare la galleria?')) return;localStorage.removeItem('ig_gallery');document.getElementById('infoGalleryCount').textContent=0;msg('✓ Svuotata');}
+function resetAllAdmin(){
+  if(!confirm('Reset tutto alle impostazioni predefinite?')) return;
+  ['ig_colors','ig_fonts','ig_styles','ig_cats','ig_faqs','ig_active_api','ig_cooldown','ig_timeout','ig_ui','ig_btn_colors','ig_nav_btns'].forEach(k=>localStorage.removeItem(k));
+  STYLES=JSON.parse(JSON.stringify(DEFAULT_STYLES_DATA));
+  CATS=JSON.parse(JSON.stringify(DEFAULT_CATS_DATA));
+  FAQS=JSON.parse(JSON.stringify(DEFAULT_FAQ_DATA));
+  renderAdminStyleList();renderAdminCats();renderAdminFaq();
+  msg('✓ Reset completato. Ricarica l\'app.');
+}
+</script>
+</body>
+</html>
