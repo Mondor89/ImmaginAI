@@ -100,6 +100,9 @@ body:not(.light) .adv-input {
 #controls-footer { background: var(--bg) !important; }
 #controls-footer  { border-top: 1px solid var(--border) !important; }
 
+/* Fix overflow: permetti scroll verticale invece di tagliare il contenuto */
+#controls-scroll  { overflow-y: auto !important; overflow-x: hidden !important; }
+
 /* Label sezione — grigio, niente viola */
 .slabel,
 .dv-label      { color: #9098a9 !important; font-family: var(--font-body) !important; font-size: 10px !important; font-weight: 600 !important; letter-spacing: .1em !important; }
@@ -128,16 +131,16 @@ body:not(.light) .adv-input {
 #diceBtn       { background: #FFE600 !important; border-left: 1px solid rgba(0,0,0,.06) !important; }
 #diceBtn:hover { background: #f0d800 !important; }
 
-/* ── DV Tabs — neutrali, attivo viola ── */
+/* ── DV Tabs — tinta viola leggera default, pieno attivo ── */
 .dv-tab {
-  background:    #ffffff !important;
-  border:        1px solid var(--border) !important;
-  color:         #666 !important;
+  background:    rgba(91,53,200,.06) !important;
+  border:        1px solid rgba(91,53,200,.18) !important;
+  color:         #6b5fad !important;
   font-size:     11px !important;
   padding:       5px 10px !important;
   border-radius: 20px !important;
 }
-.dv-tab:hover  { border-color: #5B35C8 !important; color: #5B35C8 !important; background: rgba(91,53,200,.04) !important; }
+.dv-tab:hover  { border-color: #5B35C8 !important; color: #5B35C8 !important; background: rgba(91,53,200,.12) !important; }
 .dv-tab.active { background: #5B35C8 !important; border-color: #5B35C8 !important; color: #ffffff !important; font-weight: 700 !important; }
 
 .dv-tab-badge                       { background: #e0e0e0 !important; color: #555 !important; }
@@ -147,9 +150,9 @@ body:not(.light) .adv-input {
 .dv-arrow { background: #e2e4ea !important; color: #555 !important; }
 .dv-arrow:hover { background: #5B35C8 !important; color: #fff !important; }
 
-/* ── DV Chips — neutrali, attivo viola ── */
+/* ── DV Chips — grigio chiaro default, attivo viola ── */
 .dv-chip {
-  background:    #ffffff !important;
+  background:    #f4f4f8 !important;
   border:        1.5px solid var(--border) !important;
   color:         #555 !important;
   border-radius: 6px !important;
@@ -165,9 +168,9 @@ body:not(.light) .adv-input {
 .dv-chip-remove              { background: rgba(0,0,0,.15) !important; color: #ffffff !important; }
 .dv-empty-msg                { color: #b0b8c8 !important; }
 
-/* ── Stili AI — neutrali, attivo viola ── */
+/* ── Stili AI — grigio chiaro default, attivo viola ── */
 .style-btn {
-  background:    #ffffff !important;
+  background:    #f4f4f8 !important;
   border:        1.5px solid var(--border) !important;
   border-radius: 8px !important;
 }
@@ -176,9 +179,9 @@ body:not(.light) .adv-input {
 .style-label      { color: #666 !important; font-size: 9px !important; }
 .style-btn.active .style-label { color: #ffffff !important; }
 
-/* ── Formato/Ratio — neutrali, attivo viola ── */
+/* ── Formato/Ratio — grigio chiaro default, attivo viola ── */
 .ratio-btn {
-  background:    #ffffff !important;
+  background:    #f4f4f8 !important;
   border:        1.5px solid var(--border) !important;
   border-radius: 8px !important;
 }
