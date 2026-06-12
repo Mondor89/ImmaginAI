@@ -103,6 +103,11 @@ body:not(.light) .adv-input {
 /* Fix overflow: permetti scroll verticale invece di tagliare il contenuto */
 #controls-scroll  { overflow-y: auto !important; overflow-x: hidden !important; }
 
+/* Tab DV: wrap su più righe — nessun taglio, niente frecce */
+.dv-tab-row   { flex-wrap: wrap !important; overflow-x: visible !important; }
+#dvArrowLeft,
+#dvArrowRight { display: none !important; }
+
 /* Label sezione — grigio, niente viola */
 .slabel,
 .dv-label      { color: #9098a9 !important; font-family: var(--font-body) !important; font-size: 10px !important; font-weight: 600 !important; letter-spacing: .1em !important; }
