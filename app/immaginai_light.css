@@ -230,11 +230,12 @@ body:not(.light) .adv-input {
   background:    #5B35C8 !important;
   color:         #ffffff !important;
   font-family:   var(--font-body) !important;
-  font-size:     14px !important;
+  font-size:     15px !important;
   font-weight:   700 !important;
   letter-spacing: .5px !important;
   box-shadow:    0 3px 14px rgba(91,53,200,.3) !important;
   border-radius: 8px !important;
+  padding:       22px !important;
 }
 #genBtn:not(:disabled):hover { background: #3D2F8F !important; transform: translateY(-1px) !important; box-shadow: 0 6px 20px rgba(91,53,200,.35) !important; }
 #genBtn:disabled             { background: #e0e0e0 !important; color: #aaa !important; box-shadow: none !important; }
@@ -359,8 +360,25 @@ body:not(.light) .adv-input {
 .nav-btn.active .nav-label { color: #5B35C8 !important; }
 .nav-btn.active .nav-icon  { filter: none !important; }
 
-#genBtnMobile button          { background: #5B35C8 !important; color: #ffffff !important; font-family: var(--font-body) !important; font-size: 14px !important; font-weight: 700 !important; border-radius: 8px !important; box-shadow: 0 3px 14px rgba(91,53,200,.3) !important; }
+#genBtnMobile button          { background: #5B35C8 !important; color: #ffffff !important; font-family: var(--font-body) !important; font-size: 15px !important; font-weight: 700 !important; border-radius: 8px !important; box-shadow: 0 3px 14px rgba(91,53,200,.3) !important; padding: 20px !important; }
 #genBtnMobile button:disabled { background: #e0e0e0 !important; color: #aaa !important; box-shadow: none !important; }
+
+/* ── MOBILE: footer fisso con sfondo grigio ── */
+@media(max-width:1023px) {
+  #controls-footer {
+    position: fixed !important;
+    bottom: 64px !important;
+    left: 0 !important;
+    right: 0 !important;
+    background: #d8dce6 !important;
+    padding: 12px 14px 14px !important;
+    z-index: 55 !important;
+    border-top: none !important;
+  }
+  #controls-footer #genBtn { display: block !important; }
+  #genBtnMobile            { display: none !important; }
+  #controls-scroll         { padding-bottom: 170px !important; }
+}
 
 /* ════════════════════════════════════════════════════
    10. ADMIN
