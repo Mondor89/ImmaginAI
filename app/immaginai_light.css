@@ -112,7 +112,7 @@ body:not(.light) .adv-input {
 /* Spaziatura interna sezioni */
 .slabel           { margin-bottom: 10px !important; }
 .dv-label         { margin-bottom: 10px !important; }
-.dv-wrap          { margin-top: 0 !important; }
+.dv-wrap          { margin-top: 20px !important; }
 
 /* Status bar nascosta — info già visibili nel pannello anteprima */
 #statusBar        { display: none !important; }
@@ -122,11 +122,11 @@ body:not(.light) .adv-input {
 #dvArrowLeft,
 #dvArrowRight { display: none !important; }
 
-/* Label sezione — grigio, niente viola */
+/* Label sezione — grigio testo, icona viola */
 .slabel,
 .dv-label      { color: #9098a9 !important; font-family: var(--font-body) !important; font-size: 10px !important; font-weight: 600 !important; letter-spacing: .1em !important; }
 .slabel-icon,
-.dv-label-icon { color: #9098a9 !important; }
+.dv-label-icon { color: #5B35C8 !important; }
 
 /* ── Prompt ── */
 .prompt-wrap {
