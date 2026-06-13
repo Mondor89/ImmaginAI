@@ -117,7 +117,7 @@ body:not(.light) .adv-input {
 #preview-col      { flex: 1 !important; min-width: 260px !important; }
 
 /* Desktop: no scroll, tutto in vista */
-#controls-scroll  { overflow: hidden !important; padding: 22px 28px 22px !important; gap: 20px !important; }
+#controls-scroll  { overflow: hidden !important; padding: 12px 28px 8px !important; gap: 16px !important; }
 
 /* Spaziatura interna sezioni */
 .slabel           { margin-bottom: 10px !important; }
@@ -162,14 +162,14 @@ body:not(.light) .adv-input {
 
 /* ── DV Tabs — tinta viola leggera default, pieno attivo ── */
 .dv-tab {
-  background:    rgba(91,53,200,.06) !important;
-  border:        1px solid rgba(91,53,200,.18) !important;
-  color:         #6b5fad !important;
+  background:    rgba(91,53,200,.10) !important;
+  border:        1px solid #5B35C8 !important;
+  color:         #5B35C8 !important;
   font-size:     11px !important;
   padding:       5px 10px !important;
   border-radius: 20px !important;
 }
-.dv-tab:hover  { border-color: #5B35C8 !important; color: #5B35C8 !important; background: rgba(91,53,200,.12) !important; }
+.dv-tab:hover  { background: rgba(91,53,200,.20) !important; border-color: #3D2F8F !important; color: #3D2F8F !important; }
 .dv-tab.active { background: #5B35C8 !important; border-color: #5B35C8 !important; color: #ffffff !important; font-weight: 700 !important; }
 
 .dv-tab-badge                       { background: #e0e0e0 !important; color: #555 !important; }
@@ -384,6 +384,8 @@ body:not(.light) .adv-input {
   }
   #controls-footer #genBtn { display: block !important; }
   #genBtnMobile            { display: none !important; }
+  /* scroll pbot=0 → footer ptop=14 → totale 14 = stesso del top */
+  #app #controls-scroll    { padding: 10px 16px 0 !important; gap: 14px !important; }
 }
 
 /* ════════════════════════════════════════════════════
