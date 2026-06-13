@@ -779,7 +779,7 @@ const DICE_FULL=[
 ];
 
 const RATIOS=[{id:'1:1',w:512,h:512,icon:'▪',label:'1:1'},{id:'16:9',w:512,h:288,icon:'▬',label:'16:9'},{id:'9:16',w:288,h:512,icon:'▮',label:'9:16'},{id:'4:3',w:512,h:384,icon:'▭',label:'4:3'}];
-const MODELS=[''];
+const HF_TOKEN=''; // Token gratuito: huggingface.co → Settings → Access Tokens → New token (Read)
 const BRAND_PALETTES=[
   {name:'Dark Principale',c:{accent:'#00E5C8',accent2:'#F0008C',violet:'#5B35C8'}},
   {name:'Dark + Pink',c:{accent:'#F0008C',accent2:'#FFE600',violet:'#5B35C8'}},
@@ -787,7 +787,7 @@ const BRAND_PALETTES=[
   {name:'Neon Caldo',c:{accent:'#FFE600',accent2:'#F0008C',violet:'#5B35C8'}},
 ];
 
-const ST={style:'',ratio:'1:1',enhance:true,safe:true,transpOn:false,gallery:[],currentUrl:'',currentPrompt:'',currentStyle:'',lastGenTime:0,busy:false,theme:'light',activeApi:'pollinations',cooldown:16000,timeout:90000};
+const ST={style:'',ratio:'1:1',enhance:true,safe:true,transpOn:false,gallery:[],currentUrl:'',currentPrompt:'',currentStyle:'',lastGenTime:0,busy:false,theme:'light',activeApi:'huggingface',cooldown:5000,timeout:120000};
 let STYLES=[],CATS=[],currentCatId=null,lpTimer=null;
 const isMobile=()=>window.innerWidth<1024;
 
@@ -1088,22 +1088,33 @@ function showCooldown(ms){const bar=document.getElementById('cooldownBar'),fill=
 function showOutput(v){const out=document.getElementById('outputArea'),ph=document.getElementById('previewPlaceholder'),pc=document.getElementById('preview-col');if(v){out.classList.add('visible');out.style.display='flex';if(ph) ph.style.display='none';if(isMobile()&&pc) pc.classList.add('output-active');}else{out.classList.remove('visible');out.style.display='none';if(ph) ph.style.display='flex';if(pc) pc.classList.remove('output-active');}}
 
 /* ── GENERATE ── */
-function buildUrl(model){
-  const prompt=document.getElementById('promptInput').value.trim();
+function buildPrompt(){
   const tags=getActiveTagsPrompt();
-  const ratio=RATIOS.find(r=>r.id===ST.ratio);
   const neg=document.getElementById('negPrompt');
   const negVal=neg&&neg.value.trim()?neg.value.trim():'';
   const negInPrompt=negVal?`, avoid: ${negVal}, no ${negVal}`:'';
   const transpInPrompt=ST.transpOn?', transparent background, no background, isolated subject, clean edges, no outline, no border':'';
-  const full=prompt+(ST.style?', '+ST.style:'')+(tags?', '+tags:'')+transpInPrompt+negInPrompt;
-  const seed=Math.floor(Math.random()*999999);
-  const pObj={width:ratio.w,height:ratio.h,seed,referrer:'wonderspit-ai.netlify.app'};if(model) pObj.model=model;
-  const p=new URLSearchParams(pObj);
-  return `https://image.pollinations.ai/prompt/${encodeURIComponent(full)}?${p}`;
+  return document.getElementById('promptInput').value.trim()+(ST.style?', '+ST.style:'')+(tags?', '+tags:'')+transpInPrompt+negInPrompt;
 }
-const _imgCache=new Set();
-function tryLoad(url){return new Promise((res,rej)=>{const img=new Image();_imgCache.add(img);const cancel=()=>{img.src='data:,';_imgCache.delete(img);};const t=setTimeout(()=>{cancel();rej('timeout');},ST.timeout);img.onload=()=>{_imgCache.delete(img);clearTimeout(t);res(url);};img.onerror=()=>{cancel();clearTimeout(t);rej('error');};img.src=url;});}
+async function generateHF(fullPrompt,width,height){
+  const spinMsg=document.getElementById('spinnerMsg');
+  if(spinMsg) spinMsg.innerHTML='Generando…<br><small style="font-size:11px;opacity:.6">FLUX AI — 10-30s</small>';
+  const headers={'Content-Type':'application/json'};
+  if(HF_TOKEN) headers['Authorization']='Bearer '+HF_TOKEN;
+  const ctrl=new AbortController();
+  const t=setTimeout(()=>ctrl.abort(),ST.timeout);
+  let res;
+  try{
+    res=await fetch('https://api-inference.huggingface.co/models/black-forest-labs/FLUX.1-schnell',
+      {method:'POST',headers,signal:ctrl.signal,
+       body:JSON.stringify({inputs:fullPrompt,parameters:{width,height,num_inference_steps:4,guidance_scale:0}})});
+  }finally{clearTimeout(t);}
+  if(res.status===503) throw new Error('503_loading');
+  if(res.status===429) throw new Error('429_limit');
+  if(!res.ok) throw new Error('HF_'+res.status);
+  const blob=await res.blob();
+  return new Promise((resolve,reject)=>{const r=new FileReader();r.onload=()=>resolve(r.result);r.onerror=reject;r.readAsDataURL(blob);});
+}
 
 async function generateImage(){
   const prompt=document.getElementById('promptInput').value.trim();
@@ -1113,33 +1124,32 @@ async function generateImage(){
   const btn=document.getElementById('genBtn'),btnM=document.getElementById('genBtnMobile')?.querySelector('button');
   const sBox=document.getElementById('spinnerBox'),imgEl=document.getElementById('generatedImg'),acts=document.getElementById('imgActions');
   [btn,btnM].forEach(b=>{if(b){b.disabled=true;b.textContent='⏳ GENERANDO…';}});
-  sBox.style.display='flex';sBox.innerHTML='<div class="big-spin"></div><div id="spinnerMsg">Generando…<br><small style="font-size:11px;opacity:.6">Attendi fino a 90s</small></div>';
+  sBox.style.display='flex';sBox.innerHTML='<div class="big-spin"></div><div id="spinnerMsg">Avvio…<br><small style="font-size:11px;opacity:.6">FLUX AI — 10-30s</small></div>';
   imgEl.style.display='none';acts.classList.remove('visible');document.getElementById('ctaWrap').classList.remove('visible');
   showOutput(true);
   if(isMobile()) setTimeout(()=>{const pc=document.getElementById('preview-col');if(pc) pc.scrollTop=0;},100);
   const elapsed=Date.now()-ST.lastGenTime;
-  if(ST.lastGenTime>0&&elapsed<ST.cooldown){const wait=ST.cooldown-elapsed;showCooldown(wait);document.getElementById('spinnerMsg').innerHTML=`Cooldown…<br><small>1 richiesta ogni ${Math.round(ST.cooldown/1000)}s</small>`;await new Promise(r=>setTimeout(r,wait));}
-  let ok=false;
-  for(let i=0;i<MODELS.length;i++){
-    const model=MODELS[i];
-    document.getElementById('spinnerMsg').innerHTML=`Generando…<br><small style="font-size:11px;opacity:.6">Attendi fino a 90s — servizio gratuito</small>`;
-    setStatus(`Connessione… (${model})`,'loading');
-    try{
-      const url=buildUrl(model);await tryLoad(url);
-      ST.currentUrl=url;ST.currentPrompt=prompt;ST.currentStyle=ST.style;ST.lastGenTime=Date.now();
-      imgEl.src=url;imgEl.onclick=()=>openModal(url);
-      sBox.style.display='none';imgEl.style.display='block';acts.classList.add('visible');document.getElementById('ctaWrap').classList.add('visible');
-      imgEl.classList.remove('img-pop');void imgEl.offsetWidth;imgEl.classList.add('img-pop');
-      setStatus('✓ Immagine generata!','ok');setTimeout(()=>setStatus('',''),3000);
-      ST.gallery.unshift({url,prompt,style:ST.style,ratio:ST.ratio,ts:Date.now()});
-      if(ST.gallery.length>50) ST.gallery.pop();
-      try{localStorage.setItem('ig_gallery',JSON.stringify(ST.gallery));}catch(e){}
-      renderGallery();ok=true;break;
-    }catch(e){
-      if(i<MODELS.length-1){document.getElementById('spinnerMsg').innerHTML=`${model} non disponibile…<br><small>Provo con ${MODELS[i+1]}…</small>`;await new Promise(r=>setTimeout(r,3000));}
-    }
+  if(ST.lastGenTime>0&&elapsed<ST.cooldown){const wait=ST.cooldown-elapsed;showCooldown(wait);document.getElementById('spinnerMsg').innerHTML=`Cooldown…<br><small>attendi ${Math.round(ST.cooldown/1000)}s</small>`;await new Promise(r=>setTimeout(r,wait));}
+  const ratio=RATIOS.find(r=>r.id===ST.ratio);
+  const full=buildPrompt();
+  setStatus('Generando…','loading');
+  try{
+    const dataUrl=await generateHF(full,ratio.w,ratio.h);
+    ST.currentUrl=dataUrl;ST.currentPrompt=prompt;ST.currentStyle=ST.style;ST.lastGenTime=Date.now();
+    imgEl.src=dataUrl;imgEl.onclick=()=>openModal(dataUrl);
+    sBox.style.display='none';imgEl.style.display='block';acts.classList.add('visible');document.getElementById('ctaWrap').classList.add('visible');
+    imgEl.classList.remove('img-pop');void imgEl.offsetWidth;imgEl.classList.add('img-pop');
+    setStatus('✓ Immagine generata!','ok');setTimeout(()=>setStatus('',''),3000);
+    ST.gallery.unshift({url:dataUrl,prompt,style:ST.style,ratio:ST.ratio,ts:Date.now()});
+    if(ST.gallery.length>12) ST.gallery.pop();
+    try{localStorage.setItem('ig_gallery',JSON.stringify(ST.gallery));}catch(e){}
+    renderGallery();
+  }catch(e){
+    const m=e.message||'';
+    const help=m.includes('503_loading')?'Modello in avvio — attendi 60s e riprova':m.includes('429_limit')?'Troppe richieste — attendi qualche minuto':m.includes('401')||m.includes('403')?'Token HuggingFace non valido':'Servizio non disponibile — riprova tra qualche minuto';
+    sBox.innerHTML=`<div style="padding:28px;text-align:center"><div style="font-size:40px;margin-bottom:12px">⚠️</div><p style="color:var(--danger);font-size:15px;font-weight:700;margin-bottom:8px;font-family:var(--font-title)">GENERAZIONE FALLITA</p><p style="color:var(--muted);font-size:12px;line-height:1.6;margin-bottom:18px">${help}</p><button onclick="resetAndRetry()" style="padding:11px 28px;background:linear-gradient(135deg,var(--c-accent),var(--c-violet));color:#FFFFFF;border:none;border-radius:11px;font-size:13px;font-weight:800;cursor:pointer;">🔄 RIPROVA</button></div>`;
+    setStatus('Errore — riprova','fail');
   }
-  if(!ok){sBox.innerHTML=`<div style="padding:28px;text-align:center"><div style="font-size:40px;margin-bottom:12px">⚠️</div><p style="color:var(--danger);font-size:15px;font-weight:700;margin-bottom:8px;font-family:var(--font-title)">SERVIZIO NON DISPONIBILE</p><p style="color:var(--muted);font-size:12px;line-height:1.6;margin-bottom:18px">Servizio occupato. Attendi 1-2 minuti e riprova.</p><button onclick="resetAndRetry()" style="padding:11px 28px;background:linear-gradient(135deg,var(--c-accent),var(--c-violet));color:#FFFFFF;border:none;border-radius:11px;font-size:13px;font-weight:800;cursor:pointer;">🔄 RIPROVA</button></div>`;setStatus('Servizio occupato — riprova tra 1-2 minuti','fail');}
   [btn,btnM].forEach(b=>{if(b){b.disabled=false;b.textContent='✨ GENERA IMMAGINE';}});ST.busy=false;
 }
 async function resetAndRetry(){ST.lastGenTime=0;document.getElementById('spinnerBox').innerHTML=`<div class="big-spin"></div><div id="spinnerMsg">Riconnessione…</div>`;document.getElementById('generatedImg').style.display='none';document.getElementById('imgActions').classList.remove('visible');await generateImage();}
@@ -1173,29 +1183,23 @@ async function generateModifica(basePrompt,baseStyle,extra){
   document.getElementById('compareOverlay').classList.remove('open');
   sBox.style.display='flex';imgEl.style.display='none';acts.classList.remove('visible');document.getElementById('ctaWrap').classList.remove('visible');
   ST.lastGenTime=0;
-  const fullPrompt=basePrompt+', '+extra;
   const ratio=RATIOS.find(r=>r.id===ST.ratio);
-  const seed=Math.floor(Math.random()*999999);
-  let ok=false;
-  for(let i=0;i<MODELS.length;i++){
-    const model=MODELS[i];
-    document.getElementById('spinnerMsg').innerHTML=`Generando modifica…<br><small style="font-size:11px;opacity:.6">Attendi fino a 90s</small>`;
-    const pObj={width:ratio.w,height:ratio.h,seed,referrer:'wonderspit-ai.netlify.app'};if(model) pObj.model=model;const p=new URLSearchParams(pObj);
-    const url=`https://image.pollinations.ai/prompt/${encodeURIComponent(fullPrompt+(baseStyle?', '+baseStyle:''))}?${p}`;
-    try{
-      await tryLoad(url);
-      ST.lastGenTime=Date.now();
-      sBox.style.display='none';
-      document.getElementById('compareImgOld').src=prevUrl;
-      document.getElementById('compareImgNew').src=url;
-      document.getElementById('compareOverlay').classList.add('open');
-      ST._pendingModifica={url,prompt:basePrompt,extra,style:baseStyle};
-      ok=true;break;
-    }catch(e2){
-      if(i<MODELS.length-1){document.getElementById('spinnerMsg').innerHTML=`${model} non disponibile…<br><small>Provo con ${MODELS[i+1]}…</small>`;await new Promise(r=>setTimeout(r,3000));}
-    }
+  const modFull=basePrompt+', '+extra+(baseStyle?', '+baseStyle:'');
+  setStatus('Generando modifica…','loading');
+  try{
+    const dataUrl=await generateHF(modFull,ratio.w,ratio.h);
+    ST.lastGenTime=Date.now();
+    sBox.style.display='none';
+    document.getElementById('compareImgOld').src=prevUrl;
+    document.getElementById('compareImgNew').src=dataUrl;
+    document.getElementById('compareOverlay').classList.add('open');
+    ST._pendingModifica={url:dataUrl,prompt:basePrompt,extra,style:baseStyle};
+  }catch(e){
+    const m=e.message||'';
+    const help=m.includes('503_loading')?'Modello in avvio — attendi 60s e riprova':m.includes('429_limit')?'Troppe richieste — attendi qualche minuto':'Servizio non disponibile — riprova tra qualche minuto';
+    sBox.innerHTML=`<div style="padding:28px;text-align:center"><div style="font-size:40px;margin-bottom:12px">⚠️</div><p style="color:var(--danger);font-size:15px;font-weight:700;margin-bottom:8px;">GENERAZIONE FALLITA</p><p style="color:var(--muted);font-size:12px;line-height:1.6;margin-bottom:18px">${help}</p><button onclick="resetAndRetry()" style="padding:11px 28px;background:linear-gradient(135deg,var(--c-accent),var(--c-violet));color:#FFFFFF;border:none;border-radius:11px;font-size:13px;font-weight:800;cursor:pointer;">🔄 RIPROVA</button></div>`;
+    setStatus('Errore — riprova','fail');
   }
-  if(!ok){sBox.innerHTML=`<div style="padding:28px;text-align:center"><div style="font-size:40px;margin-bottom:12px">⚠️</div><p style="color:var(--danger);font-size:15px;font-weight:700;margin-bottom:8px;">SERVIZIO NON DISPONIBILE</p><p style="color:var(--muted);font-size:12px;line-height:1.6;margin-bottom:18px">Servizio occupato. Attendi 1-2 minuti e riprova.</p><button onclick="resetAndRetry()" style="padding:11px 28px;background:linear-gradient(135deg,var(--c-accent),var(--c-violet));color:#FFFFFF;border:none;border-radius:11px;font-size:13px;font-weight:800;cursor:pointer;">🔄 RIPROVA</button></div>`;}
   ST.busy=false;
 }
 function keepModifica(){
@@ -1204,7 +1208,7 @@ function keepModifica(){
   imgEl.src=m.url;imgEl.onclick=()=>openModal(m.url);imgEl.style.display='block';
   ST.currentUrl=m.url;ST.currentPrompt=m.prompt;ST.currentStyle=m.style;
   ST.gallery.unshift({url:m.url,prompt:m.prompt+', '+m.extra,style:m.style,ratio:ST.ratio,ts:Date.now()});
-  if(ST.gallery.length>50) ST.gallery.pop();
+  if(ST.gallery.length>12) ST.gallery.pop();
   try{localStorage.setItem('ig_gallery',JSON.stringify(ST.gallery));}catch(e){}
   renderGallery();closeCompare();
   document.getElementById('imgActions').classList.add('visible');document.getElementById('ctaWrap').classList.add('visible');
@@ -1228,35 +1232,31 @@ async function regenImage(){
   [btn,btnM].forEach(b=>{if(b){b.disabled=true;b.textContent='⏳ GENERANDO…';}});
   sBox.style.display='flex';imgEl.style.display='none';acts.classList.remove('visible');document.getElementById('ctaWrap').classList.remove('visible');document.getElementById('compareOverlay').classList.remove('open');document.getElementById('modificaPanel').classList.remove('open');
   const ratio=RATIOS.find(r=>r.id===savedRatio);
-  const seed=Math.floor(Math.random()*999999);
-  let ok=false;
-  for(let i=0;i<MODELS.length;i++){
-    const model=MODELS[i];
-    document.getElementById('spinnerMsg').innerHTML=`Rigenerando…<br><small style="font-size:11px;opacity:.6">Attendi fino a 90s</small>`;
-    const pObj={width:ratio.w,height:ratio.h,seed,referrer:'wonderspit-ai.netlify.app'};if(model) pObj.model=model;const p=new URLSearchParams(pObj);
-    const url=`https://image.pollinations.ai/prompt/${encodeURIComponent(savedPrompt+(savedStyle?', '+savedStyle:''))}?${p}`;
-    try{
-      await tryLoad(url);
-      ST.currentUrl=url;ST.currentPrompt=savedPrompt;ST.currentStyle=savedStyle;ST.lastGenTime=Date.now();
-      imgEl.src=url;imgEl.onclick=()=>openModal(url);
-      sBox.style.display='none';imgEl.style.display='block';acts.classList.add('visible');document.getElementById('ctaWrap').classList.add('visible');
-      imgEl.classList.remove('img-pop');void imgEl.offsetWidth;imgEl.classList.add('img-pop');
-      setStatus('✓ Rigenerata!','ok');setTimeout(()=>setStatus('',''),3000);
-      ST.gallery.unshift({url,prompt:savedPrompt,style:savedStyle,ratio:savedRatio,ts:Date.now()});
-      if(ST.gallery.length>50) ST.gallery.pop();
-      try{localStorage.setItem('ig_gallery',JSON.stringify(ST.gallery));}catch(e){}
-      renderGallery();ok=true;break;
-    }catch(e2){
-      if(i<MODELS.length-1){document.getElementById('spinnerMsg').innerHTML=`${model} non disponibile…<br><small>Provo con ${MODELS[i+1]}…</small>`;await new Promise(r=>setTimeout(r,3000));}
-    }
+  const full=savedPrompt+(savedStyle?', '+savedStyle:'');
+  setStatus('Rigenerando…','loading');
+  try{
+    const dataUrl=await generateHF(full,ratio.w,ratio.h);
+    ST.currentUrl=dataUrl;ST.currentPrompt=savedPrompt;ST.currentStyle=savedStyle;ST.lastGenTime=Date.now();
+    imgEl.src=dataUrl;imgEl.onclick=()=>openModal(dataUrl);
+    sBox.style.display='none';imgEl.style.display='block';acts.classList.add('visible');document.getElementById('ctaWrap').classList.add('visible');
+    imgEl.classList.remove('img-pop');void imgEl.offsetWidth;imgEl.classList.add('img-pop');
+    setStatus('✓ Rigenerata!','ok');setTimeout(()=>setStatus('',''),3000);
+    ST.gallery.unshift({url:dataUrl,prompt:savedPrompt,style:savedStyle,ratio:savedRatio,ts:Date.now()});
+    if(ST.gallery.length>12) ST.gallery.pop();
+    try{localStorage.setItem('ig_gallery',JSON.stringify(ST.gallery));}catch(e){}
+    renderGallery();
+  }catch(e){
+    const m=e.message||'';
+    const help=m.includes('503_loading')?'Modello in avvio — attendi 60s e riprova':m.includes('429_limit')?'Troppe richieste — attendi qualche minuto':'Servizio non disponibile — riprova tra qualche minuto';
+    sBox.innerHTML=`<div style="padding:28px;text-align:center"><div style="font-size:40px;margin-bottom:12px">⚠️</div><p style="color:var(--danger);font-size:15px;font-weight:700;margin-bottom:8px;">GENERAZIONE FALLITA</p><p style="color:var(--muted);font-size:12px;line-height:1.6;margin-bottom:18px">${help}</p><button onclick="resetAndRetry()" style="padding:11px 28px;background:linear-gradient(135deg,var(--c-accent),var(--c-violet));color:#FFFFFF;border:none;border-radius:11px;font-size:13px;font-weight:800;cursor:pointer;">🔄 RIPROVA</button></div>`;
+    setStatus('Errore — riprova','fail');
   }
-  if(!ok){sBox.innerHTML=`<div style="padding:28px;text-align:center"><div style="font-size:40px;margin-bottom:12px">⚠️</div><p style="color:var(--danger);font-size:15px;font-weight:700;margin-bottom:8px;">SERVIZIO NON DISPONIBILE</p><p style="color:var(--muted);font-size:12px;line-height:1.6;margin-bottom:18px">Servizio occupato. Attendi 1-2 minuti e riprova.</p><button onclick="resetAndRetry()" style="padding:11px 28px;background:linear-gradient(135deg,var(--c-accent),var(--c-violet));color:#FFFFFF;border:none;border-radius:11px;font-size:13px;font-weight:800;cursor:pointer;">🔄 RIPROVA</button></div>`;}
   [btn,btnM].forEach(b=>{if(b){b.disabled=false;b.textContent='✨ GENERA IMMAGINE';}});ST.busy=false;
 }
 document.addEventListener('keydown',e=>{if(e.ctrlKey&&e.key==='Enter') generateImage();});
 
 /* ── GALLERY ── */
-function renderGallery(){const cnt=document.getElementById('galleryCount'),con=document.getElementById('galleryContent');if(!cnt||!con) return;cnt.textContent=ST.gallery.length+' immagini generate';if(!ST.gallery.length){con.innerHTML=`<div class="empty-state"><div class="empty-icon">🖼️</div><p>Nessuna immagine ancora</p><span>Vai su Crea e genera!</span></div>`;return;}con.innerHTML=`<div class="gallery-grid">${ST.gallery.map((it,i)=>`<div class="gallery-item"><img src="${it.url}" loading="lazy" onclick="openModal('${it.url}')"><div class="gallery-caption">${it.prompt}</div><div class="gallery-actions"><button class="gal-btn" onclick="downloadFrom('${it.url}')">⬇</button><button class="gal-btn ac" onclick="reusePrompt(${i})">↺ Riusa</button><button class="gal-btn" onclick="delItem(${i})">🗑</button></div></div>`).join('')}</div>`;}
+function renderGallery(){const cnt=document.getElementById('galleryCount'),con=document.getElementById('galleryContent');if(!cnt||!con) return;cnt.textContent=ST.gallery.length+' immagini generate';if(!ST.gallery.length){con.innerHTML=`<div class="empty-state"><div class="empty-icon">🖼️</div><p>Nessuna immagine ancora</p><span>Vai su Crea e genera!</span></div>`;return;}con.innerHTML=`<div class="gallery-grid">${ST.gallery.map((it,i)=>`<div class="gallery-item"><img src="${it.url}" loading="lazy" onclick="openModal(ST.gallery[${i}].url)"><div class="gallery-caption">${it.prompt}</div><div class="gallery-actions"><button class="gal-btn" onclick="downloadFrom(ST.gallery[${i}].url)">⬇</button><button class="gal-btn ac" onclick="reusePrompt(${i})">↺ Riusa</button><button class="gal-btn" onclick="delItem(${i})">🗑</button></div></div>`).join('')}</div>`;}
 function reusePrompt(i){const it=ST.gallery[i];document.getElementById('promptInput').value=it.prompt;ST.style=it.style;buildStyles();switchTab('create');}
 function delItem(i){ST.gallery.splice(i,1);try{localStorage.setItem('ig_gallery',JSON.stringify(ST.gallery));}catch(e){}renderGallery();}
 
