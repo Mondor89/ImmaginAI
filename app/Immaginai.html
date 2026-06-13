@@ -779,7 +779,7 @@ const DICE_FULL=[
 ];
 
 const RATIOS=[{id:'1:1',w:512,h:512,icon:'▪',label:'1:1'},{id:'16:9',w:512,h:288,icon:'▬',label:'16:9'},{id:'9:16',w:288,h:512,icon:'▮',label:'9:16'},{id:'4:3',w:512,h:384,icon:'▭',label:'4:3'}];
-const MODELS=['flux','turbo','sana'];
+const MODELS=[''];
 const BRAND_PALETTES=[
   {name:'Dark Principale',c:{accent:'#00E5C8',accent2:'#F0008C',violet:'#5B35C8'}},
   {name:'Dark + Pink',c:{accent:'#F0008C',accent2:'#FFE600',violet:'#5B35C8'}},
@@ -787,7 +787,7 @@ const BRAND_PALETTES=[
   {name:'Neon Caldo',c:{accent:'#FFE600',accent2:'#F0008C',violet:'#5B35C8'}},
 ];
 
-const ST={style:'',ratio:'1:1',enhance:true,safe:true,transpOn:false,gallery:[],currentUrl:'',currentPrompt:'',currentStyle:'',lastGenTime:0,busy:false,theme:'light',activeApi:'pollinations',cooldown:16000,timeout:45000};
+const ST={style:'',ratio:'1:1',enhance:true,safe:true,transpOn:false,gallery:[],currentUrl:'',currentPrompt:'',currentStyle:'',lastGenTime:0,busy:false,theme:'light',activeApi:'pollinations',cooldown:16000,timeout:90000};
 let STYLES=[],CATS=[],currentCatId=null,lpTimer=null;
 const isMobile=()=>window.innerWidth<1024;
 
@@ -1103,7 +1103,7 @@ function buildUrl(model){
   return `https://image.pollinations.ai/prompt/${encodeURIComponent(full)}?${p}`;
 }
 const _imgCache=new Set();
-function tryLoad(url){return new Promise((res,rej)=>{const img=new Image();_imgCache.add(img);const t=setTimeout(()=>{_imgCache.delete(img);rej('timeout');},ST.timeout);img.onload=()=>{_imgCache.delete(img);clearTimeout(t);res(url);};img.onerror=()=>{_imgCache.delete(img);clearTimeout(t);rej('error');};img.src=url;});}
+function tryLoad(url){return new Promise((res,rej)=>{const img=new Image();_imgCache.add(img);const cancel=()=>{img.src='data:,';_imgCache.delete(img);};const t=setTimeout(()=>{cancel();rej('timeout');},ST.timeout);img.onload=()=>{_imgCache.delete(img);clearTimeout(t);res(url);};img.onerror=()=>{cancel();clearTimeout(t);rej('error');};img.src=url;});}
 
 async function generateImage(){
   const prompt=document.getElementById('promptInput').value.trim();
@@ -1113,7 +1113,7 @@ async function generateImage(){
   const btn=document.getElementById('genBtn'),btnM=document.getElementById('genBtnMobile')?.querySelector('button');
   const sBox=document.getElementById('spinnerBox'),imgEl=document.getElementById('generatedImg'),acts=document.getElementById('imgActions');
   [btn,btnM].forEach(b=>{if(b){b.disabled=true;b.textContent='⏳ GENERANDO…';}});
-  sBox.style.display='flex';sBox.innerHTML='<div class="big-spin"></div><div id="spinnerMsg">Avvio…<br><small style="font-size:11px;opacity:.6">15–30s</small></div>';
+  sBox.style.display='flex';sBox.innerHTML='<div class="big-spin"></div><div id="spinnerMsg">Generando…<br><small style="font-size:11px;opacity:.6">Attendi fino a 90s</small></div>';
   imgEl.style.display='none';acts.classList.remove('visible');document.getElementById('ctaWrap').classList.remove('visible');
   showOutput(true);
   if(isMobile()) setTimeout(()=>{const pc=document.getElementById('preview-col');if(pc) pc.scrollTop=0;},100);
@@ -1122,7 +1122,7 @@ async function generateImage(){
   let ok=false;
   for(let i=0;i<MODELS.length;i++){
     const model=MODELS[i];
-    document.getElementById('spinnerMsg').innerHTML=`Generando con <strong style="color:var(--c-accent)">${model||'flux'}</strong>…<br><small style="font-size:11px;opacity:.6">${i+1}/${MODELS.length} · 15–30s</small>`;
+    document.getElementById('spinnerMsg').innerHTML=`Generando…<br><small style="font-size:11px;opacity:.6">Attendi fino a 90s — servizio gratuito</small>`;
     setStatus(`Connessione… (${model})`,'loading');
     try{
       const url=buildUrl(model);await tryLoad(url);
@@ -1139,7 +1139,7 @@ async function generateImage(){
       if(i<MODELS.length-1){document.getElementById('spinnerMsg').innerHTML=`${model} non disponibile…<br><small>Provo con ${MODELS[i+1]}…</small>`;await new Promise(r=>setTimeout(r,3000));}
     }
   }
-  if(!ok){sBox.innerHTML=`<div style="padding:28px;text-align:center"><div style="font-size:40px;margin-bottom:12px">⚠️</div><p style="color:var(--danger);font-size:15px;font-weight:700;margin-bottom:8px;font-family:var(--font-title)">SERVIZIO NON DISPONIBILE</p><p style="color:var(--muted);font-size:12px;line-height:1.6;margin-bottom:18px">Pollinations sovraccarico. Attendi 30s.</p><button onclick="resetAndRetry()" style="padding:11px 28px;background:linear-gradient(135deg,var(--c-accent),var(--c-violet));color:#FFFFFF;border:none;border-radius:11px;font-size:13px;font-weight:800;cursor:pointer;">🔄 RIPROVA</button></div>`;setStatus('Non disponibile — riprova tra 30s','fail');}
+  if(!ok){sBox.innerHTML=`<div style="padding:28px;text-align:center"><div style="font-size:40px;margin-bottom:12px">⚠️</div><p style="color:var(--danger);font-size:15px;font-weight:700;margin-bottom:8px;font-family:var(--font-title)">SERVIZIO NON DISPONIBILE</p><p style="color:var(--muted);font-size:12px;line-height:1.6;margin-bottom:18px">Servizio occupato. Attendi 1-2 minuti e riprova.</p><button onclick="resetAndRetry()" style="padding:11px 28px;background:linear-gradient(135deg,var(--c-accent),var(--c-violet));color:#FFFFFF;border:none;border-radius:11px;font-size:13px;font-weight:800;cursor:pointer;">🔄 RIPROVA</button></div>`;setStatus('Servizio occupato — riprova tra 1-2 minuti','fail');}
   [btn,btnM].forEach(b=>{if(b){b.disabled=false;b.textContent='✨ GENERA IMMAGINE';}});ST.busy=false;
 }
 async function resetAndRetry(){ST.lastGenTime=0;document.getElementById('spinnerBox').innerHTML=`<div class="big-spin"></div><div id="spinnerMsg">Riconnessione…</div>`;document.getElementById('generatedImg').style.display='none';document.getElementById('imgActions').classList.remove('visible');await generateImage();}
@@ -1179,7 +1179,7 @@ async function generateModifica(basePrompt,baseStyle,extra){
   let ok=false;
   for(let i=0;i<MODELS.length;i++){
     const model=MODELS[i];
-    document.getElementById('spinnerMsg').innerHTML=`Generando modifica con <strong style="color:var(--c-accent)">${model||'flux'}</strong>…<br><small style="font-size:11px;opacity:.6">${i+1}/${MODELS.length}</small>`;
+    document.getElementById('spinnerMsg').innerHTML=`Generando modifica…<br><small style="font-size:11px;opacity:.6">Attendi fino a 90s</small>`;
     const pObj={width:ratio.w,height:ratio.h,seed,referrer:'wonderspit-ai.netlify.app'};if(model) pObj.model=model;const p=new URLSearchParams(pObj);
     const url=`https://image.pollinations.ai/prompt/${encodeURIComponent(fullPrompt+(baseStyle?', '+baseStyle:''))}?${p}`;
     try{
@@ -1195,7 +1195,7 @@ async function generateModifica(basePrompt,baseStyle,extra){
       if(i<MODELS.length-1){document.getElementById('spinnerMsg').innerHTML=`${model} non disponibile…<br><small>Provo con ${MODELS[i+1]}…</small>`;await new Promise(r=>setTimeout(r,3000));}
     }
   }
-  if(!ok){sBox.innerHTML=`<div style="padding:28px;text-align:center"><div style="font-size:40px;margin-bottom:12px">⚠️</div><p style="color:var(--danger);font-size:15px;font-weight:700;margin-bottom:8px;">SERVIZIO NON DISPONIBILE</p><p style="color:var(--muted);font-size:12px;line-height:1.6;margin-bottom:18px">Pollinations sovraccarico. Attendi 30s.</p><button onclick="resetAndRetry()" style="padding:11px 28px;background:linear-gradient(135deg,var(--c-accent),var(--c-violet));color:#FFFFFF;border:none;border-radius:11px;font-size:13px;font-weight:800;cursor:pointer;">🔄 RIPROVA</button></div>`;}
+  if(!ok){sBox.innerHTML=`<div style="padding:28px;text-align:center"><div style="font-size:40px;margin-bottom:12px">⚠️</div><p style="color:var(--danger);font-size:15px;font-weight:700;margin-bottom:8px;">SERVIZIO NON DISPONIBILE</p><p style="color:var(--muted);font-size:12px;line-height:1.6;margin-bottom:18px">Servizio occupato. Attendi 1-2 minuti e riprova.</p><button onclick="resetAndRetry()" style="padding:11px 28px;background:linear-gradient(135deg,var(--c-accent),var(--c-violet));color:#FFFFFF;border:none;border-radius:11px;font-size:13px;font-weight:800;cursor:pointer;">🔄 RIPROVA</button></div>`;}
   ST.busy=false;
 }
 function keepModifica(){
@@ -1232,7 +1232,7 @@ async function regenImage(){
   let ok=false;
   for(let i=0;i<MODELS.length;i++){
     const model=MODELS[i];
-    document.getElementById('spinnerMsg').innerHTML=`Rigenerando con <strong style="color:var(--c-accent)">${model||'flux'}</strong>…<br><small style="font-size:11px;opacity:.6">${i+1}/${MODELS.length} · 15–30s</small>`;
+    document.getElementById('spinnerMsg').innerHTML=`Rigenerando…<br><small style="font-size:11px;opacity:.6">Attendi fino a 90s</small>`;
     const pObj={width:ratio.w,height:ratio.h,seed,referrer:'wonderspit-ai.netlify.app'};if(model) pObj.model=model;const p=new URLSearchParams(pObj);
     const url=`https://image.pollinations.ai/prompt/${encodeURIComponent(savedPrompt+(savedStyle?', '+savedStyle:''))}?${p}`;
     try{
@@ -1250,7 +1250,7 @@ async function regenImage(){
       if(i<MODELS.length-1){document.getElementById('spinnerMsg').innerHTML=`${model} non disponibile…<br><small>Provo con ${MODELS[i+1]}…</small>`;await new Promise(r=>setTimeout(r,3000));}
     }
   }
-  if(!ok){sBox.innerHTML=`<div style="padding:28px;text-align:center"><div style="font-size:40px;margin-bottom:12px">⚠️</div><p style="color:var(--danger);font-size:15px;font-weight:700;margin-bottom:8px;">SERVIZIO NON DISPONIBILE</p><p style="color:var(--muted);font-size:12px;line-height:1.6;margin-bottom:18px">Pollinations sovraccarico. Attendi 30s.</p><button onclick="resetAndRetry()" style="padding:11px 28px;background:linear-gradient(135deg,var(--c-accent),var(--c-violet));color:#FFFFFF;border:none;border-radius:11px;font-size:13px;font-weight:800;cursor:pointer;">🔄 RIPROVA</button></div>`;}
+  if(!ok){sBox.innerHTML=`<div style="padding:28px;text-align:center"><div style="font-size:40px;margin-bottom:12px">⚠️</div><p style="color:var(--danger);font-size:15px;font-weight:700;margin-bottom:8px;">SERVIZIO NON DISPONIBILE</p><p style="color:var(--muted);font-size:12px;line-height:1.6;margin-bottom:18px">Servizio occupato. Attendi 1-2 minuti e riprova.</p><button onclick="resetAndRetry()" style="padding:11px 28px;background:linear-gradient(135deg,var(--c-accent),var(--c-violet));color:#FFFFFF;border:none;border-radius:11px;font-size:13px;font-weight:800;cursor:pointer;">🔄 RIPROVA</button></div>`;}
   [btn,btnM].forEach(b=>{if(b){b.disabled=false;b.textContent='✨ GENERA IMMAGINE';}});ST.busy=false;
 }
 document.addEventListener('keydown',e=>{if(e.ctrlKey&&e.key==='Enter') generateImage();});
