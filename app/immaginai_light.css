@@ -98,7 +98,7 @@ body:not(.light) .adv-input {
 ════════════════════════════════════════════════════ */
 #controls,
 #controls-scroll  { background: var(--bg) !important; }
-#controls-footer  { background: #d8dce6 !important; border-top: none !important; padding: 0 28px 18px !important; }
+#controls-footer  { background: #d8dce6 !important; border-top: 14px solid #f0f2f5 !important; padding: 0 28px 18px !important; }
 
 /* Controls larghezza fissa — bordo rimosso dal padre */
 #controls         { width: 620px !important; flex: none !important; border-right: none !important; box-shadow: none !important; position: relative !important; }
@@ -379,7 +379,7 @@ body:not(.light) .adv-input {
     position: static !important;
     background: #d8dce6 !important;
     padding: 10px 14px 76px !important;
-    border-top: none !important;
+    border-top: 14px solid #f0f2f5 !important;
     z-index: auto !important;
   }
   #controls-footer #genBtn {
