@@ -117,7 +117,7 @@ body:not(.light) .adv-input {
 #preview-col      { flex: 1 !important; min-width: 260px !important; }
 
 /* Desktop: no scroll, tutto in vista */
-#controls-scroll  { overflow: hidden !important; padding: 12px 28px 8px !important; gap: 16px !important; }
+#controls-scroll  { overflow: hidden !important; padding: 12px 28px 0 !important; gap: 16px !important; }
 
 /* Spaziatura interna sezioni */
 .slabel           { margin-bottom: 10px !important; }
@@ -385,7 +385,7 @@ body:not(.light) .adv-input {
   #controls-footer #genBtn { display: block !important; }
   #genBtnMobile            { display: none !important; }
   /* scroll pbot=0 → footer ptop=14 → totale 14 = stesso del top */
-  #app #controls-scroll    { padding: 10px 16px 0 !important; gap: 14px !important; }
+  #app #controls-scroll    { padding: 10px 16px 8px !important; gap: 14px !important; }
 }
 
 /* ════════════════════════════════════════════════════
