@@ -7,47 +7,23 @@
 
 | Campo | Valore |
 |-------|--------|
-| Ultimo aggiornamento | Giugno 2026 — S12 (fine) |
+| Ultimo aggiornamento | Giugno 2026 — S13 (fine) |
 | Versione app | v4.4 |
-| Stato | 🔴 Generazione immagini rotta — tutti i modelli Pollinations falliscono con onerror |
+| Stato | 🟡 Generazione: fix GC applicato, da confermare con test reale |
 | Admin | ✅ Long press 3s logo → apre `immaginai_admin.html` in nuova scheda |
 | Netlify | ✅ https://wonderspit-ai.netlify.app/ |
 | GitHub | ✅ Repo attivo — https://github.com/Mondor89/ImmaginAI — auto-push ad ogni modifica |
 
 ---
 
-## Focus S13 — DA FARE
-
-**Problema critico**: generazione immagini non funziona. Tutti i modelli Pollinations restituiscono `onerror` su `new Image()`. L'app mostra "Servizio non disponibile" dopo aver provato tutti i modelli.
-
-### Cosa è già stato provato in S12 (senza successo):
-1. Rimosso double-retry che scartava i risultati buoni
-2. Ridotto wait tra modelli: 10s → 3s, timeout: 80s → 45s
-3. Rimosso parametri vietati: `enhance`, `nologo`, `safe` (causavano 402)
-4. Rimosso `?negative=` da generateModifica e regenImage
-5. MODELS: primo tentativo senza parametro `model` (API default flux)
-
-### URL attuale (primo tentativo):
-`https://image.pollinations.ai/prompt/{prompt}?width=512&height=512&seed=42`
-
-### Ipotesi da verificare in S13:
-- **Testare URL direttamente nel browser** → capire se ritorna immagine o errore HTTP
-- **Aprire DevTools → Network** mentre si genera → vedere il codice HTTP (402? 429? 503?)
-- Pollinations potrebbe aver cambiato API: verificare docs aggiornate
-- Rate limiting IP da troppi test → provare dopo attesa lunga (30+ min)
-- Problema specifico di Netlify (CSP header? redirect HTTPS?)
-
----
-
-## Task Aperte
+## Focus S14 — DA FARE
 
 ### Alta priorità
-- [ ] **Fix generazione immagini** — debug con DevTools Network tab (S13 dedicata)
+- [ ] **Confermare fix generazione** — testare con DevTools Network aperti, verificare che le immagini arrivino (fix GC _imgCache applicato in S13)
 - [ ] Test funzionale completo `Immaginai.html` (genera, galleria, FAQ, mobile)
 - [ ] Test funzionale `immaginai_admin.html` (tutte le sezioni)
 
 ### Media priorità
-- [ ] Verifica layout no-scroll su diverse risoluzioni desktop
 - [ ] Test flusso completo: prompt → DV → stile → genera → modifica → CTA
 - [ ] Testare flusso completo social → ImmaginAI → Spreadshop
 
@@ -61,14 +37,11 @@
 
 ---
 
-## Task Completate S12
+## Task Completate S13
 
-- [x] GitHub repo connesso e auto-push attivo (ogni modifica → push immediato)
-- [x] UI desktop: spaziatura equalizzata tra sezioni (justify-content: space-between)
-- [x] DV tab: stile viola visibile di default (non solo su hover)
-- [x] Fix critico generazione: rimosso double-retry che scartava risultati ok
-- [x] MODELS: `['','turbo','flux-realism','flux-anime']` — primo tentativo senza model param
-- [x] Mobile footer: più compatto (padding ridotto, bottoni più piccoli)
+- [x] Fix GC generazione: aggiunto `_imgCache = new Set()` in `Immaginai.html` — impedisce il garbage collection di `new Image()` durante la Promise (causa del fallimento con "operazione annullata" 0 bytes ~150ms)
+- [x] Fix "tab tagliata" desktop: `overflow: hidden` → `overflow-y: auto` su `#controls-scroll` — le sezioni non vengono più tagliate a viewport piccole
+- [x] Footer grigio (`#d8dce6`) confermato come design intenzionale, ripristinato dopo tentativo errato di rimozione colore
 
 ---
 
@@ -84,6 +57,7 @@
 | Giu 2026 | Long press → nuova scheda | Identico al Designer |
 | Giu 2026 | Comunicazione via localStorage | Nessun coupling tra i due file |
 | Giu 2026 | Claude applica + pusha subito | Netlify aggiorna solo da GitHub |
+| Giu 2026 | Footer controls grigio #d8dce6 | Zona azione visivamente distinta dal form |
 
 ---
 
@@ -103,6 +77,7 @@ docs/
 - Storage: localStorage condiviso (galleria max 50, settings, FAQ, categorie DV, stili)
 - Admin session: `ig_admin_session` in localStorage
 - Caricamento immagini: `new Image()` + onload/onerror — **MAI fetch()**
+- GC fix: `_imgCache = new Set()` mantiene riferimento ai Image() pendenti — **NON rimuovere**
 
 ---
 
@@ -120,6 +95,8 @@ docs/
 | 8 | Contorno bianco stampa | sticker style nel prompt trasparenza — rimosso |
 | 9 | Double-retry scartava risultati | Inner try non settava ok=true — rimosso in S12 |
 | 10 | model=flux causava 402 | Parametro model esplicito = paid — usare stringa vuota |
+| 11 | Generazione "operazione annullata" 0 bytes | new Image() GC'd in Promise — aggiunto _imgCache Set |
+| 12 | Tab tagliata desktop | overflow:hidden + space-evenly taglia sezioni a viewport basse — usare overflow-y:auto |
 
 ---
 
@@ -127,15 +104,11 @@ docs/
 
 | Sessione | Attività |
 |----------|----------|
-| S13 | DA FARE: debug generazione con DevTools Network |
-| S12 | GitHub, auto-push, fix UI (spazi, DV tab, mobile footer), fix generazione parziale — ancora rotta |
+| S13 | Fix GC generazione (_imgCache), fix "tab tagliata" (overflow-y:auto), footer grigio ripristinato |
+| S12 | GitHub, auto-push, fix UI (spazi, DV tab, mobile footer), fix generazione parziale |
 | S11 | Light theme CSS, separazione admin, CLAUDE.md aggiornato. App: 1855→1303 righe. |
 | S10 | v2.7→v4.4: DV azzurri, SELECTED_TAGS, badge Attivi, stili, pill footer, Senza sfondo, FAQ |
-| S9 | v2.6: fix mobile output, FAQ tab |
-| S8 | Fix mobile. Bottone Spreadshop. CSS finale |
-| S7 | Test CSS Spreadshop. URL Netlify: https://wonderspit-ai.netlify.app/ |
-| S6 | v2.3: UI light, viola principale, Space Grotesk, logo PNG |
-| S1-S5 | Architettura base, fix generazione, brand, admin panel, layout |
+| S1-S9 | Architettura base, fix generazione, brand, admin panel, layout, Spreadshop, mobile |
 
 ---
 
