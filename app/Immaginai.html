@@ -1112,7 +1112,8 @@ async function generateImage(){
   const btn=document.getElementById('genBtn'),btnM=document.getElementById('genBtnMobile')?.querySelector('button');
   const sBox=document.getElementById('spinnerBox'),imgEl=document.getElementById('generatedImg'),acts=document.getElementById('imgActions');
   [btn,btnM].forEach(b=>{if(b){b.disabled=true;b.textContent='⏳ GENERANDO…';}});
-  sBox.style.display='flex';imgEl.style.display='none';acts.classList.remove('visible');document.getElementById('ctaWrap').classList.remove('visible');
+  sBox.style.display='flex';sBox.innerHTML='<div class="big-spin"></div><div id="spinnerMsg">Avvio…<br><small style="font-size:11px;opacity:.6">15–30s</small></div>';
+  imgEl.style.display='none';acts.classList.remove('visible');document.getElementById('ctaWrap').classList.remove('visible');
   showOutput(true);
   if(isMobile()) setTimeout(()=>{const pc=document.getElementById('preview-col');if(pc) pc.scrollTop=0;},100);
   const elapsed=Date.now()-ST.lastGenTime;
