@@ -363,22 +363,17 @@ body:not(.light) .adv-input {
 #genBtnMobile button          { background: #5B35C8 !important; color: #ffffff !important; font-family: var(--font-body) !important; font-size: 15px !important; font-weight: 700 !important; border-radius: 8px !important; box-shadow: 0 3px 14px rgba(91,53,200,.3) !important; padding: 20px !important; }
 #genBtnMobile button:disabled { background: #e0e0e0 !important; color: #aaa !important; box-shadow: none !important; }
 
-/* ── MOBILE: footer fisso con sfondo grigio ── */
-/* Doppia specificità (#app #controls-footer) per battere l'inline <style> */
+/* ── MOBILE: footer in-flow, scorrimento normale ── */
 @media(max-width:1023px) {
   #app #controls-footer {
-    position: fixed !important;
-    bottom: 64px !important;
-    left: 0 !important;
-    right: 0 !important;
+    position: static !important;
     background: #d8dce6 !important;
-    padding: 12px 14px 14px !important;
-    z-index: 55 !important;
+    padding: 14px 14px 100px !important;
     border-top: none !important;
+    z-index: auto !important;
   }
   #controls-footer #genBtn { display: block !important; }
   #genBtnMobile            { display: none !important; }
-  #app #controls-scroll    { padding-bottom: 170px !important; }
 }
 
 /* ════════════════════════════════════════════════════
