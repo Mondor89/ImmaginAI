@@ -100,14 +100,24 @@ body:not(.light) .adv-input {
 #controls-scroll  { background: var(--bg) !important; }
 #controls-footer  { background: #d8dce6 !important; border-top: none !important; padding-top: 14px !important; padding-bottom: 18px !important; }
 
-/* Controls larghezza fissa — via di mezzo */
-#controls         { width: 620px !important; flex: none !important; border-right: none !important; box-shadow: 2px 0 10px rgba(0,0,0,.07) !important; }
+/* Controls larghezza fissa — bordo rimosso dal padre */
+#controls         { width: 620px !important; flex: none !important; border-right: none !important; box-shadow: none !important; position: relative !important; }
+
+/* Linea sottile solo sull'area scroll — non arriva al footer */
+#controls-scroll  { position: relative !important; }
+#controls-scroll::after {
+  content: '' !important;
+  position: absolute !important;
+  top: 0 !important; right: 0 !important;
+  width: 1px !important; height: 100% !important;
+  background: #dde1ea !important;
+}
 
 /* Preview occupa il resto */
 #preview-col      { flex: 1 !important; min-width: 260px !important; }
 
-/* Fix overflow + spaziatura generosa tra sezioni */
-#controls-scroll  { overflow-y: auto !important; overflow-x: hidden !important; padding: 22px 28px 0 !important; gap: 20px !important; }
+/* Fix overflow + spaziatura simmetrica */
+#controls-scroll  { overflow-y: auto !important; overflow-x: hidden !important; padding: 22px 28px 22px !important; gap: 20px !important; }
 
 /* Spaziatura interna sezioni */
 .slabel           { margin-bottom: 10px !important; }
