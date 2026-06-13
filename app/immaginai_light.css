@@ -264,7 +264,7 @@ body:not(.light) .adv-input {
    5. PREVIEW COLUMN
 ════════════════════════════════════════════════════ */
 #preview-col    { background: var(--bg) !important; }
-#preview-header { color: #9098a9 !important; font-family: var(--font-body) !important; border-bottom: 1px solid var(--border) !important; font-size: 11px !important; font-weight: 700 !important; letter-spacing: .1em !important; text-transform: uppercase !important; }
+#preview-header { display: none !important; }
 
 #previewPlaceholder { border: 2px dashed var(--border) !important; background: transparent !important; }
 .preview-icon       { opacity: .25 !important; }

@@ -1098,8 +1098,7 @@ function buildUrl(model){
   const transpInPrompt=ST.transpOn?', transparent background, no background, isolated subject, clean edges, no outline, no border':'';
   const full=prompt+(ST.style?', '+ST.style:'')+(tags?', '+tags:'')+transpInPrompt+negInPrompt;
   const seed=Math.floor(Math.random()*999999);
-  const enhanceVal=(negVal||ST.transpOn)?'false':(ST.enhance?'true':'false');
-  const p=new URLSearchParams({width:ratio.w,height:ratio.h,model,enhance:enhanceVal,seed});
+  const p=new URLSearchParams({width:ratio.w,height:ratio.h,model,seed});
   return `https://image.pollinations.ai/prompt/${encodeURIComponent(full)}?${p}`;
 }
 function tryLoad(url){return new Promise((res,rej)=>{const t=setTimeout(()=>rej('timeout'),ST.timeout);const img=new Image();img.onload=()=>{clearTimeout(t);res(url);};img.onerror=()=>{clearTimeout(t);rej('error');};img.src=url;});}
@@ -1181,8 +1180,7 @@ async function generateModifica(basePrompt,baseStyle,extra){
   for(let i=0;i<MODELS.length;i++){
     const model=MODELS[i];
     document.getElementById('spinnerMsg').innerHTML=`Generando modifica con <strong style="color:var(--c-accent)">${model}</strong>…<br><small style="font-size:11px;opacity:.6">${i+1}/${MODELS.length}</small>`;
-    /* MODIFICA 01 — enhance:false per non perdere il testo aggiunto */
-    const p=new URLSearchParams({width:ratio.w,height:ratio.h,model,enhance:'false',seed});
+    const p=new URLSearchParams({width:ratio.w,height:ratio.h,model,seed});
     const neg=document.getElementById('negPrompt');if(neg&&neg.value.trim()) p.append('negative',neg.value.trim());
     const url=`https://image.pollinations.ai/prompt/${encodeURIComponent(fullPrompt+(baseStyle?', '+baseStyle:''))}?${p}`;
     try{
@@ -1236,7 +1234,7 @@ async function regenImage(){
   for(let i=0;i<MODELS.length;i++){
     const model=MODELS[i];
     document.getElementById('spinnerMsg').innerHTML=`Rigenerando con <strong style="color:var(--c-accent)">${model}</strong>…<br><small style="font-size:11px;opacity:.6">${i+1}/${MODELS.length} · 15–30s</small>`;
-    const p=new URLSearchParams({width:ratio.w,height:ratio.h,model,enhance:ST.enhance?'true':'false',seed});
+    const p=new URLSearchParams({width:ratio.w,height:ratio.h,model,seed});
     const neg=document.getElementById('negPrompt');if(neg&&neg.value.trim()) p.append('negative',neg.value.trim());
     const url=`https://image.pollinations.ai/prompt/${encodeURIComponent(savedPrompt+(savedStyle?', '+savedStyle:''))}?${p}`;
     try{
