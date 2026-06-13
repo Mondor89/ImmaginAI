@@ -779,7 +779,7 @@ const DICE_FULL=[
 ];
 
 const RATIOS=[{id:'1:1',w:512,h:512,icon:'▪',label:'1:1'},{id:'16:9',w:512,h:288,icon:'▬',label:'16:9'},{id:'9:16',w:288,h:512,icon:'▮',label:'9:16'},{id:'4:3',w:512,h:384,icon:'▭',label:'4:3'}];
-const MODELS=['','turbo','flux-realism','flux-anime'];
+const MODELS=['flux','turbo','klein','p-image'];
 const BRAND_PALETTES=[
   {name:'Dark Principale',c:{accent:'#00E5C8',accent2:'#F0008C',violet:'#5B35C8'}},
   {name:'Dark + Pink',c:{accent:'#F0008C',accent2:'#FFE600',violet:'#5B35C8'}},
@@ -1098,9 +1098,10 @@ function buildUrl(model){
   const transpInPrompt=ST.transpOn?', transparent background, no background, isolated subject, clean edges, no outline, no border':'';
   const full=prompt+(ST.style?', '+ST.style:'')+(tags?', '+tags:'')+transpInPrompt+negInPrompt;
   const seed=Math.floor(Math.random()*999999);
-  const pObj={width:ratio.w,height:ratio.h,seed};if(model) pObj.model=model;
+  const pObj={width:ratio.w,height:ratio.h,seed,model:model||'flux'};
+  if(ST.transpOn) pObj.transparent=true;
   const p=new URLSearchParams(pObj);
-  return `https://image.pollinations.ai/prompt/${encodeURIComponent(full)}?${p}`;
+  return `https://gen.pollinations.ai/image/${encodeURIComponent(full)}?${p}`;
 }
 const _imgCache=new Set();
 function tryLoad(url){return new Promise((res,rej)=>{const img=new Image();_imgCache.add(img);const t=setTimeout(()=>{_imgCache.delete(img);rej('timeout');},ST.timeout);img.onload=()=>{_imgCache.delete(img);clearTimeout(t);res(url);};img.onerror=()=>{_imgCache.delete(img);clearTimeout(t);rej('error');};img.src=url;});}
@@ -1180,8 +1181,8 @@ async function generateModifica(basePrompt,baseStyle,extra){
   for(let i=0;i<MODELS.length;i++){
     const model=MODELS[i];
     document.getElementById('spinnerMsg').innerHTML=`Generando modifica con <strong style="color:var(--c-accent)">${model||'flux'}</strong>…<br><small style="font-size:11px;opacity:.6">${i+1}/${MODELS.length}</small>`;
-    const pObj={width:ratio.w,height:ratio.h,seed};if(model) pObj.model=model;const p=new URLSearchParams(pObj);
-    const url=`https://image.pollinations.ai/prompt/${encodeURIComponent(fullPrompt+(baseStyle?', '+baseStyle:''))}?${p}`;
+    const pObj={width:ratio.w,height:ratio.h,seed,model:model||'flux'};const p=new URLSearchParams(pObj);
+    const url=`https://gen.pollinations.ai/image/${encodeURIComponent(fullPrompt+(baseStyle?', '+baseStyle:''))}?${p}`;
     try{
       await tryLoad(url);
       ST.lastGenTime=Date.now();
@@ -1233,8 +1234,8 @@ async function regenImage(){
   for(let i=0;i<MODELS.length;i++){
     const model=MODELS[i];
     document.getElementById('spinnerMsg').innerHTML=`Rigenerando con <strong style="color:var(--c-accent)">${model||'flux'}</strong>…<br><small style="font-size:11px;opacity:.6">${i+1}/${MODELS.length} · 15–30s</small>`;
-    const pObj={width:ratio.w,height:ratio.h,seed};if(model) pObj.model=model;const p=new URLSearchParams(pObj);
-    const url=`https://image.pollinations.ai/prompt/${encodeURIComponent(savedPrompt+(savedStyle?', '+savedStyle:''))}?${p}`;
+    const pObj={width:ratio.w,height:ratio.h,seed,model:model||'flux'};const p=new URLSearchParams(pObj);
+    const url=`https://gen.pollinations.ai/image/${encodeURIComponent(savedPrompt+(savedStyle?', '+savedStyle:''))}?${p}`;
     try{
       await tryLoad(url);
       ST.currentUrl=url;ST.currentPrompt=savedPrompt;ST.currentStyle=savedStyle;ST.lastGenTime=Date.now();
