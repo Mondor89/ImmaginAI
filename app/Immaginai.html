@@ -787,7 +787,7 @@ const BRAND_PALETTES=[
   {name:'Neon Caldo',c:{accent:'#FFE600',accent2:'#F0008C',violet:'#5B35C8'}},
 ];
 
-const ST={style:'',ratio:'1:1',enhance:true,safe:true,transpOn:false,gallery:[],currentUrl:'',currentPrompt:'',currentStyle:'',lastGenTime:0,busy:false,theme:'light',activeApi:'pollinations',cooldown:16000,timeout:80000};
+const ST={style:'',ratio:'1:1',enhance:true,safe:true,transpOn:false,gallery:[],currentUrl:'',currentPrompt:'',currentStyle:'',lastGenTime:0,busy:false,theme:'light',activeApi:'pollinations',cooldown:16000,timeout:45000};
 let STYLES=[],CATS=[],currentCatId=null,lpTimer=null;
 const isMobile=()=>window.innerWidth<1024;
 
@@ -1133,10 +1133,7 @@ async function generateImage(){
       try{localStorage.setItem('ig_gallery',JSON.stringify(ST.gallery));}catch(e){}
       renderGallery();ok=true;break;
     }catch(e){
-      try{await tryLoad(buildUrl(model));}catch(e2){
-        console.warn('Fallback',i,e2);
-        if(i<MODELS.length-1){document.getElementById('spinnerMsg').innerHTML=`${model} non risponde…<br><small>Attendi 10s</small>`;await new Promise(r=>setTimeout(r,10000));}
-      }
+      if(i<MODELS.length-1){document.getElementById('spinnerMsg').innerHTML=`${model} non disponibile…<br><small>Provo con ${MODELS[i+1]}…</small>`;await new Promise(r=>setTimeout(r,3000));}
     }
   }
   if(!ok){sBox.innerHTML=`<div style="padding:28px;text-align:center"><div style="font-size:40px;margin-bottom:12px">⚠️</div><p style="color:var(--danger);font-size:15px;font-weight:700;margin-bottom:8px;font-family:var(--font-title)">SERVIZIO NON DISPONIBILE</p><p style="color:var(--muted);font-size:12px;line-height:1.6;margin-bottom:18px">Pollinations sovraccarico. Attendi 30s.</p><button onclick="resetAndRetry()" style="padding:11px 28px;background:linear-gradient(135deg,var(--c-accent),var(--c-violet));color:#FFFFFF;border:none;border-radius:11px;font-size:13px;font-weight:800;cursor:pointer;">🔄 RIPROVA</button></div>`;setStatus('Non disponibile — riprova tra 30s','fail');}
@@ -1193,7 +1190,7 @@ async function generateModifica(basePrompt,baseStyle,extra){
       ST._pendingModifica={url,prompt:basePrompt,extra,style:baseStyle};
       ok=true;break;
     }catch(e2){
-      if(i<MODELS.length-1){document.getElementById('spinnerMsg').innerHTML=`${model} non risponde…<br><small>Attendi 10s</small>`;await new Promise(r=>setTimeout(r,10000));}
+      if(i<MODELS.length-1){document.getElementById('spinnerMsg').innerHTML=`${model} non disponibile…<br><small>Provo con ${MODELS[i+1]}…</small>`;await new Promise(r=>setTimeout(r,3000));}
     }
   }
   if(!ok){sBox.innerHTML=`<div style="padding:28px;text-align:center"><div style="font-size:40px;margin-bottom:12px">⚠️</div><p style="color:var(--danger);font-size:15px;font-weight:700;margin-bottom:8px;">SERVIZIO NON DISPONIBILE</p><p style="color:var(--muted);font-size:12px;line-height:1.6;margin-bottom:18px">Pollinations sovraccarico. Attendi 30s.</p><button onclick="resetAndRetry()" style="padding:11px 28px;background:linear-gradient(135deg,var(--c-accent),var(--c-violet));color:#FFFFFF;border:none;border-radius:11px;font-size:13px;font-weight:800;cursor:pointer;">🔄 RIPROVA</button></div>`;}
@@ -1249,7 +1246,7 @@ async function regenImage(){
       try{localStorage.setItem('ig_gallery',JSON.stringify(ST.gallery));}catch(e){}
       renderGallery();ok=true;break;
     }catch(e2){
-      if(i<MODELS.length-1){document.getElementById('spinnerMsg').innerHTML=`${model} non risponde…<br><small>Attendi 10s</small>`;await new Promise(r=>setTimeout(r,10000));}
+      if(i<MODELS.length-1){document.getElementById('spinnerMsg').innerHTML=`${model} non disponibile…<br><small>Provo con ${MODELS[i+1]}…</small>`;await new Promise(r=>setTimeout(r,3000));}
     }
   }
   if(!ok){sBox.innerHTML=`<div style="padding:28px;text-align:center"><div style="font-size:40px;margin-bottom:12px">⚠️</div><p style="color:var(--danger);font-size:15px;font-weight:700;margin-bottom:8px;">SERVIZIO NON DISPONIBILE</p><p style="color:var(--muted);font-size:12px;line-height:1.6;margin-bottom:18px">Pollinations sovraccarico. Attendi 30s.</p><button onclick="resetAndRetry()" style="padding:11px 28px;background:linear-gradient(135deg,var(--c-accent),var(--c-violet));color:#FFFFFF;border:none;border-radius:11px;font-size:13px;font-weight:800;cursor:pointer;">🔄 RIPROVA</button></div>`;}
