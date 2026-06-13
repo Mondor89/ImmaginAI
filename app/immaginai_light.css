@@ -98,7 +98,7 @@ body:not(.light) .adv-input {
 ════════════════════════════════════════════════════ */
 #controls,
 #controls-scroll  { background: var(--bg) !important; }
-#controls-footer  { background: #d8dce6 !important; border-top: none !important; padding: 0 28px 18px !important; }
+#controls-footer  { background: var(--bg) !important; border-top: 1px solid var(--border) !important; padding: 14px 28px 18px !important; }
 
 /* Controls larghezza fissa — bordo rimosso dal padre */
 #controls         { width: 620px !important; flex: none !important; border-right: none !important; box-shadow: none !important; position: relative !important; }
@@ -117,7 +117,7 @@ body:not(.light) .adv-input {
 #preview-col      { flex: 1 !important; min-width: 260px !important; }
 
 /* Desktop: no scroll, tutto in vista */
-#controls-scroll  { overflow: hidden !important; padding: 12px 28px 20px !important; gap: 0 !important; justify-content: space-evenly !important; }
+#controls-scroll  { overflow-y: auto !important; overflow-x: hidden !important; padding: 14px 28px 12px !important; gap: 0 !important; justify-content: space-evenly !important; }
 
 /* Spaziatura interna sezioni */
 .slabel           { margin-bottom: 10px !important; }
@@ -377,9 +377,9 @@ body:not(.light) .adv-input {
 @media(max-width:1023px) {
   #app #controls-footer {
     position: static !important;
-    background: #d8dce6 !important;
+    background: var(--bg) !important;
     padding: 10px 14px 76px !important;
-    border-top: none !important;
+    border-top: 1px solid var(--border) !important;
     z-index: auto !important;
   }
   #controls-footer #genBtn {
