@@ -98,7 +98,7 @@ body:not(.light) .adv-input {
 ════════════════════════════════════════════════════ */
 #controls,
 #controls-scroll  { background: var(--bg) !important; }
-#controls-footer  { background: #d8dce6 !important; border-top: none !important; padding-top: 8px !important; padding-bottom: 18px !important; }
+#controls-footer  { background: #d8dce6 !important; border-top: none !important; padding: 8px 28px 18px !important; }
 
 /* Controls larghezza fissa — bordo rimosso dal padre */
 #controls         { width: 620px !important; flex: none !important; border-right: none !important; box-shadow: none !important; position: relative !important; }
