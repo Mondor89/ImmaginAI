@@ -117,7 +117,7 @@ body:not(.light) .adv-input {
 #preview-col      { flex: 1 !important; min-width: 260px !important; }
 
 /* Desktop: no scroll, tutto in vista */
-#controls-scroll  { overflow: hidden !important; padding: 0 28px !important; gap: 0 !important; justify-content: space-evenly !important; }
+#controls-scroll  { overflow: hidden !important; padding: 16px 28px 20px !important; gap: 0 !important; justify-content: space-between !important; }
 
 /* Spaziatura interna sezioni */
 .slabel           { margin-bottom: 10px !important; }

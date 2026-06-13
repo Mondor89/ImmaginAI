@@ -1102,7 +1102,8 @@ function buildUrl(model){
   const p=new URLSearchParams(pObj);
   return `https://image.pollinations.ai/prompt/${encodeURIComponent(full)}?${p}`;
 }
-function tryLoad(url){return new Promise((res,rej)=>{const t=setTimeout(()=>rej('timeout'),ST.timeout);const img=new Image();img.onload=()=>{clearTimeout(t);res(url);};img.onerror=()=>{clearTimeout(t);rej('error');};img.src=url;});}
+const _imgCache=new Set();
+function tryLoad(url){return new Promise((res,rej)=>{const img=new Image();_imgCache.add(img);const t=setTimeout(()=>{_imgCache.delete(img);rej('timeout');},ST.timeout);img.onload=()=>{_imgCache.delete(img);clearTimeout(t);res(url);};img.onerror=()=>{_imgCache.delete(img);clearTimeout(t);rej('error');};img.src=url;});}
 
 async function generateImage(){
   const prompt=document.getElementById('promptInput').value.trim();
