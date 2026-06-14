@@ -1121,7 +1121,8 @@ async function generateHorde(fullPrompt,width,height){
   const h=Math.min(512,Math.max(64,Math.round(height/64)*64));
   function updSpin(t){const e=document.getElementById('spinnerMsg');if(e)e.innerHTML=t;}
   updSpin('Connessione a Stable Horde…<br><small style="font-size:11px;opacity:.6">Servizio gratuito</small>');
-  const hdrs={'Content-Type':'application/json','apikey':'0000000000','Client-Agent':'ImmaginAI:4.4:wonderspit'};
+  const hordeKey=HF_TOKEN||'0000000000';
+  const hdrs={'Content-Type':'application/json','apikey':hordeKey,'Client-Agent':'ImmaginAI:4.4:wonderspit'};
   let job;
   try{
     const r=await fetch('https://stablehorde.net/api/v2/generate/async',
@@ -1134,7 +1135,7 @@ async function generateHorde(fullPrompt,width,height){
     job=await r.json();
   }catch(e){if(e.message.startsWith('429')||e.message.startsWith('HORDE')) throw e;throw new Error('CORS_ERR');}
   if(!job||!job.id) throw new Error('HORDE_ERR');
-  const ph={'apikey':'0000000000','Client-Agent':'ImmaginAI:4.4:wonderspit'};
+  const ph={'apikey':hordeKey,'Client-Agent':'ImmaginAI:4.4:wonderspit'};
   let done=false;
   for(let i=0;i<80&&!done;i++){
     await new Promise(r=>setTimeout(r,3000));

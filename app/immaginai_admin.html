@@ -457,16 +457,16 @@ textarea.a-input { resize: vertical; min-height: 50px; }
         <div class="page-sub">Provider di generazione immagini</div>
         <div class="api-card" id="apiCard-huggingface" style="border:2px solid #3fc7ba;">
           <div class="api-active-badge show" id="apiBadge-huggingface">✓ ATTIVO</div>
-          <div class="api-name">🤗 HuggingFace — FLUX.1-schnell</div>
-          <div class="api-desc" style="color:#1a7a6e;font-weight:600;">Gratuito con token. Ottieni il token su huggingface.co (Settings → Access Tokens → New token Read).</div>
-          <div class="api-key-row" style="margin:8px 0;"><input type="password" class="api-key-input" id="key-hf" placeholder="hf_..."><button class="a-btn ghost sm" onclick="toggleKey('key-hf',this)">👁</button></div>
-          <button class="a-btn primary sm" onclick="saveHfToken()">💾 Salva token</button>
-          <div id="hfTokenStatus" style="font-size:11px;color:#3fc7ba;margin-top:6px;display:none;">✓ Token salvato</div>
+          <div class="api-name">🐴 Stable Horde — API Key</div>
+          <div class="api-desc" style="color:#1a7a6e;font-weight:600;">Gratis con registrazione. Senza chiave: coda lunga (~20 min). Con chiave: 10–60 secondi.<br><br>Come ottenerla: <strong>stablehorde.net</strong> → Registrati (solo email) → clicca il tuo nome in alto → <strong>API Key</strong> → copia la stringa.</div>
+          <div class="api-key-row" style="margin:8px 0;"><input type="password" class="api-key-input" id="key-hf" placeholder="Incolla qui la tua API key Stable Horde"><button class="a-btn ghost sm" onclick="toggleKey('key-hf',this)">👁</button></div>
+          <button class="a-btn primary sm" onclick="saveHfToken()">💾 Salva chiave</button>
+          <div id="hfTokenStatus" style="font-size:11px;color:#3fc7ba;margin-top:6px;display:none;">✓ Chiave salvata — ricarica l'app</div>
         </div>
         <div class="api-card" id="apiCard-pollinations">
           <div class="api-active-badge" id="apiBadge-pollinations">✓ ATTIVO</div>
-          <div class="api-name">🆓 Pollinations AI</div>
-          <div class="api-desc">⚠️ Attualmente non funzionante (richiede pagamento).</div>
+          <div class="api-name">⚡ Pollinations AI (tentativo automatico)</div>
+          <div class="api-desc">Provato automaticamente come prima opzione. Se non disponibile, l'app passa a Stable Horde.</div>
         </div>
         <div class="api-card" id="apiCard-openai">
           <div class="api-active-badge" id="apiBadge-openai">✓ ATTIVO</div>
@@ -913,7 +913,7 @@ function saveAndActivateApi(n){saveApiKey(n);setActiveApi(n);}
 function saveApiKey(n){const k=document.getElementById('key-'+n);if(k&&k.value) localStorage.setItem('ig_apikey_'+n,k.value);msg('✓ Key salvata');}
 function toggleKey(id,btn){const e=document.getElementById(id);e.type=e.type==='password'?'text':'password';btn.textContent=e.type==='password'?'👁':'🙈';}
 function updateApiCards(){const active=localStorage.getItem('ig_active_api')||'pollinations';['pollinations','openai','stability'].forEach(n=>{const badge=document.getElementById('apiBadge-'+n);if(badge) badge.classList.toggle('show',n===active);});}
-function saveHfToken(){const k=document.getElementById('key-hf');if(!k||!k.value.trim()){alert('Inserisci il token hf_...');return;}localStorage.setItem('ig_apikey_hf',k.value.trim());const st=document.getElementById('hfTokenStatus');if(st){st.style.display='block';setTimeout(()=>st.style.display='none',3000);}msg('✓ Token HuggingFace salvato! Ricarica l\'app.');}
+function saveHfToken(){const k=document.getElementById('key-hf');if(!k||!k.value.trim()){alert('Incolla la tua API key Stable Horde');return;}localStorage.setItem('ig_apikey_hf',k.value.trim());const st=document.getElementById('hfTokenStatus');if(st){st.style.display='block';setTimeout(()=>st.style.display='none',3000);}msg('✓ Chiave Stable Horde salvata! Ricarica l\'app.');}
 function loadSavedApiKeys(){['openai','stability'].forEach(n=>{const s=localStorage.getItem('ig_apikey_'+n);const e=document.getElementById('key-'+n);if(s&&e) e.value=s;});const hf=localStorage.getItem('ig_apikey_hf');const ehf=document.getElementById('key-hf');if(hf&&ehf) ehf.value=hf;}
 function saveApiSettings(){const cd=parseInt(document.getElementById('aCooldown').value)||16;const to=parseInt(document.getElementById('aTimeout').value)||55;localStorage.setItem('ig_cooldown',cd*1000);localStorage.setItem('ig_timeout',to*1000);msg('✓ Salvato');}
 function adminSaveTheme(t){localStorage.setItem('ig_theme',t);document.getElementById('infoTheme').textContent=t;}
