@@ -1098,10 +1098,10 @@ function buildPrompt(){
   return document.getElementById('promptInput').value.trim()+(ST.style?', '+ST.style:'')+(tags?', '+tags:'')+transpInPrompt+negInPrompt;
 }
 async function generateHF(fullPrompt,width,height){
+  if(!HF_TOKEN) throw new Error('NO_TOKEN');
   const spinMsg=document.getElementById('spinnerMsg');
-  if(spinMsg) spinMsg.innerHTML='Generando…<br><small style="font-size:11px;opacity:.6">FLUX AI — 10-30s</small>';
-  const headers={'Content-Type':'application/json'};
-  if(HF_TOKEN) headers['Authorization']='Bearer '+HF_TOKEN;
+  if(spinMsg) spinMsg.innerHTML='Generando…<br><small style="font-size:11px;opacity:.6">HuggingFace SD — 15-45s</small>';
+  const headers={'Content-Type':'application/json','Authorization':'Bearer '+HF_TOKEN};
   const ctrl=new AbortController();
   const t=setTimeout(()=>ctrl.abort(),ST.timeout);
   let res;
@@ -1109,11 +1109,15 @@ async function generateHF(fullPrompt,width,height){
     res=await fetch('https://api-inference.huggingface.co/models/stabilityai/stable-diffusion-2-1',
       {method:'POST',headers,signal:ctrl.signal,
        body:JSON.stringify({inputs:fullPrompt,parameters:{width,height,guidance_scale:7.5}})});
-  }catch(netErr){clearTimeout(t);throw new Error('NO_TOKEN');}
+  }catch(netErr){
+    clearTimeout(t);
+    if(netErr.name==='AbortError') throw new Error('TIMEOUT');
+    throw new Error('CORS_ERR');
+  }
   clearTimeout(t);
   if(res.status===503) throw new Error('503_loading');
   if(res.status===429) throw new Error('429_limit');
-  if(res.status===401||res.status===403) throw new Error('NO_TOKEN');
+  if(res.status===401||res.status===403) throw new Error('TOKEN_INVALID');
   if(!res.ok) throw new Error('HF_'+res.status);
   const blob=await res.blob();
   return new Promise((resolve,reject)=>{const r=new FileReader();r.onload=()=>resolve(r.result);r.onerror=reject;r.readAsDataURL(blob);});
@@ -1149,7 +1153,7 @@ async function generateImage(){
     renderGallery();
   }catch(e){
     const m=e.message||'';
-    const help=m.includes('NO_TOKEN')?'Token HuggingFace mancante — apri Admin → API e inserisci il token gratuito':m.includes('503_loading')?'Modello in avvio — attendi 60s e riprova':m.includes('429_limit')?'Troppe richieste — attendi qualche minuto':'Servizio non disponibile — riprova tra qualche minuto';
+    const help=m==='NO_TOKEN'?'Token HuggingFace mancante — apri Admin → API e inserisci il token (logo 3s → Admin → API)':m==='TOKEN_INVALID'?'Token non valido o scaduto — creane uno nuovo su huggingface.co → Settings → Access Tokens':m==='CORS_ERR'?'Errore connessione — usa il sito Netlify, non il file locale. Se sei su Netlify ricarica la pagina e riprova':m==='TIMEOUT'?'Timeout — server lento, riprova tra qualche secondo':m.includes('503_loading')?'Modello in avvio — attendi 60s e riprova':m.includes('429_limit')?'Troppe richieste — attendi qualche minuto':'Errore ('+m+') — riprova tra qualche minuto';
     sBox.innerHTML=`<div style="padding:28px;text-align:center"><div style="font-size:40px;margin-bottom:12px">⚠️</div><p style="color:var(--danger);font-size:15px;font-weight:700;margin-bottom:8px;font-family:var(--font-title)">GENERAZIONE FALLITA</p><p style="color:var(--muted);font-size:12px;line-height:1.6;margin-bottom:18px">${help}</p><button onclick="resetAndRetry()" style="padding:11px 28px;background:linear-gradient(135deg,var(--c-accent),var(--c-violet));color:#FFFFFF;border:none;border-radius:11px;font-size:13px;font-weight:800;cursor:pointer;">🔄 RIPROVA</button></div>`;
     setStatus('Errore — riprova','fail');
   }
@@ -1199,7 +1203,7 @@ async function generateModifica(basePrompt,baseStyle,extra){
     ST._pendingModifica={url:dataUrl,prompt:basePrompt,extra,style:baseStyle};
   }catch(e){
     const m=e.message||'';
-    const help=m.includes('503_loading')?'Modello in avvio — attendi 60s e riprova':m.includes('429_limit')?'Troppe richieste — attendi qualche minuto':'Servizio non disponibile — riprova tra qualche minuto';
+    const help=m==='NO_TOKEN'?'Token HuggingFace mancante — apri Admin → API':m==='TOKEN_INVALID'?'Token non valido — creane uno nuovo su huggingface.co':m==='CORS_ERR'?'Errore connessione CORS — usa Netlify, non il file locale':m==='TIMEOUT'?'Timeout — riprova':m.includes('503_loading')?'Modello in avvio — attendi 60s e riprova':m.includes('429_limit')?'Troppe richieste — attendi qualche minuto':'Errore ('+m+') — riprova';
     sBox.innerHTML=`<div style="padding:28px;text-align:center"><div style="font-size:40px;margin-bottom:12px">⚠️</div><p style="color:var(--danger);font-size:15px;font-weight:700;margin-bottom:8px;">GENERAZIONE FALLITA</p><p style="color:var(--muted);font-size:12px;line-height:1.6;margin-bottom:18px">${help}</p><button onclick="resetAndRetry()" style="padding:11px 28px;background:linear-gradient(135deg,var(--c-accent),var(--c-violet));color:#FFFFFF;border:none;border-radius:11px;font-size:13px;font-weight:800;cursor:pointer;">🔄 RIPROVA</button></div>`;
     setStatus('Errore — riprova','fail');
   }
@@ -1250,7 +1254,7 @@ async function regenImage(){
     renderGallery();
   }catch(e){
     const m=e.message||'';
-    const help=m.includes('503_loading')?'Modello in avvio — attendi 60s e riprova':m.includes('429_limit')?'Troppe richieste — attendi qualche minuto':'Servizio non disponibile — riprova tra qualche minuto';
+    const help=m==='NO_TOKEN'?'Token HuggingFace mancante — apri Admin → API':m==='TOKEN_INVALID'?'Token non valido — creane uno nuovo su huggingface.co':m==='CORS_ERR'?'Errore connessione CORS — usa Netlify, non il file locale':m==='TIMEOUT'?'Timeout — riprova':m.includes('503_loading')?'Modello in avvio — attendi 60s e riprova':m.includes('429_limit')?'Troppe richieste — attendi qualche minuto':'Errore ('+m+') — riprova';
     sBox.innerHTML=`<div style="padding:28px;text-align:center"><div style="font-size:40px;margin-bottom:12px">⚠️</div><p style="color:var(--danger);font-size:15px;font-weight:700;margin-bottom:8px;">GENERAZIONE FALLITA</p><p style="color:var(--muted);font-size:12px;line-height:1.6;margin-bottom:18px">${help}</p><button onclick="resetAndRetry()" style="padding:11px 28px;background:linear-gradient(135deg,var(--c-accent),var(--c-violet));color:#FFFFFF;border:none;border-radius:11px;font-size:13px;font-weight:800;cursor:pointer;">🔄 RIPROVA</button></div>`;
     setStatus('Errore — riprova','fail');
   }
