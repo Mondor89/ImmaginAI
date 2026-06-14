@@ -1097,6 +1097,25 @@ function buildPrompt(){
   const transpInPrompt=ST.transpOn?', transparent background, no background, isolated subject, clean edges, no outline, no border':'';
   return document.getElementById('promptInput').value.trim()+(ST.style?', '+ST.style:'')+(tags?', '+tags:'')+transpInPrompt+negInPrompt;
 }
+const _imgCache=new Set();
+function tryPollinations(fullPrompt,width,height){
+  return new Promise((resolve,reject)=>{
+    const seed=Math.floor(Math.random()*9999999)+1;
+    const url=`https://image.pollinations.ai/prompt/${encodeURIComponent(fullPrompt)}?width=${width}&height=${height}&nologo=true&enhance=false&seed=${seed}`;
+    const img=new Image();_imgCache.add(img);
+    const t=setTimeout(()=>{img.src='';_imgCache.delete(img);reject(new Error('TIMEOUT'));},20000);
+    img.onload=()=>{clearTimeout(t);_imgCache.delete(img);resolve(url);};
+    img.onerror=()=>{clearTimeout(t);_imgCache.delete(img);reject(new Error('POLL_FAIL'));};
+    img.src=url;
+  });
+}
+async function generateAuto(fullPrompt,width,height){
+  function updSpin(t){const e=document.getElementById('spinnerMsg');if(e)e.innerHTML=t;}
+  updSpin('Generando…<br><small style="font-size:11px;opacity:.6">Pollinations AI — 5-15s</small>');
+  try{return await tryPollinations(fullPrompt,width,height);}catch(e){}
+  // fallback: Stable Horde
+  return await generateHorde(fullPrompt,width,height);
+}
 async function generateHorde(fullPrompt,width,height){
   const w=Math.min(512,Math.max(64,Math.round(width/64)*64));
   const h=Math.min(512,Math.max(64,Math.round(height/64)*64));
@@ -1151,7 +1170,7 @@ async function generateImage(){
   const full=buildPrompt();
   setStatus('Generando…','loading');
   try{
-    const dataUrl=await generateHorde(full,ratio.w,ratio.h);
+    const dataUrl=await generateAuto(full,ratio.w,ratio.h);
     ST.currentUrl=dataUrl;ST.currentPrompt=prompt;ST.currentStyle=ST.style;ST.lastGenTime=Date.now();
     imgEl.src=dataUrl;imgEl.onclick=()=>openModal(dataUrl);
     sBox.style.display='none';imgEl.style.display='block';acts.classList.add('visible');document.getElementById('ctaWrap').classList.add('visible');
@@ -1204,7 +1223,7 @@ async function generateModifica(basePrompt,baseStyle,extra){
   const modFull=basePrompt+', '+extra+(baseStyle?', '+baseStyle:'');
   setStatus('Generando modifica…','loading');
   try{
-    const dataUrl=await generateHorde(modFull,ratio.w,ratio.h);
+    const dataUrl=await generateAuto(modFull,ratio.w,ratio.h);
     ST.lastGenTime=Date.now();
     sBox.style.display='none';
     document.getElementById('compareImgOld').src=prevUrl;
@@ -1252,7 +1271,7 @@ async function regenImage(){
   const full=savedPrompt+(savedStyle?', '+savedStyle:'');
   setStatus('Rigenerando…','loading');
   try{
-    const dataUrl=await generateHorde(full,ratio.w,ratio.h);
+    const dataUrl=await generateAuto(full,ratio.w,ratio.h);
     ST.currentUrl=dataUrl;ST.currentPrompt=savedPrompt;ST.currentStyle=savedStyle;ST.lastGenTime=Date.now();
     imgEl.src=dataUrl;imgEl.onclick=()=>openModal(dataUrl);
     sBox.style.display='none';imgEl.style.display='block';acts.classList.add('visible');document.getElementById('ctaWrap').classList.add('visible');
