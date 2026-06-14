@@ -1106,9 +1106,9 @@ async function generateHF(fullPrompt,width,height){
   const t=setTimeout(()=>ctrl.abort(),ST.timeout);
   let res;
   try{
-    res=await fetch('https://api-inference.huggingface.co/models/black-forest-labs/FLUX.1-schnell',
+    res=await fetch('https://api-inference.huggingface.co/models/stabilityai/stable-diffusion-2-1',
       {method:'POST',headers,signal:ctrl.signal,
-       body:JSON.stringify({inputs:fullPrompt,parameters:{width,height,num_inference_steps:4,guidance_scale:0}})});
+       body:JSON.stringify({inputs:fullPrompt,parameters:{width,height,guidance_scale:7.5}})});
   }catch(netErr){clearTimeout(t);throw new Error('NO_TOKEN');}
   clearTimeout(t);
   if(res.status===503) throw new Error('503_loading');
