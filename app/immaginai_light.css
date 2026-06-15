@@ -295,7 +295,7 @@ body:not(.light) .adv-input {
 #spinnerMsg    { color: #9098a9 !important; font-family: var(--font-body) !important; }
 
 .img-actions        { background: transparent !important; border: none !important; }
-.img-btn            { background: #1e2132 !important; border: none !important; color: #ffffff !important; font-family: var(--font-body) !important; border-radius: 10px !important; }
+.img-btn            { background: #1e2132 !important; border: none !important; color: #ffffff !important; font-family: var(--font-body) !important; border-radius: 10px !important; padding: 11px 6px !important; font-size: 12px !important; font-weight: 700 !important; }
 .img-btn:hover      { background: #2d3142 !important; }
 .img-btn.primary    { background: #1e2132 !important; color: #ffffff !important; border: none !important; }
 
