@@ -13,7 +13,37 @@ exports.handler = async function(event) {
     return { statusCode: 400, body: JSON.stringify({ error: 'BAD_REQUEST' }) };
   }
 
-  // 1. Together.ai — FLUX.1-schnell-Free (gratis, 2-5s)
+  // 1. Cloudflare Workers AI — FLUX.1-schnell (gratis, 100k/giorno, 3-8s)
+  const CF_ACCOUNT_ID = process.env.CF_ACCOUNT_ID;
+  const CF_API_TOKEN  = process.env.CF_API_TOKEN;
+  if (CF_ACCOUNT_ID && CF_API_TOKEN) {
+    try {
+      const res = await fetch(
+        `https://api.cloudflare.com/client/v4/accounts/${CF_ACCOUNT_ID}/ai/run/@cf/black-forest-labs/flux-1-schnell`,
+        {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${CF_API_TOKEN}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ prompt, num_steps: 4, width, height }),
+        }
+      );
+      if (res.ok) {
+        const buf = await res.arrayBuffer();
+        if (buf.byteLength > 0) {
+          const b64 = Buffer.from(buf).toString('base64');
+          return {
+            statusCode: 200,
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ image: `data:image/png;base64,${b64}` }),
+          };
+        }
+      }
+    } catch (e) {}
+  }
+
+  // 2. Together.ai — FLUX.1-schnell-Free (gratis con deposito, 2-5s)
   const TOGETHER_KEY = process.env.TOGETHER_KEY;
   if (TOGETHER_KEY) {
     try {
@@ -25,12 +55,7 @@ exports.handler = async function(event) {
         },
         body: JSON.stringify({
           model: 'black-forest-labs/FLUX.1-schnell-Free',
-          prompt,
-          width,
-          height,
-          steps: 4,
-          n: 1,
-          response_format: 'b64_json',
+          prompt, width, height, steps: 4, n: 1, response_format: 'b64_json',
         }),
       });
       if (res.ok) {
@@ -47,7 +72,7 @@ exports.handler = async function(event) {
     } catch (e) {}
   }
 
-  // 2. HuggingFace fallback
+  // 3. HuggingFace — SD fallback
   const HF_TOKEN = process.env.HF_TOKEN;
   if (HF_TOKEN) {
     const MODELS = [
