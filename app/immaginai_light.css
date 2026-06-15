@@ -316,9 +316,9 @@ body:not(.light) .adv-input {
 .compare-btn.back:hover   { border-color: #5B35C8 !important; }
 
 #ctaWrap     { border-top: 1px solid var(--border) !important; background: #fafafa !important; }
-.ctaB-tag    { color: #5B35C8 !important; }
-.ctaB-title  { color: var(--text) !important; font-family: var(--font-body) !important; }
-.ctaB-btn    { background: #5B35C8 !important; color: #ffffff !important; font-family: var(--font-body) !important; border-radius: 8px !important; }
+.ctaB-tag    { color: #5B35C8 !important; font-family: var(--font-body) !important; }
+.ctaB-title  { color: var(--text) !important; font-family: var(--font-body) !important; letter-spacing: 0 !important; font-size: 15px !important; font-weight: 600 !important; }
+.ctaB-btn    { background: #5B35C8 !important; color: #ffffff !important; font-family: var(--font-body) !important; border-radius: 8px !important; font-size: 15px !important; font-weight: 700 !important; letter-spacing: .5px !important; }
 
 /* ════════════════════════════════════════════════════
    6. FAQ
