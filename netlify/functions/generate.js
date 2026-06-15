@@ -13,6 +13,8 @@ exports.handler = async function(event) {
     return { statusCode: 400, body: JSON.stringify({ error: 'BAD_REQUEST' }) };
   }
 
+  const log = [];
+
   // 1. Cloudflare Workers AI — FLUX.1-schnell (gratis, 100k/giorno, 3-8s)
   const CF_ACCOUNT_ID = process.env.CF_ACCOUNT_ID;
   const CF_API_TOKEN  = process.env.CF_API_TOKEN;
@@ -39,8 +41,14 @@ exports.handler = async function(event) {
             body: JSON.stringify({ image: `data:image/png;base64,${b64}` }),
           };
         }
+        log.push('CF_NO_IMAGE: ' + JSON.stringify(data).slice(0,200));
+      } else {
+        const txt = await res.text();
+        log.push('CF_HTTP_' + res.status + ': ' + txt.slice(0,200));
       }
-    } catch (e) {}
+    } catch (e) { log.push('CF_ERR: ' + e.message); }
+  } else {
+    log.push('CF_MISSING_ENV: account=' + !!CF_ACCOUNT_ID + ' token=' + !!CF_API_TOKEN);
   }
 
   // 2. Together.ai — FLUX.1-schnell-Free (gratis con deposito, 2-5s)
@@ -68,8 +76,13 @@ exports.handler = async function(event) {
             body: JSON.stringify({ image: `data:image/jpeg;base64,${b64}` }),
           };
         }
+        log.push('TOGETHER_NO_IMAGE');
+      } else {
+        log.push('TOGETHER_HTTP_' + res.status);
       }
-    } catch (e) {}
+    } catch (e) { log.push('TOGETHER_ERR: ' + e.message); }
+  } else {
+    log.push('TOGETHER_MISSING_KEY');
   }
 
   // 3. HuggingFace — SD fallback
@@ -95,9 +108,9 @@ exports.handler = async function(event) {
             }),
           }
         );
-        if (!res.ok) continue;
+        if (!res.ok) { log.push('HF_HTTP_' + res.status + '_' + model.id.split('/')[1]); continue; }
         const buf = await res.arrayBuffer();
-        if (!buf.byteLength) continue;
+        if (!buf.byteLength) { log.push('HF_EMPTY_' + model.id.split('/')[1]); continue; }
         const b64 = Buffer.from(buf).toString('base64');
         const ct  = res.headers.get('content-type') || 'image/jpeg';
         return {
@@ -105,9 +118,11 @@ exports.handler = async function(event) {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ image: `data:${ct};base64,${b64}` }),
         };
-      } catch (e) { continue; }
+      } catch (e) { log.push('HF_ERR_' + model.id.split('/')[1] + ': ' + e.message); continue; }
     }
+  } else {
+    log.push('HF_MISSING_TOKEN');
   }
 
-  return { statusCode: 503, body: JSON.stringify({ error: 'ALL_MODELS_FAILED' }) };
+  return { statusCode: 503, body: JSON.stringify({ error: 'ALL_MODELS_FAILED', log }) };
 };
