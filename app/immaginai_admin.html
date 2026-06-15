@@ -454,36 +454,22 @@ textarea.a-input { resize: vertical; min-height: 50px; }
       <!-- API -->
       <div class="admin-section" id="tab-api">
         <div class="page-title">API</div>
-        <div class="page-sub">Provider di generazione immagini</div>
-        <div class="api-card" id="apiCard-huggingface" style="border:2px solid #3fc7ba;">
-          <div class="api-active-badge show" id="apiBadge-huggingface">✓ ATTIVO</div>
-          <div class="api-name">🐴 Stable Horde — API Key</div>
-          <div class="api-desc" style="color:#1a7a6e;font-weight:600;">Gratis con registrazione. Senza chiave: coda lunga (~20 min). Con chiave: 10–60 secondi.<br><br>Come ottenerla: <strong>stablehorde.net</strong> → Registrati (solo email) → clicca il tuo nome in alto → <strong>API Key</strong> → copia la stringa.</div>
-          <div class="api-key-row" style="margin:8px 0;"><input type="password" class="api-key-input" id="key-hf" placeholder="Incolla qui la tua API key Stable Horde"><button class="a-btn ghost sm" onclick="toggleKey('key-hf',this)">👁</button></div>
-          <button class="a-btn primary sm" onclick="saveHfToken()">💾 Salva chiave</button>
-          <div id="hfTokenStatus" style="font-size:11px;color:#3fc7ba;margin-top:6px;display:none;">✓ Chiave salvata — ricarica l'app</div>
+        <div class="page-sub">Provider di generazione immagini — cascata automatica</div>
+        <div class="api-card" style="border:2px solid #3fc7ba;">
+          <div class="api-active-badge show">✓ PRIMARIO</div>
+          <div class="api-name">⚡ Netlify Function + HuggingFace FLUX</div>
+          <div class="api-desc" style="color:#1a7a6e;font-weight:600;">5–15 secondi. Il token HuggingFace si imposta nelle variabili d'ambiente di Netlify (non qui).<br><br>Netlify Dashboard → <strong>Site configuration → Environment variables</strong> → aggiungi <strong>HF_TOKEN</strong> → Trigger deploy.</div>
         </div>
-        <div class="api-card" id="apiCard-pollinations">
-          <div class="api-active-badge" id="apiBadge-pollinations">✓ ATTIVO</div>
-          <div class="api-name">⚡ Pollinations AI (tentativo automatico)</div>
-          <div class="api-desc">Provato automaticamente come prima opzione. Se non disponibile, l'app passa a Stable Horde.</div>
+        <div class="api-card">
+          <div class="api-name">🔄 Pollinations AI</div>
+          <div class="api-desc">Fallback automatico se la Function non risponde. Nessuna configurazione necessaria.</div>
         </div>
-        <div class="api-card" id="apiCard-openai">
-          <div class="api-active-badge" id="apiBadge-openai">✓ ATTIVO</div>
-          <div class="api-name">🤖 OpenAI — DALL·E 3</div>
-          <div class="api-desc">Alta qualità. Richiede API key. ~$0.04/img.</div>
-          <div class="api-key-row"><input type="password" class="api-key-input" id="key-openai" placeholder="sk-..."><button class="a-btn ghost sm" onclick="toggleKey('key-openai',this)">👁</button></div>
-          <div style="display:flex;gap:7px;"><button class="a-btn primary sm" onclick="saveAndActivateApi('openai')">Salva e attiva</button><button class="a-btn ghost sm" onclick="saveApiKey('openai')">Solo salva</button></div>
-        </div>
-        <div class="api-card" id="apiCard-stability">
-          <div class="api-active-badge" id="apiBadge-stability">✓ ATTIVO</div>
-          <div class="api-name">🎨 Stability AI</div>
-          <div class="api-desc">SDXL. Richiede API key.</div>
-          <div class="api-key-row"><input type="password" class="api-key-input" id="key-stability" placeholder="sk-..."><button class="a-btn ghost sm" onclick="toggleKey('key-stability',this)">👁</button></div>
-          <div style="display:flex;gap:7px;"><button class="a-btn primary sm" onclick="saveAndActivateApi('stability')">Salva e attiva</button><button class="a-btn ghost sm" onclick="saveApiKey('stability')">Solo salva</button></div>
+        <div class="api-card">
+          <div class="api-name">🐴 Stable Horde</div>
+          <div class="api-desc">Ultimo fallback. Lento senza kudos (20+ min). Nessuna configurazione necessaria.</div>
         </div>
         <div class="card" style="margin-top:12px;"><div class="card-header">Impostazioni generazione</div><div class="card-body">
-          <div class="a-row"><div class="a-row-label">Cooldown (secondi)<div class="a-row-sub">Min 16s per Pollinations</div></div><input type="number" id="aCooldown" class="a-input" value="16" min="0" max="120" style="width:75px;"></div>
+          <div class="a-row"><div class="a-row-label">Cooldown (secondi)<div class="a-row-sub">Pausa tra generazioni</div></div><input type="number" id="aCooldown" class="a-input" value="16" min="0" max="120" style="width:75px;"></div>
           <div class="a-row"><div class="a-row-label">Timeout (secondi)</div><input type="number" id="aTimeout" class="a-input" value="55" min="10" max="300" style="width:75px;"></div>
         </div></div>
         <button class="a-btn primary" onclick="saveApiSettings()" style="margin-top:10px;">💾 Salva</button>
