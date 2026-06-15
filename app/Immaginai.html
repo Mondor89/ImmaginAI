@@ -1098,6 +1098,13 @@ function buildPrompt(){
   return document.getElementById('promptInput').value.trim()+(ST.style?', '+ST.style:'')+(tags?', '+tags:'')+transpInPrompt+negInPrompt;
 }
 const _imgCache=new Set();
+async function generateViaProxy(fullPrompt,width,height){
+  const res=await fetch('/.netlify/functions/generate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({prompt:fullPrompt,width,height})});
+  if(!res.ok) throw new Error('PROXY_'+res.status);
+  const d=await res.json();
+  if(!d.image) throw new Error('PROXY_EMPTY');
+  return d.image;
+}
 function tryPollinations(fullPrompt,width,height){
   return new Promise((resolve,reject)=>{
     const seed=Math.floor(Math.random()*9999999)+1;
@@ -1111,9 +1118,10 @@ function tryPollinations(fullPrompt,width,height){
 }
 async function generateAuto(fullPrompt,width,height){
   function updSpin(t){const e=document.getElementById('spinnerMsg');if(e)e.innerHTML=t;}
-  updSpin('Generando…<br><small style="font-size:11px;opacity:.6">Pollinations AI — 5-15s</small>');
+  updSpin('Generando…<br><small style="font-size:11px;opacity:.6">FLUX AI — 5-15s</small>');
+  try{return await generateViaProxy(fullPrompt,width,height);}catch(e){}
+  updSpin('Generando…<br><small style="font-size:11px;opacity:.6">Pollinations AI</small>');
   try{return await tryPollinations(fullPrompt,width,height);}catch(e){}
-  // fallback: Stable Horde
   return await generateHorde(fullPrompt,width,height);
 }
 async function generateHorde(fullPrompt,width,height){
