@@ -1129,15 +1129,23 @@ async function generateHorde(fullPrompt,width,height){
   const h=Math.min(512,Math.max(64,Math.round(height/64)*64));
   function updSpin(t){const e=document.getElementById('spinnerMsg');if(e)e.innerHTML=t;}
   updSpin('Connessione a Stable Horde…<br><small style="font-size:11px;opacity:.6">Servizio gratuito</small>');
-  const hordeKey=HF_TOKEN||'0000000000';
-  const hdrs={'Content-Type':'application/json','apikey':hordeKey,'Client-Agent':'ImmaginAI:4.4:wonderspit'};
+  let hordeKey=HF_TOKEN||'0000000000';
+  const hdrs=()=>({'Content-Type':'application/json','apikey':hordeKey,'Client-Agent':'ImmaginAI:4.4:wonderspit'});
   let job;
   try{
-    const r=await fetch('https://stablehorde.net/api/v2/generate/async',
-      {method:'POST',headers:hdrs,body:JSON.stringify({
+    let r=await fetch('https://stablehorde.net/api/v2/generate/async',
+      {method:'POST',headers:hdrs(),body:JSON.stringify({
         prompt:fullPrompt,models:['stable_diffusion'],
         params:{width:w,height:h,steps:20,n:1,sampler_name:'k_euler_a'},r2:false
       })});
+    if(r.status===401&&hordeKey!=='0000000000'){
+      hordeKey='0000000000';
+      r=await fetch('https://stablehorde.net/api/v2/generate/async',
+        {method:'POST',headers:hdrs(),body:JSON.stringify({
+          prompt:fullPrompt,models:['stable_diffusion'],
+          params:{width:w,height:h,steps:20,n:1,sampler_name:'k_euler_a'},r2:false
+        })});
+    }
     if(r.status===429) throw new Error('429_limit');
     if(!r.ok) throw new Error('HORDE_'+r.status);
     job=await r.json();
