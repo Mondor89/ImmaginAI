@@ -7,19 +7,18 @@
 
 | Campo | Valore |
 |-------|--------|
-| Ultimo aggiornamento | Giugno 2026 — S13 (fine) |
+| Ultimo aggiornamento | Giugno 2026 — S14 (fine) |
 | Versione app | v4.4 |
-| Stato | 🟡 Generazione: fix GC applicato, da confermare con test reale |
+| Stato | ✅ Generazione funzionante — Cloudflare Workers AI FLUX.1-schnell (3-8s, gratis) |
 | Admin | ✅ Long press 3s logo → apre `immaginai_admin.html` in nuova scheda |
 | Netlify | ✅ https://wonderspit-ai.netlify.app/ |
 | GitHub | ✅ Repo attivo — https://github.com/Mondor89/ImmaginAI — auto-push ad ogni modifica |
 
 ---
 
-## Focus S14 — DA FARE
+## Focus S15 — DA FARE
 
 ### Alta priorità
-- [ ] **Confermare fix generazione** — testare con DevTools Network aperti, verificare che le immagini arrivino (fix GC _imgCache applicato in S13)
 - [ ] Test funzionale completo `Immaginai.html` (genera, galleria, FAQ, mobile)
 - [ ] Test funzionale `immaginai_admin.html` (tutte le sezioni)
 
@@ -72,8 +71,12 @@ docs/
 └── immaginai_stato.md      ← Questo file
 ```
 
-- API: Pollinations AI gratuito, cooldown 16s, retry 4 modelli
-- MODELS: `['', 'turbo', 'flux-realism', 'flux-anime']` — vuoto = no model param = default flux
+- API primaria: **Cloudflare Workers AI** — FLUX.1-schnell, gratis 100k/giorno, 3-8s
+  - Env vars Netlify: `CF_ACCOUNT_ID` + `CF_API_TOKEN`
+  - Risposta JSON: `data.result.image` (base64 PNG)
+- Fallback 1: Pollinations AI (tryPollinations)
+- Fallback 2: Stable Horde (generateHorde, lento senza kudos)
+- Netlify Function: `netlify/functions/generate.js` → `/.netlify/functions/generate`
 - Storage: localStorage condiviso (galleria max 50, settings, FAQ, categorie DV, stili)
 - Admin session: `ig_admin_session` in localStorage
 - Caricamento immagini: `new Image()` + onload/onerror — **MAI fetch()**
@@ -97,6 +100,7 @@ docs/
 | 10 | model=flux causava 402 | Parametro model esplicito = paid — usare stringa vuota |
 | 11 | Generazione "operazione annullata" 0 bytes | new Image() GC'd in Promise — aggiunto _imgCache Set |
 | 12 | Tab tagliata desktop | overflow:hidden + space-evenly taglia sezioni a viewport basse — usare overflow-y:auto |
+| 13 | Immagine bianca Cloudflare | REST API restituisce JSON (result.image), non binario — usare res.json() non arrayBuffer |
 
 ---
 
@@ -104,6 +108,7 @@ docs/
 
 | Sessione | Attività |
 |----------|----------|
+| S14 | Nuovo provider: Cloudflare Workers AI FLUX.1-schnell (gratis, 3-8s). Ricerca provider, fix risposta JSON, configurazione env vars Netlify |
 | S13 | Fix GC generazione (_imgCache), fix "tab tagliata" (overflow-y:auto), footer grigio ripristinato |
 | S12 | GitHub, auto-push, fix UI (spazi, DV tab, mobile footer), fix generazione parziale |
 | S11 | Light theme CSS, separazione admin, CLAUDE.md aggiornato. App: 1855→1303 righe. |
