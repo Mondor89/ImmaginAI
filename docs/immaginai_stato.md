@@ -7,24 +7,26 @@
 
 | Campo | Valore |
 |-------|--------|
-| Ultimo aggiornamento | Giugno 2026 — S14 (fine) |
+| Ultimo aggiornamento | Giugno 2026 — S15 (fine) |
 | Versione app | v4.4 |
-| Stato | ✅ Generazione funzionante — Cloudflare Workers AI FLUX.1-schnell (3-8s, gratis) |
+| Stato | ⚠️ CF esaurito (10k neuroni/giorno ≈ 20 img) — fallback Pollinations attivo |
+| Prossima task | Configurare Together.ai (FLUX gratis, illimitato) come provider principale |
 | Admin | ✅ Long press 3s logo → apre `immaginai_admin.html` in nuova scheda |
 | Netlify | ✅ https://wonderspit-ai.netlify.app/ |
-| GitHub | ✅ Repo attivo — https://github.com/Mondor89/ImmaginAI — auto-push ad ogni modifica |
+| GitHub | ✅ Repo attivo — https://github.com/Mondor89/ImmaginAI |
 
 ---
 
-## Focus S15 — DA FARE
+## Focus S16 — DA FARE
 
 ### Alta priorità
-- [ ] Test funzionale completo `Immaginai.html` (genera, galleria, FAQ, mobile)
-- [ ] Test funzionale `immaginai_admin.html` (tutte le sezioni)
+- [ ] **Together.ai**: creare account, ottenere API key, aggiungere `TOGETHER_KEY` in Netlify env vars → trigger deploy
+- [ ] Test generazione con Together.ai (FLUX.1-schnell-Free, gratis illimitato, 2-5s)
 
 ### Media priorità
+- [ ] Test funzionale completo `Immaginai.html` (genera, galleria, FAQ, mobile)
+- [ ] Test funzionale `immaginai_admin.html`
 - [ ] Test flusso completo: prompt → DV → stile → genera → modifica → CTA
-- [ ] Testare flusso completo social → ImmaginAI → Spreadshop
 
 ### Backlog
 - [ ] (post P.IVA) Immagini di riferimento con analisi Claude API
@@ -36,11 +38,14 @@
 
 ---
 
-## Task Completate S13
+## Task Completate S15
 
-- [x] Fix GC generazione: aggiunto `_imgCache = new Set()` in `Immaginai.html` — impedisce il garbage collection di `new Image()` durante la Promise (causa del fallimento con "operazione annullata" 0 bytes ~150ms)
-- [x] Fix "tab tagliata" desktop: `overflow: hidden` → `overflow-y: auto` su `#controls-scroll` — le sezioni non vengono più tagliate a viewport piccole
-- [x] Footer grigio (`#d8dce6`) confermato come design intenzionale, ripristinato dopo tentativo errato di rimozione colore
+- [x] UI: allineamento footer sinistro (controls-footer grigio) con footer destro (preview-actions bianco) — math esatta 144px entrambi
+- [x] UI: ctaB-btn font-weight 800 + text-transform uppercase → "USA NEL DESIGNER →" visivamente = "GENERA IMMAGINE"
+- [x] Fix: Cloudflare limite scoperto — 10.000 neuroni/giorno ≈ 20 immagini (non 100k come creduto)
+- [x] Fix: Pollinations API cambiata — qualsiasi param extra (seed, width, height, nologo) → 402. Ora URL bare: `?model=flux`
+- [x] Diagnostica: aggiunta log dettagliato a generate.js per identificare errore CF_HTTP_429, poi ripulito
+- [x] CSS: ?v=5 cache-bust
 
 ---
 
@@ -57,6 +62,7 @@
 | Giu 2026 | Comunicazione via localStorage | Nessun coupling tra i due file |
 | Giu 2026 | Claude applica + pusha subito | Netlify aggiorna solo da GitHub |
 | Giu 2026 | Footer controls grigio #d8dce6 | Zona azione visivamente distinta dal form |
+| Giu 2026 | Together.ai come nuovo primario | CF troppo limitato (20 img/giorno), Together FLUX gratis illimitato |
 
 ---
 
@@ -71,16 +77,21 @@ docs/
 └── immaginai_stato.md      ← Questo file
 ```
 
-- API primaria: **Cloudflare Workers AI** — FLUX.1-schnell, gratis 100k/giorno, 3-8s
-  - Env vars Netlify: `CF_ACCOUNT_ID` + `CF_API_TOKEN`
-  - Risposta JSON: `data.result.image` (base64 PNG)
-- Fallback 1: Pollinations AI (tryPollinations)
-- Fallback 2: Stable Horde (generateHorde, lento senza kudos)
-- Netlify Function: `netlify/functions/generate.js` → `/.netlify/functions/generate`
-- Storage: localStorage condiviso (galleria max 50, settings, FAQ, categorie DV, stili)
-- Admin session: `ig_admin_session` in localStorage
-- Caricamento immagini: `new Image()` + onload/onerror — **MAI fetch()**
-- GC fix: `_imgCache = new Set()` mantiene riferimento ai Image() pendenti — **NON rimuovere**
+### Cascata generazione (generate.js)
+1. **Cloudflare Workers AI** — FLUX.1-schnell, 10k neuroni/giorno ≈ 20 img, 3-8s
+   - Env: `CF_ACCOUNT_ID` + `CF_API_TOKEN`
+2. **Together.ai** — FLUX.1-schnell-Free, gratis illimitato, 2-5s ← **DA ATTIVARE**
+   - Env: `TOGETHER_KEY`
+3. **HuggingFace** — SD 2.1 fallback, qualità inferiore
+   - Env: `HF_TOKEN`
+- Fallback browser 1: **Pollinations AI** — `?model=flux` solo (no dimensioni, watermark)
+- Fallback browser 2: **Stable Horde** — lento, coda
+
+### Note critiche
+- Pollinations: SOLO `?model=flux` funziona gratis. Qualsiasi altro param → 402
+- Cloudflare: limite 10k neuroni/giorno, NON 100k (errore storico)
+- `_imgCache = new Set()` — NON rimuovere (GC fix)
+- Caricamento immagini: `new Image()` + onload/onerror — MAI fetch()
 
 ---
 
@@ -97,10 +108,12 @@ docs/
 | 7 | JS script Spreadshop bloccato | Non usare script nel footer/header Spreadshop |
 | 8 | Contorno bianco stampa | sticker style nel prompt trasparenza — rimosso |
 | 9 | Double-retry scartava risultati | Inner try non settava ok=true — rimosso in S12 |
-| 10 | model=flux causava 402 | Parametro model esplicito = paid — usare stringa vuota |
+| 10 | model=flux causava 402 (vecchio) | Era paid in passato — ora è gratis, usare ?model=flux |
 | 11 | Generazione "operazione annullata" 0 bytes | new Image() GC'd in Promise — aggiunto _imgCache Set |
-| 12 | Tab tagliata desktop | overflow:hidden + space-evenly taglia sezioni a viewport basse — usare overflow-y:auto |
-| 13 | Immagine bianca Cloudflare | REST API restituisce JSON (result.image), non binario — usare res.json() non arrayBuffer |
+| 12 | Tab tagliata desktop | overflow:hidden + space-evenly — usare overflow-y:auto |
+| 13 | Immagine bianca Cloudflare | REST API JSON (result.image), non binario — usare res.json() |
+| 14 | Pollinations 402 con parametri | width/height/seed/nologo/enhance → 402. Solo ?model=flux |
+| 15 | display:flex su img-btn rompe altezza | Cambia rendering button → disallineamento footer. Non usare |
 
 ---
 
@@ -108,7 +121,8 @@ docs/
 
 | Sessione | Attività |
 |----------|----------|
-| S14 | Nuovo provider: Cloudflare Workers AI FLUX.1-schnell (gratis, 3-8s). Ricerca provider, fix risposta JSON, configurazione env vars Netlify |
+| S15 | Fix UI footer allineamento (144px math), ctaB-btn uppercase+800, fix Pollinations API (solo ?model=flux), diagnostica CF 10k neuroni/giorno |
+| S14 | Nuovo provider: Cloudflare Workers AI FLUX.1-schnell (gratis, 3-8s) |
 | S13 | Fix GC generazione (_imgCache), fix "tab tagliata" (overflow-y:auto), footer grigio ripristinato |
 | S12 | GitHub, auto-push, fix UI (spazi, DV tab, mobile footer), fix generazione parziale |
 | S11 | Light theme CSS, separazione admin, CLAUDE.md aggiornato. App: 1855→1303 righe. |
