@@ -617,7 +617,7 @@ body:not(.light) .adv-input{background:#1e1a3a;color:var(--text);}
       <div id="ctaWrap">
         <div class="ctaB-inner">
           <div class="ctaB-texts"><div class="ctaB-tag">✨ Prossimo step</div><div class="ctaB-title">Mettila su un prodotto!</div></div>
-          <a class="ctaB-btn" href="https://wonderspit.myspreadshop.it/create" target="_blank">🛒 Usa nel Designer →</a>
+          <button class="ctaB-btn" onclick="goToDesigner()">🛒 Usa nel Designer →</button>
         </div>
       </div>
     </div>
@@ -1317,7 +1317,9 @@ function delItem(i){ST.gallery.splice(i,1);try{localStorage.setItem('ig_gallery'
 function buildRatios(){const r=document.getElementById('ratioRow');if(!r) return;r.innerHTML='';RATIOS.forEach(rt=>{const b=document.createElement('button');b.className='ratio-btn'+(rt.id===ST.ratio?' active':'');b.innerHTML=`<span class="ratio-icon">${rt.icon}</span><span class="ratio-label">${rt.label}</span>`;b.onclick=()=>{ST.ratio=rt.id;document.querySelectorAll('.ratio-btn').forEach(x=>x.classList.remove('active'));b.classList.add('active');};r.appendChild(b);});}
 function toggleSetting(k){ST[k]=!ST[k];document.getElementById('toggle'+k.charAt(0).toUpperCase()+k.slice(1))?.classList.toggle('on',ST[k]);}
 function downloadImg(){if(ST.currentUrl) downloadFrom(ST.currentUrl);}
-function downloadFrom(url){fetch(url).then(r=>r.blob()).then(b=>{const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='WS-immagine.jpg';a.click();URL.revokeObjectURL(a.href);}).catch(()=>{const a=document.createElement('a');a.href=url;a.download='WS-immagine.jpg';a.click();});}
+function getImgExt(url){if(url.startsWith('data:image/png')) return 'png';if(url.startsWith('data:image/webp')) return 'webp';return 'jpg';}
+function downloadFrom(url){const ext=getImgExt(url);fetch(url).then(r=>r.blob()).then(b=>{const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=`WS-immagine.${ext}`;a.click();URL.revokeObjectURL(a.href);}).catch(()=>{const a=document.createElement('a');a.href=url;a.download=`WS-immagine.${ext}`;a.click();});}
+function goToDesigner(){if(ST.currentUrl) downloadFrom(ST.currentUrl);window.open('https://wonderspit.myspreadshop.it/create','_blank');}
 function downloadModal(){downloadFrom(document.getElementById('modalImg').src);}
 function copyPromptText(){navigator.clipboard.writeText(ST.currentPrompt).then(()=>{const b=document.getElementById('copyBtn');if(b){b.textContent='✓ Copiato!';setTimeout(()=>b.textContent='📋 Prompt',1500);}});}
 function openModal(url){document.getElementById('modalImg').src=url;document.getElementById('modal').classList.add('open');}
