@@ -30,9 +30,9 @@ exports.handler = async function(event) {
         }
       );
       if (res.ok) {
-        const buf = await res.arrayBuffer();
-        if (buf.byteLength > 0) {
-          const b64 = Buffer.from(buf).toString('base64');
+        const data = await res.json();
+        const b64 = data?.result?.image;
+        if (b64) {
           return {
             statusCode: 200,
             headers: { 'Content-Type': 'application/json' },
