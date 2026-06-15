@@ -279,8 +279,10 @@ body:not(.light) .adv-input {
 /* ════════════════════════════════════════════════════
    5. PREVIEW COLUMN
 ════════════════════════════════════════════════════ */
-#preview-col    { background: var(--bg) !important; padding: 20px 20px 0 !important; }
+#preview-col    { background: var(--bg) !important; padding: 0 !important; }
+#preview-main   { flex: 1 !important; display: flex !important; flex-direction: column !important; overflow: hidden !important; padding: 16px 16px 10px !important; }
 #preview-header { display: none !important; }
+#preview-actions { flex-shrink: 0 !important; background: #ffffff !important; border-top: 1px solid var(--border) !important; }
 
 #previewPlaceholder { border: 2px dashed var(--border) !important; background: transparent !important; }
 .preview-icon       { opacity: .25 !important; }
@@ -292,7 +294,7 @@ body:not(.light) .adv-input {
 .big-spin      { border-color: #eee !important; border-top-color: #5B35C8 !important; border-right-color: #3D2F8F !important; }
 #spinnerMsg    { color: #9098a9 !important; font-family: var(--font-body) !important; }
 
-.img-actions        { background: #fafafa !important; border-top: 1px solid var(--border) !important; }
+.img-actions        { background: transparent !important; border: none !important; }
 .img-btn            { background: #1e2132 !important; border: none !important; color: #ffffff !important; font-family: var(--font-body) !important; border-radius: 10px !important; }
 .img-btn:hover      { background: #2d3142 !important; }
 .img-btn.primary    { background: #1e2132 !important; color: #ffffff !important; border: none !important; }

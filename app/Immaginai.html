@@ -157,7 +157,9 @@ body.light .transp-toggle.on{background:#00E5C8;color:#080810;}
   #screen-faq.active{display:block;}
 }
 
-#preview-col{flex:1;min-width:260px;display:flex;flex-direction:column;height:100svh;overflow:hidden;padding:20px 20px;}
+#preview-col{flex:1;min-width:260px;display:flex;flex-direction:column;height:100svh;overflow:hidden;}
+#preview-main{flex:1;display:flex;flex-direction:column;overflow:hidden;padding:20px 20px 12px;}
+#preview-actions{flex-shrink:0;}
 #screen-gallery,#screen-pro{display:none;flex:1;flex-direction:column;height:100svh;overflow-y:auto;padding:32px 40px;}
 #screen-gallery.active,#screen-pro.active{display:flex;flex-direction:column;}
 
@@ -583,40 +585,44 @@ body:not(.light) .adv-input{background:#1e1a3a;color:var(--text);}
 
   <!-- PREVIEW -->
   <div id="preview-col">
-    <div id="preview-header">Anteprima</div>
-    <div id="previewPlaceholder">
-      <div class="preview-icon">🎨</div>
-      <div class="preview-text">La tua immagine apparirà qui</div>
-      <div class="preview-sub">Scrivi un prompt e premi Genera</div>
+    <div id="preview-main">
+      <div id="preview-header">Anteprima</div>
+      <div id="previewPlaceholder">
+        <div class="preview-icon">🎨</div>
+        <div class="preview-text">La tua immagine apparirà qui</div>
+        <div class="preview-sub">Scrivi un prompt e premi Genera</div>
+      </div>
+      <div id="outputArea">
+        <div id="spinnerBox"><div class="big-spin"></div><div id="spinnerMsg">Sto creando la tua immagine…<br><small style="font-size:11px;opacity:.6">15–30 secondi</small></div></div>
+        <img id="generatedImg" src="" alt="">
+        <div id="modificaPanel">
+          <span class="modifica-label">Aggiungi al prompt</span>
+          <textarea id="modificaInput" rows="2" placeholder="Es: aggiungi una palla rossa, togli lo sfondo…"></textarea>
+          <button id="modificaGoBtn" onclick="runModifica()">✨ Genera modifica</button>
+        </div>
+        <div id="compareOverlay">
+          <div class="compare-imgs">
+            <div class="compare-side">
+              <span class="compare-tag">Precedente</span>
+              <img class="compare-img" id="compareImgOld" src="" alt="" onclick="openModal(this.src)">
+            </div>
+            <div class="compare-side">
+              <span class="compare-tag">Nuova</span>
+              <img class="compare-img" id="compareImgNew" src="" alt="" onclick="openModal(this.src)">
+            </div>
+          </div>
+          <div class="compare-actions">
+            <button class="compare-btn back" onclick="discardModifica()">↩ Torna alla precedente</button>
+            <button class="compare-btn keep" onclick="keepModifica()">✓ Tieni questa</button>
+          </div>
+        </div>
+      </div>
     </div>
-    <div id="outputArea">
-      <div id="spinnerBox"><div class="big-spin"></div><div id="spinnerMsg">Sto creando la tua immagine…<br><small style="font-size:11px;opacity:.6">15–30 secondi</small></div></div>
-      <img id="generatedImg" src="" alt="">
+    <div id="preview-actions">
       <div class="img-actions" id="imgActions">
         <button class="img-btn primary" onclick="downloadImg()">⬇ Scarica</button>
         <button class="img-btn" onclick="regenImage()">🔁 Rigenera</button>
         <button class="img-btn" onclick="toggleModifica()">✏️ Modifica</button>
-      </div>
-      <div id="modificaPanel">
-        <span class="modifica-label">Aggiungi al prompt</span>
-        <textarea id="modificaInput" rows="2" placeholder="Es: aggiungi una palla rossa, togli lo sfondo…"></textarea>
-        <button id="modificaGoBtn" onclick="runModifica()">✨ Genera modifica</button>
-      </div>
-      <div id="compareOverlay">
-        <div class="compare-imgs">
-          <div class="compare-side">
-            <span class="compare-tag">Precedente</span>
-            <img class="compare-img" id="compareImgOld" src="" alt="" onclick="openModal(this.src)">
-          </div>
-          <div class="compare-side">
-            <span class="compare-tag">Nuova</span>
-            <img class="compare-img" id="compareImgNew" src="" alt="" onclick="openModal(this.src)">
-          </div>
-        </div>
-        <div class="compare-actions">
-          <button class="compare-btn back" onclick="discardModifica()">↩ Torna alla precedente</button>
-          <button class="compare-btn keep" onclick="keepModifica()">✓ Tieni questa</button>
-        </div>
       </div>
       <div id="ctaWrap">
         <div class="ctaB-inner">
