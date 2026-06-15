@@ -295,7 +295,7 @@ body:not(.light) .adv-input {
 #spinnerMsg    { color: #9098a9 !important; font-family: var(--font-body) !important; }
 
 .img-actions        { background: transparent !important; border-top: 1px solid var(--border) !important; padding-top: 14px !important; }
-.img-btn            { background: #1e2132 !important; border: none !important; color: #ffffff !important; font-family: var(--font-body) !important; border-radius: 10px !important; padding: 11px 6px !important; font-size: 12px !important; font-weight: 700 !important; }
+.img-btn            { background: #1e2132 !important; border: none !important; color: #ffffff !important; font-family: var(--font-body) !important; border-radius: 10px !important; padding: 11px 6px !important; font-size: 12px !important; font-weight: 700 !important; display: flex !important; align-items: center !important; justify-content: center !important; }
 .img-btn:hover      { background: #2d3142 !important; }
 .img-btn.primary    { background: #1e2132 !important; color: #ffffff !important; border: none !important; }
 
@@ -318,7 +318,7 @@ body:not(.light) .adv-input {
 #ctaWrap     { border-top: 1px solid var(--border) !important; background: #fafafa !important; }
 .ctaB-tag    { color: #5B35C8 !important; font-family: var(--font-body) !important; }
 .ctaB-title  { color: var(--text) !important; font-family: var(--font-body) !important; letter-spacing: 0 !important; font-size: 15px !important; font-weight: 600 !important; }
-.ctaB-btn    { background: #5B35C8 !important; color: #ffffff !important; font-family: var(--font-body) !important; border-radius: 8px !important; font-size: 15px !important; font-weight: 700 !important; letter-spacing: .5px !important; }
+.ctaB-btn    { background: #5B35C8 !important; color: #ffffff !important; font-family: var(--font-body) !important; border-radius: 8px !important; font-size: 15px !important; font-weight: 800 !important; letter-spacing: .5px !important; }
 
 /* ════════════════════════════════════════════════════
    6. FAQ
