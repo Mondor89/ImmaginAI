@@ -279,7 +279,7 @@ body:not(.light) .adv-input {
 /* ════════════════════════════════════════════════════
    5. PREVIEW COLUMN
 ════════════════════════════════════════════════════ */
-#preview-col    { background: var(--bg) !important; }
+#preview-col    { background: var(--bg) !important; padding: 20px 20px 0 !important; }
 #preview-header { display: none !important; }
 
 #previewPlaceholder { border: 2px dashed var(--border) !important; background: transparent !important; }
