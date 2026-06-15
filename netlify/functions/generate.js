@@ -26,7 +26,7 @@ exports.handler = async function(event) {
             'Authorization': `Bearer ${CF_API_TOKEN}`,
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify({ prompt, num_steps: 4, width, height }),
+          body: JSON.stringify({ prompt, num_steps: 8, width, height }),
         }
       );
       if (res.ok) {
