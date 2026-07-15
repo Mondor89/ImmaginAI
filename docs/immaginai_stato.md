@@ -7,26 +7,26 @@
 
 | Campo | Valore |
 |-------|--------|
-| Ultimo aggiornamento | Giugno 2026 — S15 (fine) |
+| Ultimo aggiornamento | Luglio 2026 — S16 (fine) |
 | Versione app | v4.4 |
-| Stato | ⚠️ CF esaurito (10k neuroni/giorno ≈ 20 img) — fallback Pollinations attivo |
-| Prossima task | Configurare Together.ai (FLUX gratis, illimitato) come provider principale |
+| Stato | ✅ Pollinations primario (gratis, illimitato) — CF come backup qualità, Together.ai scartato |
+| Prossima task | Test funzionale `immaginai_admin.html` + flusso Modifica/compare/CTA (non ancora coperti) |
 | Admin | ✅ Long press 3s logo → apre `immaginai_admin.html` in nuova scheda |
 | Netlify | ✅ https://wonderspit-ai.netlify.app/ |
 | GitHub | ✅ Repo attivo — https://github.com/Mondor89/ImmaginAI |
 
 ---
 
-## Focus S16 — DA FARE
+## Focus S17 — DA FARE
 
 ### Alta priorità
-- [ ] **Together.ai**: creare account, ottenere API key, aggiungere `TOGETHER_KEY` in Netlify env vars → trigger deploy
-- [ ] Test generazione con Together.ai (FLUX.1-schnell-Free, gratis illimitato, 2-5s)
+- [ ] Test funzionale `immaginai_admin.html` (login, tab, salvataggio impostazioni)
+- [ ] Test flusso Modifica (compare overlay, keep/discard) — non coperto in S16
+- [ ] Test click CTA "Usa nel Designer" (download + apertura Spreadshop) — non coperto in S16 (richiede permesso download)
 
 ### Media priorità
-- [ ] Test funzionale completo `Immaginai.html` (genera, galleria, FAQ, mobile)
-- [ ] Test funzionale `immaginai_admin.html`
-- [ ] Test flusso completo: prompt → DV → stile → genera → modifica → CTA
+- [ ] Sanare escape mancante su `it.prompt` in `renderGallery()` — vedi gap in `immaginai_sicurezza.md`
+- [ ] Valutare provider gratuito realmente illimitato con qualità migliore di Pollinations (Together.ai scartato — richiede deposito)
 
 ### Backlog
 - [ ] (post P.IVA) Immagini di riferimento con analisi Claude API
@@ -37,6 +37,15 @@
 - [ ] Rimuovi sfondo vero (Remove.bg o REMBG)
 
 ---
+
+## Task Completate S16
+
+- [x] Cascata `generate.js`: Pollinations promosso a primario (gratis, illimitato), CF come backup qualità, timeout Pollinations 20s→30s
+- [x] Together.ai valutato e scartato: richiede deposito iniziale su Together.ai (non è gratuito come creduto), codice proxy lasciato pronto ma non attivato
+- [x] Processo di sviluppo strutturato adottato da template esterno: fast-path vs approvazione, comandi REVISIONA/VERIFICA-SICUREZZA/PATCH, Principi Prodotto (bozza, da confermare con Fabio)
+- [x] Creato `docs/immaginai_sicurezza.md` — invarianti, superficie di attacco, 2 gap noti registrati (credenziali admin in chiaro, XSS non sanificato in galleria)
+- [x] Test funzionale: flusso Crea (prompt→genera, Pollinations OK), Galleria (salvataggio+riusa OK), FAQ (13 domande, accordion OK), mobile (tab switching, bottom-nav, nessun overflow orizzontale — tutto OK)
+- [x] Chiarito: `#genBtnMobile` sempre nascosto su mobile è intenzionale (light.css lo disabilita dopo rimozione dark theme), non un bug — vedi Errori Storici #16
 
 ## Task Completate S15
 
@@ -63,6 +72,8 @@
 | Giu 2026 | Claude applica + pusha subito | Netlify aggiorna solo da GitHub |
 | Giu 2026 | Footer controls grigio #d8dce6 | Zona azione visivamente distinta dal form |
 | Giu 2026 | Together.ai come nuovo primario | CF troppo limitato (20 img/giorno), Together FLUX gratis illimitato |
+| Lug 2026 | **Revocata**: Together.ai scartato, Pollinations promosso a primario | Together.ai richiede deposito iniziale — non è gratuito come creduto in Giu 2026. Pollinations resta l'unico provider gratis+illimitato reale |
+| Lug 2026 | Adottato processo REVISIONA/VERIFICA-SICUREZZA/PATCH da template esterno | Fabio vuole meno revisioni future su feature critiche, ora che l'app è pubblica con clienti reali e gestisce chiavi API |
 
 ---
 
@@ -74,18 +85,18 @@ app/
 ├── immaginai_admin.html    ← Admin panel separato
 ├── immaginai_light.css     ← Override light theme (linkato in entrambi)
 docs/
-└── immaginai_stato.md      ← Questo file
+├── immaginai_stato.md      ← Questo file
+├── immaginai_sicurezza.md  ← Invarianti sicurezza, superficie attacco, gap noti
+└── immaginai_memoria_progetto.md ← ⚠ obsoleto (v2.6/S10), non aggiornare
 ```
 
-### Cascata generazione (generate.js)
-1. **Cloudflare Workers AI** — FLUX.1-schnell, 10k neuroni/giorno ≈ 20 img, 3-8s
-   - Env: `CF_ACCOUNT_ID` + `CF_API_TOKEN`
-2. **Together.ai** — FLUX.1-schnell-Free, gratis illimitato, 2-5s ← **DA ATTIVARE**
-   - Env: `TOGETHER_KEY`
-3. **HuggingFace** — SD 2.1 fallback, qualità inferiore
-   - Env: `HF_TOKEN`
-- Fallback browser 1: **Pollinations AI** — `?model=flux` solo (no dimensioni, watermark)
-- Fallback browser 2: **Stable Horde** — lento, coda
+### Cascata generazione (client, `generateAuto()` in Immaginai.html)
+1. **Pollinations AI** — `?model=flux` solo, gratis, illimitato, primario dal S16
+2. **generate.js** (Netlify Function) — prova in ordine:
+   a. **Cloudflare Workers AI** — FLUX.1-schnell, 10k neuroni/giorno ≈ 20 img, 3-8s (Env: `CF_ACCOUNT_ID`+`CF_API_TOKEN`)
+   b. **Together.ai** — FLUX.1-schnell-Free — **scartato S16, richiede deposito**, non attivare (Env: `TOGETHER_KEY` pronta ma non impostata)
+   c. **HuggingFace** — SD fallback, qualità inferiore (Env: `HF_TOKEN`)
+3. **Stable Horde** — ultimo fallback, lento, coda
 
 ### Note critiche
 - Pollinations: SOLO `?model=flux` funziona gratis. Qualsiasi altro param → 402
@@ -114,6 +125,7 @@ docs/
 | 13 | Immagine bianca Cloudflare | REST API JSON (result.image), non binario — usare res.json() |
 | 14 | Pollinations 402 con parametri | width/height/seed/nologo/enhance → 402. Solo ?model=flux |
 | 15 | display:flex su img-btn rompe altezza | Cambia rendering button → disallineamento footer. Non usare |
+| 16 | `#genBtnMobile` sembra sempre nascosto su mobile (NON è un bug) | Intenzionale: `immaginai_light.css` ha `#genBtnMobile{display:none!important}` nella sezione mobile — disabilita il vecchio bottone flottante dell'era dark theme. Su mobile si usa `#genBtn` in-flow dentro `#controls-footer`. Non "correggere" pensando sia rotto |
 
 ---
 
@@ -121,6 +133,7 @@ docs/
 
 | Sessione | Attività |
 |----------|----------|
+| S16 | Cascata: Pollinations promosso a primario, Together.ai valutato e scartato (deposito richiesto). Adottato processo REVISIONA/VERIFICA-SICUREZZA/PATCH da template esterno, creato `immaginai_sicurezza.md`. Test funzionale completo: Crea/Galleria/FAQ/mobile tutti OK, chiarito che `#genBtnMobile` nascosto è intenzionale |
 | S15 | Fix UI footer allineamento (144px math), ctaB-btn uppercase+800, fix Pollinations API (solo ?model=flux), diagnostica CF 10k neuroni/giorno |
 | S14 | Nuovo provider: Cloudflare Workers AI FLUX.1-schnell (gratis, 3-8s) |
 | S13 | Fix GC generazione (_imgCache), fix "tab tagliata" (overflow-y:auto), footer grigio ripristinato |
