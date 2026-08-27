@@ -7,17 +7,17 @@
 
 | Campo | Valore |
 |-------|--------|
-| Ultimo aggiornamento | Agosto 2026 — S17 (fine) |
+| Ultimo aggiornamento | Agosto 2026 — S18 (fine) |
 | Versione app | v4.4 |
-| Stato | ✅ Pollinations primario (gratis, illimitato) — CF come backup qualità, Together.ai scartato. CLAUDE.md ora allineato al template APP |
-| Prossima task | Test funzionale `immaginai_admin.html` + flusso Modifica/compare/CTA (non ancora coperti — rimandati da S16 a S17 a S18) |
+| Stato | ✅ Pollinations primario (gratis, illimitato) — CF come backup qualità, Together.ai scartato. CLAUDE.md allineato al template APP, 5 travasi in sospeso (U-034→U-038) recepiti in S18 |
+| Prossima task | Test funzionale `immaginai_admin.html` + flusso Modifica/compare/CTA (non ancora coperti — rimandati da S16 a S17 a S18 a S19) |
 | Admin | ✅ Long press 3s logo → apre `immaginai_admin.html` in nuova scheda |
 | Netlify | ✅ https://wonderspit-ai.netlify.app/ |
 | GitHub | ✅ Repo attivo — https://github.com/Mondor89/ImmaginAI |
 
 ---
 
-## Focus S17 — DA FARE
+## Focus S18 — DA FARE
 
 ### Alta priorità
 - [ ] Test funzionale `immaginai_admin.html` (login, tab, salvataggio impostazioni)
@@ -37,6 +37,12 @@
 - [ ] Rimuovi sfondo vero (Remove.bg o REMBG)
 
 ---
+
+## Task Completate S18
+
+- [x] `RECEPISCI` eseguito: 5 travasi in sospeso dal registro (`U-034`→`U-038`) applicati a `CLAUDE.md` — badge/pill palette limitata (pattern-trappola), Glob+`.gitignore` (Principi di debug), WebFetch→Browser pane (Principi di debug), ordine PATCH/audit indipendente in chiusura (REGISTRA). `U-038` verificato già recepito (nato da questo stesso progetto in S17, forma equivalente)
+- [x] Riga `Travasi recepiti` aggiornata con i 5 nuovi ID
+- [x] Audit indipendente (sotto-agente Opus 5) sul lavoro appena fatto: trovati e corretti 3 errori reali (token cyan sbagliato in U-034 — `--c-accent` è viola, non cyan; rimando rotto "criteri già descritti sopra" in U-036 — i criteri stanno sotto, nel comando PATCH; caso "colore assegnato a runtime" mancante in U-034, pertinente perché `immaginai_admin.html` scrive `ig_ui`/`ig_colors` a runtime) + 1 refuso (heading stato.md ancora "Focus S17")
 
 ## Task Completate S17
 
@@ -142,6 +148,7 @@ docs/
 
 | Sessione | Attività |
 |----------|----------|
+| S18 | `RECEPISCI` di 5 travasi in sospeso (`U-034`→`U-038`): badge/palette limitata, Glob+`.gitignore`, WebFetch→Browser pane, ordine PATCH/audit di chiusura in REGISTRA. `U-038` già presente da S17, marcato recepito |
 | S17 | Prima riconciliazione col template APP: `CLAUDE.md` allineato (6 blocchi aggiunti/modificati, sezione "Allineamento al template" creata, baseline 27/08/2026). Audit indipendente ha trovato 2 errori reali + 4 refusi, tutti corretti. 1 PATCH depositata in `_inbox` di Template Claude. Resta aperto: 4WS non ancora nella tabella "Il perimetro" del registro travasi (da fare su Template Claude) |
 | S16 | Cascata: Pollinations promosso a primario, Together.ai valutato e scartato (deposito richiesto). Adottato processo REVISIONA/VERIFICA-SICUREZZA/PATCH da template esterno, creato `immaginai_sicurezza.md`. Test funzionale completo: Crea/Galleria/FAQ/mobile tutti OK, chiarito che `#genBtnMobile` nascosto è intenzionale |
 | S15 | Fix UI footer allineamento (144px math), ctaB-btn uppercase+800, fix Pollinations API (solo ?model=flux), diagnostica CF 10k neuroni/giorno |
