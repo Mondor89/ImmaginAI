@@ -101,6 +101,12 @@ Checklist obbligatoria — rispondere sì/no a ogni voce, aggiornare se sì:
 
 > ⚠️ Eseguire REGISTRA leggendo la checklist NON basta — ogni file va APERTO e confrontato con quanto emerso nella sessione.
 
+> **Controllo di de-escalation in chiusura.** Se in questa sessione è stata usata un'escalation di modello o impegno, verifica se il lavoro che la giustificava è concluso: se sì, proponi esplicitamente la de-escalation in questo passo, prima del commit — non aspettare che Fabio la richieda.
+
+> **Proposta di audit indipendente in chiusura.** Se in questa sessione sono stati scritti o modificati codice, regole o file di configurazione, proponi a Fabio — in questo stesso passo, prima del commit — un audit indipendente del lavoro fatto tramite un sotto-agente su un modello più potente di quello in uso. È una proposta, non un'azione automatica.
+
+> **Controllo dei rimandi interni.** Se nella sessione una sezione è stata rinominata, spostata o eliminata, verifica che nessun'altra parte del file la citi ancora per nome (grep sul vecchio titolo). Il grep sul nome non basta da solo: una frase può descrivere il comportamento della sezione ritirata senza mai nominarla — rileggi anche i paragrafi vicini a dove la sezione stava, cercando descrizioni equivalenti in altre parole.
+
 **REVISIONA [nome funzionalità]** — Analizza la funzionalità indicata contro tutti i Principi Prodotto. Rispondi con: ✅ compatibile / ⚠ conflitto potenziale / ❌ violazione diretta — per ciascun principio. Poi attendi conferma prima di procedere con il codice.
 
 **VERIFICA-SICUREZZA [nome funzionalità]** — Analizza la funzionalità contro `docs/immaginai_sicurezza.md`. Rispondi con: ✅ OK / ⚠ Attenzione / ❌ Violazione per ogni invariante rilevante. Poi attendi conferma prima di procedere con il codice.
@@ -115,9 +121,18 @@ Checklist obbligatoria — rispondere sì/no a ogni voce, aggiornare se sì:
 SEZIONE:  [sezione di CLAUDE.md / "nuova sezione"]
 PROBLEMA: [cosa mancava o era inefficiente]
 MODIFICA: [testo esatto da aggiungere/sostituire]
+AMBITO:   [solo questo progetto / da portare nel template]
 PRIORITÀ: [alta / media / bassa]
 ```
 Poi attendi conferma di Fabio prima di modificare `CLAUDE.md`. Se Fabio annuncia la chiusura della sessione e non ha eseguito PATCH, proponilo autonomamente — **solo se** nella sessione sono emersi pattern non banali o gap ripetuti, non per un singolo bugfix minore.
+
+**Controllo anti-accumulo (obbligatorio ad ogni patch).** Quando proponi una regola nuova, verifica se ne rende una esistente ridondante o superata, e dillo nello stesso blocco. Aggiungere regole senza mai toglierne è il modo in cui questo file diventa illeggibile — togliere una regola morta vale quanto aggiungerne una viva.
+
+**Se una patch approvata è marcata `AMBITO: da portare nel template`**, chiedi conferma a Fabio e — se confermato — deposita un file `.md` in `C:\Users\fabio\Desktop\Download Desktop\XProgetti\1-Aiuto Cloude\Template Claude\patch\_inbox\`, seguendo lo schema descritto nel `LEGGIMI.md` presente in quella cartella. Non modificare mai il template direttamente: da qui si deposita e basta. Il travaso vero si fa con il comando `ELABORA` in una sessione dedicata su Template Claude.
+
+**Il campo `AMBITO` non è una formalità.** Una lezione imparata qui e scritta solo qui è persa per ogni altro progetto WonderSpit: è così che i moduli derivati accumulano regole preziose che il template non riceve mai. Marcare `da portare nel template` quando la lezione non dipende dallo stack o dal dominio specifico di ImmaginAI.
+
+**Prima di scrivere una patch approvata** che tocca una sezione condivisa o di sicurezza (Gestione modello, Meta-regole, invarianti di sicurezza), o se in questo turno sono state confermate più patch insieme, proponi esplicitamente a Fabio se conviene un audit indipendente del testo tramite sotto-agente su un modello più potente — PRIMA di scriverlo, non a lavoro già applicato. Proposta, non automatismo.
 
 ---
 
@@ -171,6 +186,8 @@ Se **a sessione già avviata** Fabio chiede di rileggere questo file (non il pri
 
 > Claude non può cambiare modello da solo nella conversazione principale (`/model` lo esegue solo Fabio). Esiste anche uno slider **"Impegno"** nel client Claude Code — 6 livelli, indipendente dal modello scelto. Due leve distinte: (1) il **modello** — quale cervello, (2) il **livello di impegno** — quanto ragionamento gli fa spendere sullo stesso cervello.
 
+> **Controllo all'apertura della sessione.** Se il contesto già disponibile (un task dichiarato da Fabio, una nota che raccomanda un livello) indica una condizione di escalation prevista qui sotto, dichiararlo subito e proporla — non aspettare che Fabio lo debba ripetere.
+
 **Modello di base per il lavoro di routine: il modello correntemente in uso** (`claude-sonnet-5` da S16 — vedi "Note di calibrazione" punto 4). Prima di iniziare una modifica di codice, Claude valuta se il task rientra in una delle situazioni sotto — se sì, si ferma e lo dice a Fabio PRIMA di scrivere codice.
 
 **Quando proporre il modello intermedio** (bug ostici o feature di media complessità):
@@ -184,9 +201,17 @@ Se **a sessione già avviata** Fabio chiede di rileggere questo file (non il pri
 
 **Quando restare sul modello base:** fix di un bug singolo e localizzato, test + correzioni, tweak UI/testo, refactor piccolo.
 
+**Quando proporre di tornare a un modello più leggero (de-escalation).** Dopo un'escalation il lavoro costoso è quasi sempre concentrato in una fase (analisi ampia, revisione completa), mentre la fase successiva è già progettata. Proporre la discesa quando il lavoro pesante è concluso e resta solo applicare passi già definiti — non nuova esplorazione. Restare in alto, dicendolo esplicitamente, se un fix fallisce due volte sullo stesso sintomo senza progressi. Mai risalire in silenzio.
+
+**La proposta di de-escalation va scritta nello stesso messaggio che consegna il risultato della fase pesante**, non rimandata a un messaggio successivo — è il punto di transizione più a rischio di restare silente.
+
+**Dopo un'escalation confermata, prima di scrivere nuovo codice sul task che l'ha motivata:** riguarda quanto già prodotto in questa sessione per quello stesso task col modello precedente. Cerca cosa il modello meno potente potrebbe aver tralasciato (casi limite, assunzioni implicite). Se trovi gap, elencali a Fabio prima di continuare. Se non trovi nulla, dichiaralo in una riga e procedi. Si applica solo in salita, mai in de-escalation.
+
 **Come proporlo:** la riga di motivazione contiene (1) perché serve più potenza, (2) quale livello di escalation e perché quello e non l'altro, (3) cosa rischiamo restando sul modello base. Poi il comando `/model` da eseguire manualmente. Non bloccare il lavoro in attesa di risposta se il task è comunque avviabile sul modello base.
 
-**Ambito:** solo il modello di conversazione. I sotto-agenti (Agent tool) possono usare un modello scelto liberamente da Claude.
+**Ambito:** solo il modello di conversazione. I sotto-agenti (Agent tool) sono una terza leva che Claude può azionare da solo, senza che Fabio cambi nulla — conviene quando il lavoro difficile è isolabile (ricerca, verifica incrociata, analisi ampia). Regole d'uso: valutare tutti i casi in sospeso prima di interrompere il flusso e presentarli in un elenco unico; mai partire in automatico senza conferma quando c'è un costo; dichiarare sempre il modello scelto; **restare entro i modelli inclusi nel piano di Fabio (oggi: piano Pro)** — mai un modello a consumo extra senza notificarlo esplicitamente e attendere approvazione prima del lancio; il risultato del sotto-agente sostituisce quello debole, va presentato prima che Fabio confermi la decisione a valle.
+
+**Rinforzo meccanico — hook `PostToolUse`** [se configurato in `~/.claude/settings.json`]. Se questo hook è attivo, un promemoria di Gestione modello compare dopo ogni `Edit`/`Write`. Va valutato esplicitamente contro i criteri sopra e la conclusione dichiarata — anche quando è "resto sul modello base". Se lo stesso giudizio si ripete identico più volte di fila, una dichiarazione compatta per il gruppo basta.
 
 **Autocalibrazione:** se Fabio segnala che una proposta di cambio era eccessiva o mancata, salvarla in memoria (tipo `feedback`).
 
@@ -219,6 +244,7 @@ Senza il perché, le regole diventano dogma cieco quando l'app cresce.
 - **Prima di scrivere codice nuovo, verificare cosa il sistema esistente già permette.** Una richiesta "vorrei che X potesse fare anche Y" spesso non richiede una feature nuova — se X è già costruito in modo generico, Y potrebbe già funzionare o richiedere solo la rimozione di un vincolo specifico.
 - **Un fallback silenzioso che crea dati "vuoti" è più pericoloso di un errore esplicito.** La cascata di `generate.js` già segue questo principio (ogni step fallisce esplicitamente e passa al successivo) — mantenerlo per ogni nuovo provider aggiunto.
 - **Un bug che sembra "strano" o "impossibile" nasce spesso da precedenza degli operatori, non da logica sbagliata.** Vedi "Regole JavaScript/Web" più sotto.
+- **Prima di scrivere un rimando a un'altra sezione di questo file — o a un altro file** (es. "vedi X") — verificare con una lettura mirata che la destinazione esista e contenga davvero ciò a cui si sta rimandando: non fidarsi della propria ricostruzione a memoria. Se la verifica fallisce, o si corregge il rimando o si aggiunge il contenuto mancante.
 
 ---
 
@@ -373,6 +399,10 @@ Messaggio commit: `Sessione N — [funzionalità] / [cosa fatto] / [cosa resta]`
 - Usare sempre una chiave fissa per la versione corrente dei dati salvati (`ig_gallery`, `ig_theme`, ecc.) — cambiarla rompe la persistenza per chi ha già usato l'app.
 - Se serve cambiare formato, leggere prima la chiave vecchia e migrare esplicitamente.
 
+### Cleanup asincrono — mai prima di un reject/throw
+- Un cleanup asincrono "best-effort" (`qualcosa().catch(() => {})`) scritto subito prima di un `reject`/`throw` sincrono non garantisce che finisca prima che il chiamante osservi l'errore: sono una corsa, non una sequenza.
+- Incatenare la propagazione dentro `.finally()`, oppure attendere con `await` — mai lasciare il cleanup "in volo" e propagare subito dopo.
+
 ---
 
 ## Note permanenti
@@ -381,3 +411,11 @@ Messaggio commit: `Sessione N — [funzionalità] / [cosa fatto] / [cosa resta]`
 - Preferenza per stack semplice: niente build step/framework pesante
 - Nessun costo per l'utente finale — monitorare se in futuro un provider a pagamento entra in cascata
 - Push automatico su GitHub dopo ogni modifica applicata (fast-path) — Netlify serve il sito dal repo, non aspettare conferma per il push in sé, solo per l'implementazione quando serve approvazione
+
+---
+
+## Allineamento al template [UNIVERSALE]
+
+Template d'origine: APP
+Baseline: allineato a CLAUDE_APP_TEMPLATE.md il 27/08/2026 (prima riconciliazione — progetto nato prima del sistema dei template)
+Travasi recepiti: U-001, U-003 (non pertinente — nessun blocco "Stato attuale" dentro CLAUDE.md, tutto in immaginai_stato.md), U-016 (adattato — solo il paragrafo REGISTRA sulla de-escalation, non la sezione REGOLA DI AVVIO), U-017, U-018, U-019, U-020 (non pertinente — nessun .env locale, Netlify env vars via dashboard), U-021, U-022, U-023, U-024, U-025 (non pertinente — nessun server locale con controllo Origin), U-026, U-027 (non pertinente per ora — 4WS è già la versione online), U-028, U-029 (non pertinente — generate.js usa solo endpoint fissi, nessun URL utente verso richiesta server), U-030 (non pertinente — nessun comando di sistema eseguito), U-031, U-032, U-033 (già presente, testo pressoché identico)
