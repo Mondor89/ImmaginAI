@@ -1,6 +1,40 @@
+// Allowlist esplicita — mai un valore singolo, mai l'header Host (vulnerabile a DNS rebinding, vedi CLAUDE.md → Allineamento al template, U-025)
+const ALLOWED_ORIGINS = [
+  'https://wonderspit-ai.netlify.app',
+  'http://localhost:8888', // netlify dev locale
+];
+
+// Rate limit in-memory, best-effort: sopravvive solo finché il container Netlify resta "caldo",
+// si azzera ad ogni cold start. Riduce l'abuso rapido da un singolo IP, non lo elimina — vedi
+// docs/immaginai_sicurezza.md per il limite noto e accettato.
+const RATE_LIMIT_WINDOW_MS = 60 * 1000;
+const RATE_LIMIT_MAX = 6; // il cooldown client è 16s → uso legittimo ~3-4 richieste/min
+const requestLog = new Map(); // ip -> [timestamp, ...]
+
+function isRateLimited(ip) {
+  const now = Date.now();
+  if (requestLog.size > 500) requestLog.clear(); // guardia contro crescita illimitata
+  const timestamps = (requestLog.get(ip) || []).filter(t => now - t < RATE_LIMIT_WINDOW_MS);
+  timestamps.push(now);
+  requestLog.set(ip, timestamps);
+  return timestamps.length > RATE_LIMIT_MAX;
+}
+
 exports.handler = async function(event) {
   if (event.httpMethod !== 'POST') {
     return { statusCode: 405, body: 'Method Not Allowed' };
+  }
+
+  const origin = event.headers.origin || event.headers.Origin;
+  if (!origin || !ALLOWED_ORIGINS.includes(origin)) {
+    return { statusCode: 403, body: JSON.stringify({ error: 'ORIGIN_NOT_ALLOWED' }) };
+  }
+
+  const clientIp = event.headers['x-nf-client-connection-ip']
+    || (event.headers['x-forwarded-for'] || '').split(',')[0].trim()
+    || 'unknown';
+  if (isRateLimited(clientIp)) {
+    return { statusCode: 429, body: JSON.stringify({ error: 'RATE_LIMITED' }) };
   }
 
   let prompt, width, height;

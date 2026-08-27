@@ -15,7 +15,7 @@
 
 | Funzionalità | Tocca secret? | Tocca dati utente? | Input esterno non fidato? | Note |
 |---|---|---|---|---|
-| `generate.js` (cascata AI: Pollinations→CF→Together→HF→Horde) | Sì — 3 token in env vars | No | Sì — prompt utente inoltrato ai provider | Chiavi solo server-side. OK. |
+| `generate.js` (cascata AI: Pollinations→CF→Together→HF→Horde) | Sì — 3 token in env vars | No | Sì — prompt utente inoltrato ai provider | Chiavi solo server-side. ✅ Chiuso in S18: allowlist `Origin` esplicita ([generate.js](../netlify/functions/generate.js)) + rate limit in-memory (6 richieste/60s per IP, via `x-nf-client-connection-ip`). Prima di S18 l'endpoint era un proxy pubblico senza alcun controllo su chi lo chiama — chiunque conoscesse l'URL poteva consumare quota/costo su CF/Together/HF. **Limite noto e accettato**: il rate limit è per-container, si azzera ad ogni cold start Netlify — mitiga l'abuso rapido da un singolo IP, non lo elimina; non protegge da un attaccante distribuito su molti IP. Nessuno store esterno (Netlify Blobs/Redis) per restare senza dipendenze aggiuntive, coerente con lo stack vanilla del progetto. |
 | Login admin (`immaginai_admin.html`) | Sì — credenziali hardcoded in frontend | No | No | ⚠ Violazione nota, vedi invariante 5 |
 | Galleria (`localStorage`, `ig_gallery`) | No | Solo locale al browser dell'utente | No | Nessun rischio multi-utente — i dati non lasciano il device |
 | `renderGallery()` → `gallery-caption` con `it.prompt` | No | No | Sì — testo libero digitato dall'utente | ⚠ **Gap aperto**: `it.prompt` va in `innerHTML` senza escape ([Immaginai.html:1321](../app/Immaginai.html)). Self-XSS possibile. Basso rischio pratico (colpisce solo il proprio browser), ma va sanato prima di aggiungere sync/condivisione della galleria. |
@@ -36,3 +36,4 @@
 | S16 | File creato, invarianti e superficie d'attacco compilate da analisi del codice esistente | Setup del processo REVISIONA/VERIFICA-SICUREZZA richiesto da Fabio per ridurre revisioni future |
 | S16 | Credenziali admin in chiaro accettate come rischio noto, non bloccante | Basso valore del bersaglio (solo configurazione UI, nessun dato di terzi) — da rivedere se l'admin arriverà a gestire dati più sensibili |
 | S16 | Escape mancante su `it.prompt` in galleria registrato come gap aperto, non risolto in questa sessione | Fuori scope della sessione (setup processo, non bugfix) — da pianificare come task dedicato |
+| S18 | `generate.js`: aggiunta allowlist `Origin` + rate limit in-memory (recepimento di `U-025`, segnalato non pertinente per errore in S17 — vedi `CLAUDE.md` → Allineamento al template) | Gap reale non tracciato: proxy pubblico verso 3 API a pagamento senza alcun controllo su chi lo chiama, segnalato esplicitamente da Fabio |
