@@ -13,8 +13,15 @@ const requestLog = new Map(); // ip -> [timestamp, ...]
 
 function isRateLimited(ip) {
   const now = Date.now();
-  if (requestLog.size > 500) requestLog.clear(); // guardia contro crescita illimitata
-  const timestamps = (requestLog.get(ip) || []).filter(t => now - t < RATE_LIMIT_WINDOW_MS);
+  // Pota le entry scadute invece di azzerare tutta la mappa: un azzeramento totale
+  // regalerebbe a chiunque generi abbastanza IP distinti un modo per resettare anche
+  // il conteggio degli IP legittimi già tracciati.
+  for (const [key, timestamps] of requestLog) {
+    const fresh = timestamps.filter(t => now - t < RATE_LIMIT_WINDOW_MS);
+    if (fresh.length) requestLog.set(key, fresh);
+    else requestLog.delete(key);
+  }
+  const timestamps = requestLog.get(ip) || [];
   timestamps.push(now);
   requestLog.set(ip, timestamps);
   return timestamps.length > RATE_LIMIT_MAX;
@@ -30,9 +37,9 @@ exports.handler = async function(event) {
     return { statusCode: 403, body: JSON.stringify({ error: 'ORIGIN_NOT_ALLOWED' }) };
   }
 
-  const clientIp = event.headers['x-nf-client-connection-ip']
-    || (event.headers['x-forwarded-for'] || '').split(',')[0].trim()
-    || 'unknown';
+  // Solo l'header impostato da Netlify stesso: x-forwarded-for è fornito dal client
+  // e falsificabile, userlo come fallback vanificherebbe il rate limit.
+  const clientIp = event.headers['x-nf-client-connection-ip'] || 'unknown';
   if (isRateLimited(clientIp)) {
     return { statusCode: 429, body: JSON.stringify({ error: 'RATE_LIMITED' }) };
   }

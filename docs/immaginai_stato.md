@@ -27,6 +27,7 @@
 ### Media priorità
 - [ ] Sanare escape mancante su `it.prompt` in `renderGallery()` — vedi gap in `immaginai_sicurezza.md`
 - [ ] Valutare provider gratuito realmente illimitato con qualità migliore di Pollinations (Together.ai scartato — richiede deposito)
+- [ ] Valutare Netlify Blobs (o store equivalente) per un rate limit persistente cross-cold-start su `generate.js`, in sostituzione dell'attuale rate limit in-memory (si azzera ad ogni cold start) — aggiungerebbe una dipendenza, da valutare in sessione dedicata (S18, dopo il fix Origin+rate limit in-memory)
 
 ### Backlog
 - [ ] (post P.IVA) Immagini di riferimento con analisi Claude API
@@ -43,6 +44,8 @@
 - [x] `RECEPISCI` eseguito: 5 travasi in sospeso dal registro (`U-034`→`U-038`) applicati a `CLAUDE.md` — badge/pill palette limitata (pattern-trappola), Glob+`.gitignore` (Principi di debug), WebFetch→Browser pane (Principi di debug), ordine PATCH/audit indipendente in chiusura (REGISTRA). `U-038` verificato già recepito (nato da questo stesso progetto in S17, forma equivalente)
 - [x] Riga `Travasi recepiti` aggiornata con i 5 nuovi ID
 - [x] Audit indipendente (sotto-agente Opus 5) sul lavoro appena fatto: trovati e corretti 3 errori reali (token cyan sbagliato in U-034 — `--c-accent` è viola, non cyan; rimando rotto "criteri già descritti sopra" in U-036 — i criteri stanno sotto, nel comando PATCH; caso "colore assegnato a runtime" mancante in U-034, pertinente perché `immaginai_admin.html` scrive `ig_ui`/`ig_colors` a runtime) + 1 refuso (heading stato.md ancora "Focus S17")
+- [x] Chiuso gap sicurezza reale segnalato da Fabio: `generate.js` era un proxy pubblico verso 3 API a pagamento senza controllo Origin/rate limit — aggiunta allowlist `Origin` esplicita + rate limit in-memory per IP. Corretta annotazione errata su `U-025` in `CLAUDE.md` (era "non pertinente", ora recepito) e aggiunta la regola durevole (non solo il codice) in "Regole JavaScript/Web — pattern-trappola"
+- [x] Audit indipendente (sotto-agente Opus 5), fuori dal flusso REGISTRA su richiesta di Fabio: trovati e corretti 3 problemi reali — fallback `x-forwarded-for` falsificabile dal client (rate limit aggirabile), `requestLog.clear()` a 500 chiavi azzerava il conteggio di TUTTI gli IP invece di potare solo le entry scadute, dicitura "✅ Chiuso in S18" in `immaginai_sicurezza.md` esagerata (l'allowlist Origin blocca solo il browser di siti terzi, non un chiamante deliberato con `curl` — il freno reale resta il rate limit). Verificato dal sito live che il gate Origin non rompe l'uso reale (fetch same-origin passa, arriva a `ALL_MODELS_FAILED` per motivi indipendenti dal fix)
 
 ## Task Completate S17
 

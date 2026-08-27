@@ -389,6 +389,13 @@ Messaggio commit: `Sessione N — [funzionalità] / [cosa fatto] / [cosa resta]`
 
 > Pattern generali da tenere a mente su tutto il codice ImmaginAI. Aggiungere qui ogni bug non ovvio scoperto in futuro — gli errori storici specifici di ImmaginAI restano nella tabella "Errori Storici" di `docs/immaginai_stato.md`, questa sezione è per pattern trasferibili.
 
+### Endpoint pubblico (Netlify Function) — Origin va confrontato con un'allowlist, non con un valore singolo né con l'header Host
+- Un endpoint pubblico che fa da proxy verso API a pagamento (es. `generate.js`) va protetto con un'allowlist esplicita dei domini legittimi che possono chiamarlo (`ALLOWED_ORIGINS`), mai un singolo valore hardcoded — un'app che gira anche da `localhost` durante lo sviluppo ha bisogno di più di un Origin valido.
+- **Mai sostituire il controllo `Origin` con l'header `Host`**: `Host` è fornito dal client tanto quanto `Origin` — un attaccante può farli coincidere (DNS rebinding) e il controllo li giudicherebbe coerenti.
+- Una richiesta **senza** header `Origin` va rifiutata per default, non trattata come "nessun Origin diverso dall'allowlist quindi ok".
+- **Limite da non vendere come "risolto":** l'allowlist blocca il *browser* di siti terzi (il browser imposta `Origin` e non lo lascia falsificare da JS). Non blocca un chiamante deliberato che imposta `Origin` a mano con `curl`/uno script — quello resta compito del rate limit, non dell'Origin check. Descrivere il gap come "richiede autenticazione o un rate limit più stretto per essere davvero chiuso", non come "chiuso".
+- **Rate limit per IP:** usare solo l'header impostato dall'infrastruttura stessa (su Netlify, `x-nf-client-connection-ip`), mai un header che il client può scrivere (`x-forwarded-for` è fornito dal client finché un proxy fidato non lo sovrascrive — usarlo come fallback vanifica il limite). Per la pulizia dello stato: potare le entry scadute una a una, mai azzerare l'intera struttura al superamento di una soglia — un azzeramento totale permette a chi genera abbastanza chiavi distinte di resettare anche il conteggio di IP legittimi già tracciati.
+
 ### Precedenza operatori — `+` batte `? :` e `||`
 - `'a' + b ? x : y` NON è `'a' + (b ? x : y)` — è `('a' + b) ? x : y`.
 - `'a' + b || c` NON è `'a' + (b || c)` — è `('a' + b) || c`.
