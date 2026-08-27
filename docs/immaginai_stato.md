@@ -39,6 +39,12 @@
 
 ---
 
+## Task Completate S19
+
+- [x] Audit indipendente (Template Claude, Sessione 21) su fix S18: segnalati 2 presunti difetti, verificati uno per uno prima di correggere
+- [x] **Reale**: `immaginai_sicurezza.md` descriveva `generate.js` con la cascata completa "Pollinations→CF→Together→HF→Horde", ma `generate.js` implementa solo CF→Together→HF — Pollinations e Stable Horde sono chiamate dirette dal client in `generateAuto()` (`Immaginai.html`), non passano dal proxy. Corretta la riga nella tabella "Superficie di Attacco"
+- [x] **Falso positivo, non applicato**: l'audit segnalava un off-by-one nel rate limit (`> RATE_LIMIT_MAX` invece di `>= RATE_LIMIT_MAX`, presunte 7 richieste passanti invece di 6). Verificato con test diretto della funzione `isRateLimited()`: con `RATE_LIMIT_MAX=6` passano esattamente 6 richieste, la 7ª è bloccata — coerente con "6 richieste/60s" già documentato. Nessuna modifica al codice né alla cifra in `immaginai_sicurezza.md`
+
 ## Task Completate S18
 
 - [x] `RECEPISCI` eseguito: 5 travasi in sospeso dal registro (`U-034`→`U-038`) applicati a `CLAUDE.md` — badge/pill palette limitata (pattern-trappola), Glob+`.gitignore` (Principi di debug), WebFetch→Browser pane (Principi di debug), ordine PATCH/audit indipendente in chiusura (REGISTRA). `U-038` verificato già recepito (nato da questo stesso progetto in S17, forma equivalente)
