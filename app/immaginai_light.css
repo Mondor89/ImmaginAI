@@ -66,7 +66,6 @@ body.light {
   width:        180px !important;
 }
 .sidebar-logo   { border-bottom: 1px solid rgba(255,255,255,.08) !important; }
-.logo-ai        { color: #ffffff !important; font-size: 14px !important; }
 .sidebar-footer { display: none !important; }
 
 .snav-btn {
@@ -337,9 +336,7 @@ body.light {
    9. MOBILE
 ════════════════════════════════════════════════════ */
 #mobile-header { background: #1e2132 !important; border-bottom: none !important; }
-.mobile-logo,
 .mobile-logo-text { background: none !important; -webkit-background-clip: unset !important; -webkit-text-fill-color: #ffffff !important; color: #ffffff !important; font-family: var(--font-body) !important; }
-.mobile-logo-ai   { color: #5B35C8 !important; }
 
 #bottom-nav                { background: #ffffff !important; border-top: 1px solid var(--border) !important; }
 .nav-btn.active            { background: rgba(91,53,200,.05) !important; }
