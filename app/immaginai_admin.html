@@ -570,17 +570,22 @@ const DEFAULT_CATS_DATA = [
 const DEFAULT_FAQ_DATA = [
   {id:'fq',cat:'❓ Domande frequenti',items:[
     {q:'L\'app è gratuita?',a:'Sì, ImmaginAI è completamente gratuita. Puoi generare quante immagini vuoi senza registrarti e senza inserire dati di pagamento. L\'unico limite è un breve cooldown di qualche secondo tra una generazione e l\'altra per non sovraccaricare il servizio.',active:true},
-    {q:'Le immagini generate sono mie?',a:'Le immagini che generi sono tue da usare come preferisci, incluso metterle su prodotti WonderSpit.',active:true},
-    {q:'Posso scaricare l\'immagine?',a:'Sì! Dopo ogni generazione appare il bottone "Scarica" sotto l\'anteprima.',active:true},
-    {q:'Devo registrarmi?',a:'No, nessuna registrazione richiesta.',active:true},
+    {q:'Le immagini generate sono mie?',a:'Le immagini che generi sono tue da usare come preferisci, incluso metterle su prodotti WonderSpit. Ti consigliamo però di non usarle per scopi commerciali fuori dalla piattaforma senza verificare le condizioni del servizio di generazione.',active:true},
+    {q:'Posso scaricare l\'immagine?',a:'Sì! Dopo ogni generazione appare il bottone "Scarica" sotto l\'anteprima. L\'immagine viene salvata direttamente sul tuo dispositivo in alta qualità.',active:true},
+    {q:'Devo registrarmi per usare l\'app?',a:'No, nessuna registrazione richiesta. Apri l\'app, scrivi quello che vuoi vedere e premi Genera. Le immagini vengono salvate nella Galleria finché non chiudi il browser.',active:true},
   ]},
   {id:'du',cat:'💭 Dubbi comuni',items:[
-    {q:'Perché l\'immagine non corrisponde?',a:'L\'AI interpreta le parole in modo creativo. Prova a essere più specifico nel prompt.',active:true},
-    {q:'Cosa significa "cooldown"?',a:'Dopo ogni generazione l\'app attende qualche secondo. È una pausa tecnica necessaria per il servizio gratuito.',active:true},
+    {q:'Perché l\'immagine non corrisponde a quello che ho scritto?',a:'L\'intelligenza artificiale interpreta le parole in modo creativo. Se il risultato non ti convince, prova ad essere più specifico nel prompt (es: "un gatto arancione seduto su un tetto di notte" invece di "un gatto") oppure usa i Dettagli visivi per aggiungere stile e atmosfera.',active:true},
+    {q:'Cosa significa "cooldown"?',a:'Dopo ogni generazione l\'app attende qualche secondo prima di permettere una nuova richiesta. È una pausa tecnica necessaria per il servizio gratuito. Vedrai una barra di attesa che si svuota — quando sparisce puoi generare di nuovo.',active:true},
+    {q:'Perché alcune immagini ci mettono più tempo?',a:'Il tempo di generazione dipende dal carico del server in quel momento. Di solito sono 15-30 secondi. Se l\'attesa supera il minuto, l\'app prova automaticamente con un modello alternativo.',active:true},
+    {q:'L\'immagine viene salvata automaticamente?',a:'Sì, ogni immagine generata viene salvata nella sezione Galleria del tuo browser. Attenzione: se cancelli i dati del browser o usi una finestra in incognito, la galleria viene persa. Per conservare un\'immagine in modo sicuro, scaricala subito.',active:true},
   ]},
   {id:'gu',cat:'📖 Come funziona',items:[
-    {q:'Come scrivo un buon prompt?',a:'Descrivi la scena come se la stessi spiegando a un artista: soggetto, ambientazione, luce, colori e stile.',active:true},
-    {q:'A cosa servono i Dettagli visivi?',a:'Sono chip cliccabili che aggiungono istruzioni tecniche al prompt in automatico.',active:true},
+    {q:'Come scrivo un buon prompt?',a:'Descrivi la scena come se la stessi spiegando a un artista: soggetto principale, ambientazione, luce, colori e stile. Esempio: "una volpe rossa nella neve al tramonto, stile acquerello, colori caldi". Più dettagli dai, più l\'immagine si avvicina alla tua idea.',active:true},
+    {q:'A cosa servono i Dettagli visivi?',a:'I Dettagli visivi sono chip cliccabili che aggiungono istruzioni tecniche al tuo prompt in automatico — senza che tu debba conoscere i termini giusti. Ad esempio, cliccando "Luce cinema" aggiungi un effetto di illuminazione drammatica professionale. Puoi selezionarne quanti vuoi.',active:true},
+    {q:'Cosa cambia tra gli Stili artistici?',a:'Ogni stile guida l\'AI verso un tipo di immagine diverso: Foto produce risultati realistici, Digital crea illustrazioni vivide, Anime si ispira all\'animazione giapponese, Cyber ha atmosfere futuristiche neon, Minimal è pulito ed essenziale. Auto lascia decidere all\'AI.',active:true},
+    {q:'Come uso il bottone Modifica?',a:'Dopo aver generato un\'immagine, clicca "Modifica" e scrivi cosa vuoi cambiare — ad esempio "aggiungi una luna piena" o "rendi i colori più caldi". L\'app rigenera l\'immagine tenendo conto della tua richiesta e ti mostra le due versioni a confronto per scegliere.',active:true},
+    {q:'Come metto l\'immagine su un prodotto WonderSpit?',a:'Dopo aver generato un\'immagine che ti piace, clicca il bottone "Usa nel Designer" che appare sotto l\'anteprima. Verrai portato direttamente al designer di WonderSpit dove potrai posizionare l\'immagine su magliette, felpe e altri prodotti.',active:true},
   ]},
 ];
 

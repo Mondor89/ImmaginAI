@@ -797,7 +797,7 @@ const BRAND_PALETTES=[
   {name:'Neon Caldo',c:{accent:'#FFE600',accent2:'#F0008C',violet:'#5B35C8'}},
 ];
 
-const ST={style:'',ratio:'1:1',enhance:true,safe:true,transpOn:false,gallery:[],currentUrl:'',currentPrompt:'',currentStyle:'',lastGenTime:0,busy:false,theme:'light',activeApi:'huggingface',cooldown:5000,timeout:120000};
+const ST={style:'',ratio:'1:1',enhance:true,safe:true,transpOn:false,gallery:[],currentUrl:'',currentPrompt:'',currentStyle:'',lastGenTime:0,busy:false,theme:'light',activeApi:'huggingface',cooldown:16000,timeout:120000};
 let STYLES=[],CATS=[],currentCatId=null,lpTimer=null;
 const isMobile=()=>window.innerWidth<1024;
 
@@ -959,6 +959,28 @@ function liveUiGenera(label){
   if(btnM) btnM.textContent='✨ '+label.toUpperCase();
 }
 
+function applyUiSettings(d){
+  if(!d) return;
+  const setSlabel=(id,icon,label)=>{
+    const el=document.getElementById(id);if(!el) return;
+    const iconEl=el.querySelector('.slabel-icon');if(iconEl&&icon) iconEl.textContent=icon;
+    if(label) el.childNodes.forEach(n=>{if(n.nodeType===3&&n.textContent.trim()) n.textContent=label;});
+  };
+  setSlabel('promptSlabel',d.promptIcon,d.promptLabel);
+  setSlabel('stileSlabel',d.stileIcon,d.stileLabel);
+  setSlabel('formatoSlabel',d.formatoIcon,d.formatoLabel);
+  const dvLabelEl=document.querySelector('.dv-wrap .dv-label');
+  if(dvLabelEl){
+    const iconEl=dvLabelEl.querySelector('.dv-label-icon');if(iconEl&&d.dvIcon) iconEl.textContent=d.dvIcon;
+    if(d.dvLabel) dvLabelEl.childNodes.forEach(n=>{if(n.nodeType===3&&n.textContent.trim()) n.textContent=d.dvLabel;});
+  }
+  if(d.generaLabel) liveUiGenera(d.generaLabel);
+  if(d.generaBg) document.documentElement.style.setProperty('--gen-btn-bg',d.generaBg);
+  if(d.generaColor) document.documentElement.style.setProperty('--gen-btn-color',d.generaColor);
+  // tabActiveBg/chipActiveBg/ratioActiveBg non applicati: le regole CSS di .dv-tab.active/.dv-chip.active/.ratio-btn.active
+  // usano colori fissi (#00E5C8 / var(--c-violet)), non le custom property salvate qui — richiederebbe
+  // anche riscrivere quelle regole CSS, fuori scope di questo fix (vedi backlog pulizia admin)
+}
 function loadUiSettings(){const s=localStorage.getItem('ig_ui');if(s) applyUiSettings(JSON.parse(s));}
 
 
@@ -1178,6 +1200,16 @@ async function generateHorde(fullPrompt,width,height){
   return 'data:image/webp;base64,'+st.generations[0].img;
 }
 
+async function attendiCooldown(){
+  const elapsed=Date.now()-ST.lastGenTime;
+  if(ST.lastGenTime>0&&elapsed<ST.cooldown){
+    const wait=ST.cooldown-elapsed;
+    showCooldown(wait);
+    const msgEl=document.getElementById('spinnerMsg');
+    if(msgEl) msgEl.innerHTML=`Cooldown…<br><small>attendi ${Math.round(ST.cooldown/1000)}s</small>`;
+    await new Promise(r=>setTimeout(r,wait));
+  }
+}
 async function generateImage(){
   const prompt=document.getElementById('promptInput').value.trim();
   if(!prompt){document.getElementById('promptBox').classList.add('err');document.getElementById('errorMsg').style.display='block';return;}
@@ -1190,8 +1222,7 @@ async function generateImage(){
   imgEl.style.display='none';acts.classList.remove('visible');document.getElementById('ctaWrap').classList.remove('visible');
   showOutput(true);
   if(isMobile()) setTimeout(()=>{const pc=document.getElementById('preview-col');if(pc) pc.scrollTop=0;},100);
-  const elapsed=Date.now()-ST.lastGenTime;
-  if(ST.lastGenTime>0&&elapsed<ST.cooldown){const wait=ST.cooldown-elapsed;showCooldown(wait);document.getElementById('spinnerMsg').innerHTML=`Cooldown…<br><small>attendi ${Math.round(ST.cooldown/1000)}s</small>`;await new Promise(r=>setTimeout(r,wait));}
+  await attendiCooldown();
   const ratio=RATIOS.find(r=>r.id===ST.ratio);
   const full=buildPrompt();
   setStatus('Generando…','loading');
@@ -1214,7 +1245,7 @@ async function generateImage(){
   }
   [btn,btnM].forEach(b=>{if(b){b.disabled=false;b.textContent='✨ GENERA IMMAGINE';}});ST.busy=false;
 }
-async function resetAndRetry(){ST.lastGenTime=0;document.getElementById('spinnerBox').innerHTML=`<div class="big-spin"></div><div id="spinnerMsg">Riconnessione…</div>`;document.getElementById('generatedImg').style.display='none';document.getElementById('imgActions').classList.remove('visible');await generateImage();}
+async function resetAndRetry(){document.getElementById('spinnerBox').innerHTML=`<div class="big-spin"></div><div id="spinnerMsg">Riconnessione…</div>`;document.getElementById('generatedImg').style.display='none';document.getElementById('imgActions').classList.remove('visible');await generateImage();}
 
 /* ── RIMUOVI SFONDO ── */
 async function removeBackground(){
@@ -1244,7 +1275,7 @@ async function generateModifica(basePrompt,baseStyle,extra){
   document.getElementById('modificaPanel').classList.remove('open');
   document.getElementById('compareOverlay').classList.remove('open');
   sBox.style.display='flex';imgEl.style.display='none';acts.classList.remove('visible');document.getElementById('ctaWrap').classList.remove('visible');
-  ST.lastGenTime=0;
+  await attendiCooldown();
   const ratio=RATIOS.find(r=>r.id===ST.ratio);
   const modFull=basePrompt+', '+extra+(baseStyle?', '+baseStyle:'');
   setStatus('Generando modifica…','loading');
@@ -1285,7 +1316,6 @@ function closeCompare(){document.getElementById('compareOverlay').classList.remo
 
 async function regenImage(){
   if(ST.busy) return;
-  ST.lastGenTime=0;
   const savedPrompt=ST.currentPrompt;const savedStyle=ST.currentStyle;const savedRatio=ST.ratio;
   if(!savedPrompt) return;
   ST.busy=true;
@@ -1293,6 +1323,7 @@ async function regenImage(){
   const btn=document.getElementById('genBtn'),btnM=document.getElementById('genBtnMobile')?.querySelector('button');
   [btn,btnM].forEach(b=>{if(b){b.disabled=true;b.textContent='⏳ GENERANDO…';}});
   sBox.style.display='flex';imgEl.style.display='none';acts.classList.remove('visible');document.getElementById('ctaWrap').classList.remove('visible');document.getElementById('compareOverlay').classList.remove('open');document.getElementById('modificaPanel').classList.remove('open');
+  await attendiCooldown();
   const ratio=RATIOS.find(r=>r.id===savedRatio);
   const full=savedPrompt+(savedStyle?', '+savedStyle:'');
   setStatus('Rigenerando…','loading');

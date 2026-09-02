@@ -67,7 +67,7 @@ exports.handler = async function(event) {
             'Authorization': `Bearer ${CF_API_TOKEN}`,
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify({ prompt, num_steps: 8, width, height }),
+          body: JSON.stringify({ prompt, steps: 8, width, height }),
         }
       );
       if (res.ok) {
@@ -80,8 +80,10 @@ exports.handler = async function(event) {
             body: JSON.stringify({ image: `data:image/png;base64,${b64}` }),
           };
         }
+      } else {
+        console.error('CF fail', res.status);
       }
-    } catch (e) {}
+    } catch (e) { console.error('CF error', e.message); }
   }
 
   // 2. Together.ai — FLUX.1-schnell-Free (gratis con deposito, 2-5s)
@@ -109,8 +111,10 @@ exports.handler = async function(event) {
             body: JSON.stringify({ image: `data:image/jpeg;base64,${b64}` }),
           };
         }
+      } else {
+        console.error('Together fail', res.status);
       }
-    } catch (e) {}
+    } catch (e) { console.error('Together error', e.message); }
   }
 
   // 3. HuggingFace — SD fallback
@@ -136,9 +140,9 @@ exports.handler = async function(event) {
             }),
           }
         );
-        if (!res.ok) continue;
+        if (!res.ok) { console.error('HF fail', model.id, res.status); continue; }
         const buf = await res.arrayBuffer();
-        if (!buf.byteLength) continue;
+        if (!buf.byteLength) { console.error('HF empty', model.id); continue; }
         const b64 = Buffer.from(buf).toString('base64');
         const ct  = res.headers.get('content-type') || 'image/jpeg';
         return {
@@ -146,7 +150,7 @@ exports.handler = async function(event) {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ image: `data:${ct};base64,${b64}` }),
         };
-      } catch (e) { continue; }
+      } catch (e) { console.error('HF error', model.id, e.message); continue; }
     }
   }
 
