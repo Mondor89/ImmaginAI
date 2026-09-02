@@ -654,8 +654,8 @@ function showPanel(user){
   STYLES=loadStyles(); CATS=loadCats(); FAQS=loadFaqs();
   loadNavBtns();
   renderAdminStyleList(); renderAdminCats(); renderAdminFaq(); renderUserList();
-  buildNavBtnList(); buildBrandSwatches(); updateApiCards();
-  loadSavedApiKeys(); loadLogoFromStorage();
+  buildNavBtnList(); buildBrandSwatches();
+  loadLogoFromStorage();
   // Info
   const activeApi=localStorage.getItem('ig_active_api')||'pollinations';
   const names={pollinations:'Pollinations AI',openai:'OpenAI DALL·E 3',stability:'Stability AI'};
@@ -664,7 +664,7 @@ function showPanel(user){
   document.getElementById('infoTheme').textContent='light';
   document.getElementById('aThemeSelect').value='light';
   try{const g=JSON.parse(localStorage.getItem('ig_gallery')||'[]');document.getElementById('infoGalleryCount').textContent=g.length;}catch(e){}
-  const cd=localStorage.getItem('ig_cooldown');if(cd) document.getElementById('aCooldown').value=Math.round(parseInt(cd)/1000);
+  const cd=localStorage.getItem('ig_cooldown');const cdNum=parseInt(cd);if(cd&&!Number.isNaN(cdNum)) document.getElementById('aCooldown').value=Math.round(cdNum/1000);
   // UI settings prefill
   const ui=JSON.parse(localStorage.getItem('ig_ui')||'{}');
   ['promptIcon','promptLabel','dvIcon','dvLabel','stileIcon','stileLabel','formatoIcon','formatoLabel','generaLabel'].forEach(k=>{
@@ -892,23 +892,7 @@ function saveUiSettings(){
 }
 function resetUiSettings(){localStorage.removeItem('ig_ui');msg('✓ UI reset. Ricarica l\'app.');}
 
-/* ── BTN COLORS ── */
-function saveBtnColors(){
-  const keys=['--btn-style-bg','--btn-style-active-bg','--btn-ratio-active-bg','--gen-btn-bg','--gen-btn-color'];
-  const saved={};
-  keys.forEach(k=>{saved[k]=document.getElementById('uiGeneraBg')?.value||'#1a237e';});
-  localStorage.setItem('ig_btn_colors',JSON.stringify(saved));
-  msg('✓ Colori bottoni salvati');
-}
-
 /* ── API ── */
-function setActiveApi(n){localStorage.setItem('ig_active_api',n);updateApiCards();document.getElementById('infoActiveApi').textContent={pollinations:'Pollinations AI',openai:'OpenAI DALL·E 3',stability:'Stability AI'}[n]||n;msg('✓ API: '+n);}
-function saveAndActivateApi(n){saveApiKey(n);setActiveApi(n);}
-function saveApiKey(n){const k=document.getElementById('key-'+n);if(k&&k.value) localStorage.setItem('ig_apikey_'+n,k.value);msg('✓ Key salvata');}
-function toggleKey(id,btn){const e=document.getElementById(id);e.type=e.type==='password'?'text':'password';btn.textContent=e.type==='password'?'👁':'🙈';}
-function updateApiCards(){const active=localStorage.getItem('ig_active_api')||'pollinations';['pollinations','openai','stability'].forEach(n=>{const badge=document.getElementById('apiBadge-'+n);if(badge) badge.classList.toggle('show',n===active);});}
-function saveHfToken(){const k=document.getElementById('key-hf');if(!k||!k.value.trim()){alert('Incolla la tua API key Stable Horde');return;}localStorage.setItem('ig_apikey_hf',k.value.trim());const st=document.getElementById('hfTokenStatus');if(st){st.style.display='block';setTimeout(()=>st.style.display='none',3000);}msg('✓ Chiave Stable Horde salvata! Ricarica l\'app.');}
-function loadSavedApiKeys(){['openai','stability'].forEach(n=>{const s=localStorage.getItem('ig_apikey_'+n);const e=document.getElementById('key-'+n);if(s&&e) e.value=s;});const hf=localStorage.getItem('ig_apikey_hf');const ehf=document.getElementById('key-hf');if(hf&&ehf) ehf.value=hf;}
 function saveApiSettings(){const cd=parseInt(document.getElementById('aCooldown').value)||16;localStorage.setItem('ig_cooldown',cd*1000);msg('✓ Salvato');}
 function adminSaveTheme(t){localStorage.setItem('ig_theme',t);document.getElementById('infoTheme').textContent=t;}
 
