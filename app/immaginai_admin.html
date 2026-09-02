@@ -296,10 +296,9 @@ textarea.a-input { resize: vertical; min-height: 50px; }
           <div class="card-header">Modalità</div>
           <div class="card-body">
             <div class="a-row">
-              <div class="a-row-label">Tema<div class="a-row-sub">Salvato in localStorage</div></div>
+              <div class="a-row-label">Tema<div class="a-row-sub">Unico tema supportato — immaginai_light.css presuppone sempre il tema chiaro</div></div>
               <select class="a-select" id="aThemeSelect" onchange="adminSaveTheme(this.value)">
                 <option value="light">☀️ Light</option>
-                <option value="dark">🌙 Dark</option>
               </select>
             </div>
           </div>
@@ -457,12 +456,16 @@ textarea.a-input { resize: vertical; min-height: 50px; }
         <div class="page-sub">Provider di generazione immagini — cascata automatica</div>
         <div class="api-card" style="border:2px solid #3fc7ba;">
           <div class="api-active-badge show">✓ PRIMARIO</div>
-          <div class="api-name">⚡ Netlify Function + HuggingFace FLUX</div>
-          <div class="api-desc" style="color:#1a7a6e;font-weight:600;">5–15 secondi. Il token HuggingFace si imposta nelle variabili d'ambiente di Netlify (non qui).<br><br>Netlify Dashboard → <strong>Site configuration → Environment variables</strong> → aggiungi <strong>HF_TOKEN</strong> → Trigger deploy.</div>
+          <div class="api-name">🔄 Pollinations AI</div>
+          <div class="api-desc" style="color:#1a7a6e;font-weight:600;">Chiamata diretta dal browser dell'utente (client), gratis e senza limite giornaliero noto. Nessuna configurazione necessaria.</div>
         </div>
         <div class="api-card">
-          <div class="api-name">🔄 Pollinations AI</div>
-          <div class="api-desc">Fallback automatico se la Function non risponde. Nessuna configurazione necessaria.</div>
+          <div class="api-name">⚡ Netlify Function → Cloudflare Workers AI</div>
+          <div class="api-desc">Fallback automatico se Pollinations non risponde. 10k neuroni/giorno ≈ 20 immagini. Env Netlify: <strong>CF_ACCOUNT_ID</strong> + <strong>CF_API_TOKEN</strong>.</div>
+        </div>
+        <div class="api-card">
+          <div class="api-name">⏸ Together.ai (disattivato)</div>
+          <div class="api-desc">Scartato — richiede deposito. Gate esplicito <strong>TOGETHER_ENABLED=true</strong> oltre alla key: resta spento anche se <strong>TOGETHER_KEY</strong> fosse impostata per errore.</div>
         </div>
         <div class="api-card">
           <div class="api-name">🐴 Stable Horde</div>
@@ -470,7 +473,6 @@ textarea.a-input { resize: vertical; min-height: 50px; }
         </div>
         <div class="card" style="margin-top:12px;"><div class="card-header">Impostazioni generazione</div><div class="card-body">
           <div class="a-row"><div class="a-row-label">Cooldown (secondi)<div class="a-row-sub">Pausa tra generazioni</div></div><input type="number" id="aCooldown" class="a-input" value="16" min="0" max="120" style="width:75px;"></div>
-          <div class="a-row"><div class="a-row-label">Timeout (secondi)</div><input type="number" id="aTimeout" class="a-input" value="55" min="10" max="300" style="width:75px;"></div>
         </div></div>
         <button class="a-btn primary" onclick="saveApiSettings()" style="margin-top:10px;">💾 Salva</button>
       </div>
@@ -602,6 +604,7 @@ const DEFAULT_NAV_BTNS = [
 ];
 
 let STYLES=[], CATS=[], FAQS=[], NAV_BTNS=[];
+function escapeHtml(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
 let adminLoggedIn=false, currentAdminUser=null;
 
 /* ── INIT ── */
@@ -657,11 +660,11 @@ function showPanel(user){
   const activeApi=localStorage.getItem('ig_active_api')||'pollinations';
   const names={pollinations:'Pollinations AI',openai:'OpenAI DALL·E 3',stability:'Stability AI'};
   document.getElementById('infoActiveApi').textContent=names[activeApi]||activeApi;
-  document.getElementById('infoTheme').textContent=localStorage.getItem('ig_theme')||'light';
-  document.getElementById('aThemeSelect').value=localStorage.getItem('ig_theme')||'light';
+  if(localStorage.getItem('ig_theme')&&localStorage.getItem('ig_theme')!=='light') localStorage.setItem('ig_theme','light'); // self-heal: 'dark' non è più un'opzione valida, immaginai_light.css lo rompe
+  document.getElementById('infoTheme').textContent='light';
+  document.getElementById('aThemeSelect').value='light';
   try{const g=JSON.parse(localStorage.getItem('ig_gallery')||'[]');document.getElementById('infoGalleryCount').textContent=g.length;}catch(e){}
   const cd=localStorage.getItem('ig_cooldown');if(cd) document.getElementById('aCooldown').value=Math.round(parseInt(cd)/1000);
-  const to=localStorage.getItem('ig_timeout');if(to) document.getElementById('aTimeout').value=Math.round(parseInt(to)/1000);
   // UI settings prefill
   const ui=JSON.parse(localStorage.getItem('ig_ui')||'{}');
   ['promptIcon','promptLabel','dvIcon','dvLabel','stileIcon','stileLabel','formatoIcon','formatoLabel','generaLabel'].forEach(k=>{
@@ -700,8 +703,8 @@ function renderAdminStyleList(){
   const el=document.getElementById('adminStyleList');if(!el) return;
   el.innerHTML=STYLES.map((s,i)=>`
     <div class="item-row">
-      <span class="item-emoji">${s.emoji}</span>
-      <div class="item-info"><div class="item-name">${s.label}</div><div class="item-sub">${s.id||'(nessun prompt)'}</div></div>
+      <span class="item-emoji">${escapeHtml(s.emoji)}</span>
+      <div class="item-info"><div class="item-name">${escapeHtml(s.label)}</div><div class="item-sub">${escapeHtml(s.id)||'(nessun prompt)'}</div></div>
       <button class="s-toggle ${s.active?'on':''}" onclick="toggleStyle(${i},this)"><div class="s-toggle-thumb"></div></button>
       ${i>5?`<button class="a-btn danger sm" onclick="deleteStyle(${i})" style="margin-left:6px;">✕</button>`:''}
     </div>`).join('');
@@ -718,8 +721,8 @@ function renderAdminCats(){
   el.innerHTML=CATS.map((cat,ci)=>`
     <div class="cat-block">
       <div class="cat-header" onclick="toggleCatAdmin(${ci},this)">
-        <span style="font-size:15px;color:#1a237e;">${cat.icon}</span>
-        <span class="cat-name">${cat.label}</span>
+        <span style="font-size:15px;color:#1a237e;">${escapeHtml(cat.icon)}</span>
+        <span class="cat-name">${escapeHtml(cat.label)}</span>
         <span class="cat-count">${cat.tags.length} tag</span>
         <button class="s-toggle ${cat.active?'on':''}" style="margin-left:8px;" onclick="event.stopPropagation();toggleCatActive(${ci},this)"><div class="s-toggle-thumb"></div></button>
         <button class="a-btn danger sm" onclick="event.stopPropagation();deleteCat(${ci})" style="margin-left:4px;">✕</button>
@@ -727,12 +730,12 @@ function renderAdminCats(){
       </div>
       <div class="cat-body" id="catBody-${ci}">
         <div style="display:flex;gap:7px;margin:10px 0 8px;">
-          <input type="text" class="a-input" placeholder="Icona" id="catIcon-${ci}" value="${cat.icon}" style="width:60px;">
-          <input type="text" class="a-input" placeholder="Nome" id="catName-${ci}" value="${cat.label}" style="flex:1;">
+          <input type="text" class="a-input" placeholder="Icona" id="catIcon-${ci}" value="${escapeHtml(cat.icon)}" style="width:60px;">
+          <input type="text" class="a-input" placeholder="Nome" id="catName-${ci}" value="${escapeHtml(cat.label)}" style="flex:1;">
           <button class="a-btn ghost sm" onclick="updateCat(${ci})">Salva</button>
         </div>
         <div style="font-size:10px;color:#aaa;font-weight:700;text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px;">Tag</div>
-        ${cat.tags.map((t,ti)=>`<div class="dv-item"><span style="font-size:14px;width:20px;text-align:center;">${t.icon}</span><div class="dv-item-info"><div class="dv-item-label">${t.label}</div><div class="dv-item-prompt">${t.prompt}</div></div><button class="s-toggle ${t.active?'on':''}" onclick="toggleTagInCat(${ci},${ti},this)"><div class="s-toggle-thumb"></div></button><button class="a-btn danger sm" onclick="deleteTagInCat(${ci},${ti})" style="margin-left:4px;">✕</button></div>`).join('')}
+        ${cat.tags.map((t,ti)=>`<div class="dv-item"><span style="font-size:14px;width:20px;text-align:center;">${escapeHtml(t.icon)}</span><div class="dv-item-info"><div class="dv-item-label">${escapeHtml(t.label)}</div><div class="dv-item-prompt">${escapeHtml(t.prompt)}</div></div><button class="s-toggle ${t.active?'on':''}" onclick="toggleTagInCat(${ci},${ti},this)"><div class="s-toggle-thumb"></div></button><button class="a-btn danger sm" onclick="deleteTagInCat(${ci},${ti})" style="margin-left:4px;">✕</button></div>`).join('')}
         <div style="margin-top:10px;padding-top:10px;border-top:1px solid #f0f0f0;">
           <div style="font-size:10px;color:#aaa;font-weight:700;margin-bottom:6px;">+ Aggiungi tag</div>
           <div style="display:flex;gap:5px;flex-wrap:wrap;">
@@ -762,8 +765,8 @@ function renderAdminFaq(){
   el.innerHTML=FAQS.map((cat,ci)=>`
     <div class="cat-block" style="margin-bottom:10px;">
       <div class="cat-header" onclick="toggleCatAdmin('faq${ci}',this)">
-        <span class="cat-name" style="flex:1;">${cat.cat}</span>
-        <input type="text" class="a-input" value="${cat.cat}" id="faqCatLabel-${ci}" onclick="event.stopPropagation()" style="width:180px;font-size:11px;">
+        <span class="cat-name" style="flex:1;">${escapeHtml(cat.cat)}</span>
+        <input type="text" class="a-input" value="${escapeHtml(cat.cat)}" id="faqCatLabel-${ci}" onclick="event.stopPropagation()" style="width:180px;font-size:11px;">
         <button class="a-btn ghost sm" onclick="event.stopPropagation();updateFaqCat(${ci})" style="margin-left:4px;">OK</button>
         <button class="a-btn danger sm" onclick="event.stopPropagation();deleteFaqCat(${ci})" style="margin-left:4px;">✕</button>
         <span class="cat-arrow">▼</span>
@@ -772,12 +775,12 @@ function renderAdminFaq(){
         ${cat.items.map((item,ii)=>`
           <div class="dv-item" style="flex-direction:column;align-items:flex-start;gap:6px;padding:10px 0;">
             <div style="display:flex;width:100%;align-items:center;gap:6px;">
-              <div class="dv-item-info" style="flex:1;"><div class="dv-item-label">${item.q}</div></div>
+              <div class="dv-item-info" style="flex:1;"><div class="dv-item-label">${escapeHtml(item.q)}</div></div>
               <button class="s-toggle ${item.active?'on':''}" onclick="toggleFaqItem(${ci},${ii},this)"><div class="s-toggle-thumb"></div></button>
               <button class="a-btn danger sm" onclick="deleteFaqItem(${ci},${ii})" style="margin-left:4px;">✕</button>
             </div>
-            <input type="text" class="a-input" value="${item.q.replace(/"/g,'&quot;')}" id="faqQ-${ci}-${ii}" placeholder="Domanda" style="width:100%;font-size:11px;">
-            <textarea class="a-input" id="faqA-${ci}-${ii}" placeholder="Risposta" style="width:100%;font-size:11px;resize:vertical;min-height:60px;">${item.a}</textarea>
+            <input type="text" class="a-input" value="${escapeHtml(item.q)}" id="faqQ-${ci}-${ii}" placeholder="Domanda" style="width:100%;font-size:11px;">
+            <textarea class="a-input" id="faqA-${ci}-${ii}" placeholder="Risposta" style="width:100%;font-size:11px;resize:vertical;min-height:60px;">${escapeHtml(item.a)}</textarea>
             <button class="a-btn ghost sm" onclick="updateFaqItem(${ci},${ii})">💾 Salva modifica</button>
           </div>`).join('')}
         <div style="padding:10px 0;border-top:1px solid #f0f0f0;margin-top:6px;">
@@ -804,9 +807,9 @@ function renderUserList(){
   const users=loadUsers(),el=document.getElementById('userList');if(!el) return;
   el.innerHTML=users.map((u,i)=>`
     <div class="user-item">
-      <div class="user-avatar">${u.username.charAt(0).toUpperCase()}</div>
+      <div class="user-avatar">${escapeHtml(u.username.charAt(0).toUpperCase())}</div>
       <div class="user-info">
-        <div class="user-name">${u.username}<span class="user-badge ${u.role}">${u.role}</span></div>
+        <div class="user-name">${escapeHtml(u.username)}<span class="user-badge ${u.role}">${escapeHtml(u.role)}</span></div>
         <div class="user-role">${u.role==='admin'?'Accesso completo':'Sola lettura'}</div>
       </div>
       ${users.length>1?`<button class="a-btn danger sm" onclick="deleteUser(${i})">✕</button>`:''}
@@ -823,8 +826,8 @@ function buildNavBtnList(){
     <div class="a-row">
       <div class="a-row-label">${b.id}</div>
       <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
-        <div style="display:flex;align-items:center;gap:4px;"><span style="font-size:10px;color:#aaa;">Icona</span><input type="text" value="${b.icon}" oninput="NAV_BTNS[${i}].icon=this.value" class="a-input" style="width:50px;"></div>
-        <div style="display:flex;align-items:center;gap:4px;"><span style="font-size:10px;color:#aaa;">Label</span><input type="text" value="${b.label}" oninput="NAV_BTNS[${i}].label=this.value" class="a-input" style="width:90px;"></div>
+        <div style="display:flex;align-items:center;gap:4px;"><span style="font-size:10px;color:#aaa;">Icona</span><input type="text" value="${escapeHtml(b.icon)}" oninput="NAV_BTNS[${i}].icon=this.value" class="a-input" style="width:50px;"></div>
+        <div style="display:flex;align-items:center;gap:4px;"><span style="font-size:10px;color:#aaa;">Label</span><input type="text" value="${escapeHtml(b.label)}" oninput="NAV_BTNS[${i}].label=this.value" class="a-input" style="width:90px;"></div>
       </div>
     </div>`).join('');
 }
@@ -906,7 +909,7 @@ function toggleKey(id,btn){const e=document.getElementById(id);e.type=e.type==='
 function updateApiCards(){const active=localStorage.getItem('ig_active_api')||'pollinations';['pollinations','openai','stability'].forEach(n=>{const badge=document.getElementById('apiBadge-'+n);if(badge) badge.classList.toggle('show',n===active);});}
 function saveHfToken(){const k=document.getElementById('key-hf');if(!k||!k.value.trim()){alert('Incolla la tua API key Stable Horde');return;}localStorage.setItem('ig_apikey_hf',k.value.trim());const st=document.getElementById('hfTokenStatus');if(st){st.style.display='block';setTimeout(()=>st.style.display='none',3000);}msg('✓ Chiave Stable Horde salvata! Ricarica l\'app.');}
 function loadSavedApiKeys(){['openai','stability'].forEach(n=>{const s=localStorage.getItem('ig_apikey_'+n);const e=document.getElementById('key-'+n);if(s&&e) e.value=s;});const hf=localStorage.getItem('ig_apikey_hf');const ehf=document.getElementById('key-hf');if(hf&&ehf) ehf.value=hf;}
-function saveApiSettings(){const cd=parseInt(document.getElementById('aCooldown').value)||16;const to=parseInt(document.getElementById('aTimeout').value)||55;localStorage.setItem('ig_cooldown',cd*1000);localStorage.setItem('ig_timeout',to*1000);msg('✓ Salvato');}
+function saveApiSettings(){const cd=parseInt(document.getElementById('aCooldown').value)||16;localStorage.setItem('ig_cooldown',cd*1000);msg('✓ Salvato');}
 function adminSaveTheme(t){localStorage.setItem('ig_theme',t);document.getElementById('infoTheme').textContent=t;}
 
 /* ── SYSTEM ── */

@@ -7,10 +7,10 @@
 
 | Campo | Valore |
 |-------|--------|
-| Ultimo aggiornamento | 2 Settembre 2026 — S22 |
+| Ultimo aggiornamento | 2 Settembre 2026 — S23 |
 | Versione app | v4.4 |
-| Stato | ✅ Pollinations primario (gratis, illimitato) — CF come backup qualità (steps:4), Together.ai disattivato via gate esplicito. CLAUDE.md allineato al template APP (U-039→U-052 recepiti S21). Sessioni A e B del backlog S21 chiuse in S22, poi audit indipendente Opus 5 su tutto il lavoro + patch: trovato e fixato un bug serio in `saveGallery()` (poteva svuotare la galleria in RAM su errori non di quota) + 4 fix minori |
-| Prossima task | Sessione C — Sicurezza minore e coerenza dati admin (escape mancanti, tab API admin, campo timeout non funzionante) — vedi "Backlog per sessioni future" sotto |
+| Stato | ✅ Pollinations primario (gratis, illimitato) — CF come backup qualità (steps:4), Together.ai disattivato via gate esplicito. Sessione C del backlog S21 chiusa in S23: escape XSS sanato in galleria+admin, tab API admin allineata alla cascata reale, campo Timeout rimosso, tema Dark rimosso dall'admin, header di sicurezza base in netlify.toml |
+| Prossima task | Sessione D — Pulizia tecnica: dead code + CSS (bassa priorità) — vedi "Backlog per sessioni future" sotto |
 | Admin | ✅ Long press 3s logo → apre `immaginai_admin.html` in nuova scheda |
 | Netlify | ✅ https://wonderspit-ai.netlify.app/ |
 | GitHub | ✅ Repo attivo — https://github.com/Mondor89/ImmaginAI |
@@ -41,13 +41,14 @@
 - [ ] Provider label (Pollinations vs Stable Horde) — **saltato su richiesta esplicita di Fabio**, resta in backlog come item facoltativo
 - [x] Test funzionali (parziale): login admin + tab FAQ verificati dal vivo nel Browser pane (nessun errore console, FAQ coerente tra app/admin), flusso download verificato dal vivo con immagine Pollinations reale (548ms, nessun hang/errore). **Non verificato in questa sessione**: overlay compare (keep/discard) end-to-end, click reale su CTA "Usa nel Designer" (solo l'URL è stato verificato raggiungibile via fetch, non il click+apertura tab) — restano in backlog se serve coprirli
 
-### Sessione C — Sicurezza minore e coerenza dati admin [media]
-- [ ] Sanare escape mancante su `it.prompt` in `renderGallery()` — gap noto da S16, vedi `immaginai_sicurezza.md`
-- [ ] Altri punti `innerHTML`/attributi non escapati nell'admin: `value="${cat.icon}"`/`value="${cat.label}"` non escapati mentre righe vicine con lo stesso pattern lo sono — un nome con una virgoletta corrompe silenziosamente il dato salvato
-- [ ] Admin → Tema → Dark rompe visivamente l'app (CSS pensato solo per light) — rimuovere l'opzione o sistemare il dark
-- [ ] Tab API dell'admin descrive la cascata sbagliata (ordine invertito, dice "HuggingFace FLUX" invece di Cloudflare) — allineare al reale (Pollinations→CF→Together→HF→Horde)
-- [ ] Campo "Timeout (secondi)" nell'admin non fa nulla (`ST.timeout` letto ma mai consumato, il timeout reale è hardcoded 30000 in `tryPollinations`) — decidere: farlo funzionare o rimuoverlo
-- [ ] `netlify.toml`: aggiungere un blocco `[[headers]]` base (`X-Content-Type-Options`, `Referrer-Policy`, `X-Frame-Options`/CSP) — impatto basso (nessun dato sensibile, nessun cookie) ma ~6 righe
+### Sessione C — Sicurezza minore e coerenza dati admin [media] — ✅ chiusa S23
+- [x] `escapeHtml()` aggiunta e applicata a `it.prompt` in `renderGallery()` (`Immaginai.html`) — gap noto da S16, verificato dal vivo con payload `<img onerror>` renderizzato come testo, non eseguito
+- [x] `escapeHtml()` aggiunta in `immaginai_admin.html` e applicata a tutti i punti `innerHTML`/attributi non escapati trovati (non solo `cat.icon`/`cat.label` come segnalato originariamente): tag visivi (`cat.icon`, `cat.label`, `t.icon`, `t.label`, `t.prompt`), FAQ (`cat.cat`, `item.q`, `item.a` — quest'ultimo dentro un `<textarea>`, dove un `</textarea>` non escapato avrebbe rotto il markup), stili AI (`s.emoji`, `s.label`, `s.id`), utenti (`u.username`), nav (`b.icon`, `b.label`). Verificato dal vivo: un `"><img onerror>` nel nome categoria non esegue nulla e l'attributo `value` resta integro
+- [x] Admin → Tema: rimossa l'opzione Dark dal `<select>` (resta solo Light) — decisione di Fabio, coerente con `immaginai_light.css` che presuppone sempre il tema chiaro. Aggiunto self-heal: se `ig_theme` in localStorage contiene ancora `'dark'` da prima di questo fix, viene silenziosamente riportato a `'light'` al prossimo accesso admin invece di rompere la select
+- [x] Tab API admin riscritta per riflettere la cascata reale (Pollinations primario client-side → CF via Netlify Function → Together.ai disattivato con nota sul gate `TOGETHER_ENABLED` → Stable Horde), sostituendo la vecchia scheda "Netlify Function + HuggingFace FLUX" (HF rimosso da S22, mai aggiornato qui)
+- [x] Campo "Timeout (secondi)" rimosso dall'admin (mai consumato da nessun timeout reale) — decisione di Fabio dopo aver chiesto un consiglio: rimuovere costava meno che collegarlo a due timeout hardcoded (30s client, 8s `generate.js`) per una manopola che nessuno aveva mai chiesto di girare. `ig_timeout` lasciato nella lista di reset dell'admin per ripulire chiavi residue
+- [x] `netlify.toml`: aggiunto blocco `[[headers]]` base (`X-Content-Type-Options: nosniff`, `Referrer-Policy: strict-origin-when-cross-origin`, `X-Frame-Options: DENY`) su `/*`
+- [x] Verificato dal vivo in Browser pane: nessun errore console su app e admin, login admin OK, tab Tema/API/Tag visivi ispezionate via JS, due prove di XSS (galleria + admin tag) confermano l'escaping efficace
 
 ### Sessione D — Pulizia tecnica: dead code + CSS [bassa, zero rischio, sessione dedicata a parte]
 - [ ] Rimuovere `index.html` + i 2 loghi duplicati in root (`git rm` — verificato non serviti da Netlify, `index.html` è la fotocopia pre-S11 e contiene le stesse credenziali admin in chiaro)
@@ -73,6 +74,14 @@
 - [ ] Rimuovi sfondo vero (Remove.bg o REMBG)
 
 ---
+
+## Task Completate S23
+
+- [x] Sessione C del backlog S21 (Sicurezza minore e coerenza dati admin), Sonnet 5 impegno base — bug già diagnosticati con file preciso, nessuna escalation necessaria. Stato del codice riverificato prima di agire (come richiesto dal backlog): tutti gli item risultavano ancora presenti così come descritti
+- [x] Due punti del backlog erano segnalati come "da decidere", non semplici bugfix — presentati a Fabio prima di scrivere codice: campo Timeout admin (rimosso, su consiglio richiesto esplicitamente) e tema Dark admin (rimosso, scelta diretta di Fabio)
+- [x] Scope allargato oltre la segnalazione originale durante l'implementazione: il gap di escape non era limitato a `cat.icon`/`cat.label` come scritto nel backlog — verificato che lo stesso pattern (interpolazione diretta in `innerHTML`/`value` senza escape) ricorreva in stili AI, FAQ, utenti e nav dell'admin. Corretti tutti nello stesso giro, stessa causa e stesso file
+- [x] Verifica dal vivo in Browser pane, non solo lettura: 2 prove di XSS reali (payload `<img src=x onerror=...>` in un prompt di galleria e in un nome di categoria admin) confermano che l'escaping impedisce l'esecuzione, non solo che il codice "sembra corretto"
+- [x] `docs/immaginai_stato.md` aggiornato (Sessione C chiusa, prossima è Sessione D)
 
 ## Task Completate S22
 
@@ -256,6 +265,7 @@ docs/
 
 | Sessione | Attività |
 |----------|----------|
+| S23 | Sonnet 5 impegno base, Sessione C del backlog S21 (Sicurezza minore e coerenza dati admin). Escape XSS su `it.prompt` (galleria) e su tutti i punti scoperti nell'admin (tag visivi, FAQ, stili, utenti, nav) — scope allargato oltre la segnalazione originale dopo aver trovato lo stesso pattern altrove. Tema Dark rimosso dall'admin (con self-heal per chi aveva già `ig_theme='dark'` salvato), campo Timeout rimosso, tab API riallineata alla cascata reale, header di sicurezza base in `netlify.toml`. Verificato dal vivo con 2 prove di XSS reali, nessuna eseguita |
 | S22 | Sonnet 5 impegno medio, Sessioni A+B del backlog S21 (REGISTRA a metà per chiuderle separatamente), poi audit indipendente Opus 5 + PATCH su tutto insieme prima della chiusura finale. **A**: validazione input `generate.js`, timeout 8s, HuggingFace rimosso (dominio morto), gate `TOGETHER_ENABLED`, pin Node. **B**: hang infinito in `upscaleCanvas` fixato, download più affidabile, `saveGallery()` con gestione quota, limite 12 immagini esplicito, `#statusBar` riattivato, ciclo Modifica chiuso, resize mobile senza rompere l'output. **Audit A+B+patch** (1 sotto-agente Opus 5, sola lettura enforced): trovato 🔴 un bug serio in `saveGallery()` (poteva svuotare la galleria in RAM su errori non di quota, o restare silenziosa se una sola immagine superava la quota) + `detectLayout()` asimmetrico (guardia solo sul ramo mobile, il desktop rompeva Galleria/FAQ su resize) + doppia richiesta di rete nel download + messaggi di stato che si cancellavano a vicenda + statusBar invisibile su mobile dietro l'overlay + 2 fix minori. Tutti fixati e riverificati dal vivo (incluso simulare 3 scenari di errore su `saveGallery` con monkey-patch di `localStorage`). Corretta anche un'attribuzione imprecisa nel testo della patch (l'hang non era un bug pre-esistente, ma raggiungibile solo dopo la modifica fatta nella stessa sessione) prima di scriverla in CLAUDE.md → Regole JavaScript/Web. **Addendum dopo la chiusura formale**: depositata la patch sopra nel template; Fabio ha segnalato un gap di processo osservato nella sessione stessa (fix applicati in blocco senza comunicare piano/priorità né rivalutare modello/impegno coi findings reali in mano) — proposto, fatto auditare (Opus 5, trovate 5 imprecisioni reali fra cui una contraddizione interna e un rimando che si sarebbe rotto nel template), corretto e scritto un nuovo paragrafo "Punto di controllo dopo un audit o un'esplorazione" in CLAUDE.md → Gestione modello, poi depositato anche questo nel template |
 | S21 | `RECEPISCI` di 14 travasi (`U-039`→`U-052`, 3 non pertinenti con nota), audit pre-scrittura Opus 5 ha corretto 4 errori. Fix immediati: NaN su `ig_cooldown`/`ig_timeout`, percorso stale in `settings.local.json`. Su richiesta di Fabio, audit completo del progetto (2 sotto-agenti Opus 5, frontend+backend): applicati i 4 fix a priorità più alta (cooldown unificato+16s, `DEFAULT_FAQ_DATA` riallineato, `applyUiSettings` implementata — mancava, rompeva il resize —, `generate.js` num_steps→steps+logging, poi riportato a steps:4 su richiesta). Tutto verificato in Browser pane. Resto del backlog riorganizzato in 5 sessioni per argomento/priorità in `immaginai_stato.md` |
 | S20 | Fix riferimento rotto `wonderspit_brand_kit.md`→`.html` in CLAUDE.md, trovato durante un controllo di coerenza tra i 4 progetti condotto da 1WS. Nessuna modifica all'app, nessuna nuova regola — solo fix riferimento. |
