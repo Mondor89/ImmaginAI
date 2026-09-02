@@ -28,8 +28,8 @@
 - [ ] Sanare escape mancante su `it.prompt` in `renderGallery()` — vedi gap in `immaginai_sicurezza.md`
 - [ ] Valutare provider gratuito realmente illimitato con qualità migliore di Pollinations (Together.ai scartato — richiede deposito)
 - [ ] Valutare Netlify Blobs (o store equivalente) per un rate limit persistente cross-cold-start su `generate.js`, in sostituzione dell'attuale rate limit in-memory (si azzera ad ogni cold start) — aggiungerebbe una dipendenza, da valutare in sessione dedicata (S18, dopo il fix Origin+rate limit in-memory)
-- [ ] Validare `ig_cooldown` in `loadSaved()` prima di assegnarlo a `ST.cooldown` — un valore corrotto in `localStorage` produce `NaN` e disattiva il cooldown in silenzio (trovato dall'audit indipendente S21, non ancora osservato come bug reale)
-- [ ] Correggere il percorso stale in `.claude/settings.local.json` (`C:\Users\fabio\Desktop\WonderSpit\`, pre-riorganizzazione in `WS-Cruscotto`) — trovato dall'audit indipendente S21, basso rischio (voce di permessi, non codice applicativo)
+- [x] ~~Validare `ig_cooldown` in `loadSaved()` prima di assegnarlo a `ST.cooldown`~~ — risolto S21: `cd`/`to` ora validati con `Number.isNaN()` prima di assegnarli a `ST.cooldown`/`ST.timeout` in `Immaginai.html`
+- [x] ~~Correggere il percorso stale in `.claude/settings.local.json`~~ — risolto S21: aggiornato a `C:\Users\fabio\Desktop\Download Desktop\WS-Cruscotto\WonderSpit\`; grep sul frammento vecchio non ha trovato altre occorrenze nel progetto (solo i riferimenti storici in questo log e in `CLAUDE.md`)
 
 ### Backlog
 - [ ] (post P.IVA) Immagini di riferimento con analisi Claude API

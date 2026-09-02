@@ -832,8 +832,8 @@ function loadSaved(){
   const c=JSON.parse(localStorage.getItem('ig_colors')||'null');if(c) applyColors(c);
   const f=JSON.parse(localStorage.getItem('ig_fonts')||'null');if(f) applyFonts(f);
   ST.activeApi=localStorage.getItem('ig_active_api')||'huggingface';
-  const cd=localStorage.getItem('ig_cooldown');if(cd) ST.cooldown=parseInt(cd);
-  const to=localStorage.getItem('ig_timeout');if(to) ST.timeout=parseInt(to);
+  const cd=localStorage.getItem('ig_cooldown');const cdNum=parseInt(cd);if(cd&&!Number.isNaN(cdNum)) ST.cooldown=cdNum;
+  const to=localStorage.getItem('ig_timeout');const toNum=parseInt(to);if(to&&!Number.isNaN(toNum)) ST.timeout=toNum;
   const hft=localStorage.getItem('ig_apikey_hf');if(hft) HF_TOKEN=hft;
   updateApiInfo();
 }
