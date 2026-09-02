@@ -1134,40 +1134,57 @@ async function attendiCooldown(){
     await new Promise(r=>setTimeout(r,wait));
   }
 }
-async function generateImage(){
-  const prompt=document.getElementById('promptInput').value.trim();
-  if(!prompt){document.getElementById('promptBox').classList.add('err');document.getElementById('errorMsg').style.display='block';return;}
-  document.getElementById('promptBox').classList.remove('err');document.getElementById('errorMsg').style.display='none';
-  if(ST.busy) return;ST.busy=true;
+/* Cuore comune ai 3 flussi di generazione (Genera/Modifica/Rigenera) — prima erano ~90 righe
+   quasi identiche ripetute 3 volte (vedi CLAUDE.md → backlog Sessione D). onSuccess distingue
+   il comportamento specifico di ciascun flusso (mostra subito vs overlay di confronto) */
+async function runGeneration(fullPrompt,ratioId,statusMsg,onSuccess){
+  ST.busy=true;
   const btn=document.getElementById('genBtn'),btnM=document.getElementById('genBtnMobile')?.querySelector('button');
   const sBox=document.getElementById('spinnerBox'),imgEl=document.getElementById('generatedImg'),acts=document.getElementById('imgActions');
   [btn,btnM].forEach(b=>{if(b){b.disabled=true;b.textContent='⏳ GENERANDO…';}});
+  document.getElementById('modificaPanel').classList.remove('open');
+  document.getElementById('compareOverlay').classList.remove('open');
   sBox.style.display='flex';sBox.innerHTML='<div class="big-spin"></div><div id="spinnerMsg">Avvio…<br><small style="font-size:11px;opacity:.6">Pollinations FLUX</small></div>';
   imgEl.style.display='none';acts.classList.remove('visible');document.getElementById('ctaWrap').classList.remove('visible');
   showOutput(true);
   if(isMobile()) setTimeout(()=>{const pc=document.getElementById('preview-col');if(pc) pc.scrollTop=0;},100);
   await attendiCooldown();
-  const ratio=RATIOS.find(r=>r.id===ST.ratio);
-  const full=buildPrompt();
-  setStatus('Generando…','loading');
+  const ratio=RATIOS.find(r=>r.id===ratioId);
+  setStatus(statusMsg,'loading');
   try{
-    const dataUrl=await generateAuto(full,ratio.w,ratio.h);
-    ST.currentUrl=dataUrl;ST.currentPrompt=prompt;ST.currentStyle=ST.style;ST.lastGenTime=Date.now();
-    imgEl.src=dataUrl;imgEl.onclick=()=>openModal(dataUrl);
-    sBox.style.display='none';imgEl.style.display='block';acts.classList.add('visible');document.getElementById('ctaWrap').classList.add('visible');
-    imgEl.classList.remove('img-pop');void imgEl.offsetWidth;imgEl.classList.add('img-pop');
-    flashStatus('✓ Immagine generata!','ok',3000);
-    ST.gallery.unshift({url:dataUrl,prompt,style:ST.style,ratio:ST.ratio,ts:Date.now()});
-    if(ST.gallery.length>12) ST.gallery.pop();
-    saveGallery();
-    renderGallery();
+    const dataUrl=await generateAuto(fullPrompt,ratio.w,ratio.h);
+    ST.lastGenTime=Date.now();
+    sBox.style.display='none';
+    onSuccess(dataUrl);
   }catch(e){
     const m=e.message||'';
     const help=m==='CORS_ERR'?'Errore connessione — controlla la tua connessione internet e riprova':m==='TIMEOUT'?'Timeout — server occupato, riprova tra qualche minuto':m.includes('429')?'Troppe richieste — attendi qualche minuto':m==='HORDE_FAULT'||m==='HORDE_EMPTY'?'Errore durante la generazione — riprova':'Servizio non disponibile ('+m+') — riprova tra qualche minuto';
     sBox.innerHTML=`<div style="padding:28px;text-align:center"><div style="font-size:40px;margin-bottom:12px">⚠️</div><p style="color:var(--danger);font-size:15px;font-weight:700;margin-bottom:8px;font-family:var(--font-title)">GENERAZIONE FALLITA</p><p style="color:var(--muted);font-size:12px;line-height:1.6;margin-bottom:18px">${help}</p><button onclick="resetAndRetry()" style="padding:11px 28px;background:linear-gradient(135deg,var(--c-accent),var(--c-violet));color:#FFFFFF;border:none;border-radius:11px;font-size:13px;font-weight:800;cursor:pointer;">🔄 RIPROVA</button></div>`;
     setStatus('Errore — riprova','fail');
   }
-  [btn,btnM].forEach(b=>{if(b){b.disabled=false;b.textContent='✨ GENERA IMMAGINE';}});ST.busy=false;
+  [btn,btnM].forEach(b=>{if(b){b.disabled=false;b.textContent='✨ GENERA IMMAGINE';}});
+  ST.busy=false;
+}
+/* Esito comune a Genera/Rigenera: mostra l'immagine e la aggiunge in galleria (Modifica invece apre il confronto, vedi generateModifica) */
+function showGeneratedImage(dataUrl,prompt,style,ratio,msg){
+  const imgEl=document.getElementById('generatedImg'),acts=document.getElementById('imgActions');
+  ST.currentUrl=dataUrl;ST.currentPrompt=prompt;ST.currentStyle=style;
+  imgEl.src=dataUrl;imgEl.onclick=()=>openModal(dataUrl);
+  imgEl.style.display='block';acts.classList.add('visible');document.getElementById('ctaWrap').classList.add('visible');
+  imgEl.classList.remove('img-pop');void imgEl.offsetWidth;imgEl.classList.add('img-pop');
+  flashStatus(msg,'ok',3000);
+  ST.gallery.unshift({url:dataUrl,prompt,style,ratio,ts:Date.now()});
+  if(ST.gallery.length>12) ST.gallery.pop();
+  saveGallery();
+  renderGallery();
+}
+async function generateImage(){
+  const prompt=document.getElementById('promptInput').value.trim();
+  if(!prompt){document.getElementById('promptBox').classList.add('err');document.getElementById('errorMsg').style.display='block';return;}
+  document.getElementById('promptBox').classList.remove('err');document.getElementById('errorMsg').style.display='none';
+  if(ST.busy) return;
+  const style=ST.style,ratioId=ST.ratio;
+  await runGeneration(buildPrompt(),ratioId,'Generando…',dataUrl=>showGeneratedImage(dataUrl,prompt,style,ratioId,'✓ Immagine generata!'));
 }
 async function resetAndRetry(){document.getElementById('spinnerBox').innerHTML=`<div class="big-spin"></div><div id="spinnerMsg">Riconnessione…</div>`;document.getElementById('generatedImg').style.display='none';document.getElementById('imgActions').classList.remove('visible');await generateImage();}
 
@@ -1185,33 +1202,12 @@ async function runModifica(){
 async function generateModifica(basePrompt,baseStyle,extra){
   if(ST.busy) return;
   const prevUrl=ST.currentUrl;
-  ST.busy=true;
-  const sBox=document.getElementById('spinnerBox'),imgEl=document.getElementById('generatedImg'),acts=document.getElementById('imgActions');
-  const btn=document.getElementById('genBtn'),btnM=document.getElementById('genBtnMobile')?.querySelector('button');
-  [btn,btnM].forEach(b=>{if(b){b.disabled=true;b.textContent='⏳ GENERANDO…';}});
-  document.getElementById('modificaPanel').classList.remove('open');
-  document.getElementById('compareOverlay').classList.remove('open');
-  sBox.style.display='flex';imgEl.style.display='none';acts.classList.remove('visible');document.getElementById('ctaWrap').classList.remove('visible');
-  await attendiCooldown();
-  const ratio=RATIOS.find(r=>r.id===ST.ratio);
-  const modFull=basePrompt+', '+extra+(baseStyle?', '+baseStyle:'');
-  setStatus('Generando modifica…','loading');
-  try{
-    const dataUrl=await generateAuto(modFull,ratio.w,ratio.h);
-    ST.lastGenTime=Date.now();
-    sBox.style.display='none';
+  await runGeneration(basePrompt+', '+extra+(baseStyle?', '+baseStyle:''),ST.ratio,'Generando modifica…',dataUrl=>{
     document.getElementById('compareImgOld').src=prevUrl;
     document.getElementById('compareImgNew').src=dataUrl;
     document.getElementById('compareOverlay').classList.add('open');
     ST._pendingModifica={url:dataUrl,prompt:basePrompt,extra,style:baseStyle};
-  }catch(e){
-    const m=e.message||'';
-    const help=m==='CORS_ERR'?'Errore connessione — controlla la tua connessione e riprova':m==='TIMEOUT'?'Timeout — riprova tra qualche minuto':m.includes('429')?'Troppe richieste — attendi qualche minuto':'Errore ('+m+') — riprova';
-    sBox.innerHTML=`<div style="padding:28px;text-align:center"><div style="font-size:40px;margin-bottom:12px">⚠️</div><p style="color:var(--danger);font-size:15px;font-weight:700;margin-bottom:8px;">GENERAZIONE FALLITA</p><p style="color:var(--muted);font-size:12px;line-height:1.6;margin-bottom:18px">${help}</p><button onclick="resetAndRetry()" style="padding:11px 28px;background:linear-gradient(135deg,var(--c-accent),var(--c-violet));color:#FFFFFF;border:none;border-radius:11px;font-size:13px;font-weight:800;cursor:pointer;">🔄 RIPROVA</button></div>`;
-    setStatus('Errore — riprova','fail');
-  }
-  [btn,btnM].forEach(b=>{if(b){b.disabled=false;b.textContent='✨ GENERA IMMAGINE';}});
-  ST.busy=false;
+  });
 }
 function keepModifica(){
   const m=ST._pendingModifica;if(!m) return;
@@ -1237,35 +1233,9 @@ function closeCompare(){document.getElementById('compareOverlay').classList.remo
 
 async function regenImage(){
   if(ST.busy) return;
-  const savedPrompt=ST.currentPrompt;const savedStyle=ST.currentStyle;const savedRatio=ST.ratio;
+  const savedPrompt=ST.currentPrompt,savedStyle=ST.currentStyle,savedRatio=ST.ratio;
   if(!savedPrompt) return;
-  ST.busy=true;
-  const sBox=document.getElementById('spinnerBox'),imgEl=document.getElementById('generatedImg'),acts=document.getElementById('imgActions');
-  const btn=document.getElementById('genBtn'),btnM=document.getElementById('genBtnMobile')?.querySelector('button');
-  [btn,btnM].forEach(b=>{if(b){b.disabled=true;b.textContent='⏳ GENERANDO…';}});
-  sBox.style.display='flex';imgEl.style.display='none';acts.classList.remove('visible');document.getElementById('ctaWrap').classList.remove('visible');document.getElementById('compareOverlay').classList.remove('open');document.getElementById('modificaPanel').classList.remove('open');
-  await attendiCooldown();
-  const ratio=RATIOS.find(r=>r.id===savedRatio);
-  const full=savedPrompt+(savedStyle?', '+savedStyle:'');
-  setStatus('Rigenerando…','loading');
-  try{
-    const dataUrl=await generateAuto(full,ratio.w,ratio.h);
-    ST.currentUrl=dataUrl;ST.currentPrompt=savedPrompt;ST.currentStyle=savedStyle;ST.lastGenTime=Date.now();
-    imgEl.src=dataUrl;imgEl.onclick=()=>openModal(dataUrl);
-    sBox.style.display='none';imgEl.style.display='block';acts.classList.add('visible');document.getElementById('ctaWrap').classList.add('visible');
-    imgEl.classList.remove('img-pop');void imgEl.offsetWidth;imgEl.classList.add('img-pop');
-    flashStatus('✓ Rigenerata!','ok',3000);
-    ST.gallery.unshift({url:dataUrl,prompt:savedPrompt,style:savedStyle,ratio:savedRatio,ts:Date.now()});
-    if(ST.gallery.length>12) ST.gallery.pop();
-    saveGallery();
-    renderGallery();
-  }catch(e){
-    const m=e.message||'';
-    const help=m==='CORS_ERR'?'Errore connessione — controlla la tua connessione e riprova':m==='TIMEOUT'?'Timeout — riprova tra qualche minuto':m.includes('429')?'Troppe richieste — attendi qualche minuto':'Errore ('+m+') — riprova';
-    sBox.innerHTML=`<div style="padding:28px;text-align:center"><div style="font-size:40px;margin-bottom:12px">⚠️</div><p style="color:var(--danger);font-size:15px;font-weight:700;margin-bottom:8px;">GENERAZIONE FALLITA</p><p style="color:var(--muted);font-size:12px;line-height:1.6;margin-bottom:18px">${help}</p><button onclick="resetAndRetry()" style="padding:11px 28px;background:linear-gradient(135deg,var(--c-accent),var(--c-violet));color:#FFFFFF;border:none;border-radius:11px;font-size:13px;font-weight:800;cursor:pointer;">🔄 RIPROVA</button></div>`;
-    setStatus('Errore — riprova','fail');
-  }
-  [btn,btnM].forEach(b=>{if(b){b.disabled=false;b.textContent='✨ GENERA IMMAGINE';}});ST.busy=false;
+  await runGeneration(savedPrompt+(savedStyle?', '+savedStyle:''),savedRatio,'Rigenerando…',dataUrl=>showGeneratedImage(dataUrl,savedPrompt,savedStyle,savedRatio,'✓ Rigenerata!'));
 }
 document.addEventListener('keydown',e=>{if(e.ctrlKey&&e.key==='Enter') generateImage();});
 
