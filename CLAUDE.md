@@ -328,10 +328,10 @@ Se emerge un bug in una parte diversa dell'app, Claude lo annota in "Bug noti" d
 ├── netlify/
 │   └── functions/
 │       └── generate.js         ← proxy cascata AI, gestisce i secret server-side
-├── spreadshop/
-│   └── wonderspit_spreadshop.css
-└── index.html, WonderSpit_Logo*.png  ← duplicati in root, valutare pulizia (non urgente)
+└── spreadshop/
+    └── wonderspit_spreadshop.css
 ```
+(`index.html` + i 2 loghi duplicati in root, presenti in versioni precedenti di questo albero, sono stati rimossi in S24 — mai serviti da Netlify, `publish="app"` in `netlify.toml`)
 
 ---
 
@@ -432,8 +432,8 @@ Messaggio commit: `Sessione N — [funzionalità] / [cosa fatto] / [cosa resta]`
 
 ### Badge/pill/toggle — palette limitata riusata su più significati
 - Prima di assegnare un colore a un badge/pill/toggle nuovo, elencare con un `grep` i badge/pill esistenti che già usano quel colore (token letterale nel CSS, es. `#00E5C8` per il cyan — la variabile `--cyan` esiste ma è quasi mai usata; `--c-violet`/`--c-accent` per il viola, sono lo stesso colore — o la classe che lo applica, es. `.dv-attivi-badge`, `.transp-toggle.on`) — e verificare se possono comparire insieme nella stessa vista.
-- Se il colore è assegnato a runtime (non un token CSS fisso) — es. `ig_ui`/`ig_colors` in localStorage, applicati via `applyColors()`/`liveBtn()`/`applyUiRatioColor()` nell'admin — il grep sul token letterale non trova nulla: controllare invece la mappa/variabile che lo assegna.
-- La palette di ImmaginAI è ristretta (viola `--c-violet`, cyan `#00E5C8`, pink `#F0008C`, giallo `#FFE600`) e già riusata su più significati (badge Attivi, toggle Senza sfondo, tab attive, stile/formato selezionati): la collisione è la norma, non l'eccezione — va cercata prima di scoprirla da uno screenshot.
+- Se il colore è assegnato a runtime (non un token CSS fisso) — es. `ig_ui`/`ig_colors` in localStorage, applicati via `applyColors()` nell'admin — il grep sul token letterale non trova nulla: controllare invece la mappa/variabile che lo assegna. (`liveBtn()`/`applyUiRatioColor()`, citate qui in una versione precedente di questa nota, erano dead code rimosso in S24 — non esistono più)
+- La palette di ImmaginAI è ristretta (viola `--c-violet`, cyan `#00E5C8`, pink `#F0008C`, giallo `#FFE600`) ed è già stata riusata su più significati (badge Attivi, toggle Senza sfondo, tab attive, stile/formato selezionati): la collisione è la norma, non l'eccezione — va cercata prima di scoprirla da uno screenshot. **Caso reale**: `immaginai_light.css` aveva appiattito su viola sia i tag Dettagli visivi (cyan nell'inline dell'app) sia Stile/Formato — risolto in S24 ridando il cyan ai DV, su decisione esplicita di Fabio dopo conferma che non c'entrava col motivo di rimozione del tema Dark in S23 (quello era il toggle rotto da CSS scritto solo per il chiaro, non una scelta di colore).
 
 ### localStorage — chiave stabile
 - Usare sempre una chiave fissa per la versione corrente dei dati salvati (`ig_gallery`, `ig_theme`, ecc.) — cambiarla rompe la persistenza per chi ha già usato l'app.

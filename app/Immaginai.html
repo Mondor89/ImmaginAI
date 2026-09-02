@@ -215,9 +215,6 @@ body.light .dv-attivi-badge.view-attivi{background:rgba(0,229,200,.12);}
 body.light .dv-tab{background:rgba(0,229,200,.1);border-color:rgba(0,229,200,.35);color:#008a7a;}
 body.light .dv-tab:hover{background:rgba(0,229,200,.18);}
 body.light .dv-tab.active{background:#00E5C8;border-color:#00E5C8;color:#080810;}
-/* Badge contatore */
-.dv-tab-badge{display:inline-flex;align-items:center;justify-content:center;background:rgba(0,0,0,.15);color:#080810;width:16px;height:16px;border-radius:50%;font-size:9px;font-weight:800;flex-shrink:0;}
-.dv-tab:not(.active) .dv-tab-badge{background:#00E5C8;color:#080810;}
 /* Frecce pill azzurro */
 .dv-arrow{flex-shrink:0;width:28px;height:30px;background:#00E5C8;border:none;border-radius:14px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:#080810;font-size:16px;font-weight:700;line-height:1;transition:opacity .15s;padding:0;}
 .dv-arrow:hover{opacity:.82;}
@@ -1305,7 +1302,6 @@ function delItem(i){ST.gallery.splice(i,1);try{localStorage.setItem('ig_gallery'
 
 /* ── MISC ── */
 function buildRatios(){const r=document.getElementById('ratioRow');if(!r) return;r.innerHTML='';RATIOS.forEach(rt=>{const b=document.createElement('button');b.className='ratio-btn'+(rt.id===ST.ratio?' active':'');b.innerHTML=`<span class="ratio-icon">${rt.icon}</span><span class="ratio-label">${rt.label}</span>`;b.onclick=()=>{ST.ratio=rt.id;document.querySelectorAll('.ratio-btn').forEach(x=>x.classList.remove('active'));b.classList.add('active');};r.appendChild(b);});}
-function toggleSetting(k){ST[k]=!ST[k];document.getElementById('toggle'+k.charAt(0).toUpperCase()+k.slice(1))?.classList.toggle('on',ST[k]);}
 function downloadImg(){if(ST.currentUrl) downloadFrom(ST.currentUrl);}
 function upscaleCanvas(dataUrl,scale){return new Promise(resolve=>{const img=new Image();img.crossOrigin='anonymous';_imgCache.add(img);img.onload=()=>{
   try{

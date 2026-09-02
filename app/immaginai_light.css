@@ -57,11 +57,6 @@ body.light {
 
 #themeToggleFixed { display: none !important; }
 
-body:not(.light) .adv-input {
-  background: #ffffff !important;
-  color:      var(--text) !important;
-}
-
 /* ════════════════════════════════════════════════════
    3. SIDEBAR
 ════════════════════════════════════════════════════ */
@@ -157,21 +152,20 @@ body:not(.light) .adv-input {
 #diceBtn       { background: #F0008C !important; border-left: 1px solid rgba(0,0,0,.08) !important; }
 #diceBtn:hover { background: #d4007c !important; }
 
-/* ── DV Tabs — cyan (distinto dal viola di Stile/Formato, vedi CLAUDE.md → collisione colori attivi) ── */
+/* ── DV Tabs — cyan (distinto dal viola di Stile/Formato, vedi CLAUDE.md → collisione colori attivi).
+   Testo #00695c, non #00E5C8/#008a7a: contrasto calcolato (WCAG) contro tutti gli sfondi cyan
+   chiari coinvolti (tab, hover, chip, badge Attivi) — #008a7a scendeva a 4.0:1 sotto la soglia
+   AA 4.5:1 per testo piccolo, #00a896 sull'hover crollava a 2.6:1 ── */
 .dv-tab {
   background:    rgba(0,229,200,.10) !important;
   border:        1px solid #00E5C8 !important;
-  color:         #008a7a !important;
+  color:         #00695c !important;
   font-size:     11px !important;
   padding:       5px 10px !important;
   border-radius: 20px !important;
 }
-.dv-tab:hover  { background: rgba(0,229,200,.20) !important; border-color: #00a896 !important; color: #00a896 !important; }
+.dv-tab:hover  { background: rgba(0,229,200,.20) !important; border-color: #00695c !important; color: #00695c !important; }
 .dv-tab.active { background: #00E5C8 !important; border-color: #00E5C8 !important; color: #080810 !important; font-weight: 700 !important; }
-
-.dv-tab-badge                       { background: #e0e0e0 !important; color: #555 !important; }
-.dv-tab.active .dv-tab-badge        { background: rgba(0,0,0,.15) !important; color: #080810 !important; }
-.dv-tab:not(.active) .dv-tab-badge  { background: #e0e0e0 !important; color: #555 !important; }
 
 .dv-arrow { background: #e2e4ea !important; color: #555 !important; }
 .dv-arrow:hover { background: #00E5C8 !important; color: #080810 !important; }
@@ -184,11 +178,11 @@ body:not(.light) .adv-input {
   border-radius: 6px !important;
   font-size:     11px !important;
 }
-.dv-chip:hover  { border-color: #00E5C8 !important; color: #008a7a !important; background: rgba(0,229,200,.06) !important; }
+.dv-chip:hover  { border-color: #00E5C8 !important; color: #00695c !important; background: rgba(0,229,200,.06) !important; }
 .dv-chip.active { background: #00E5C8 !important; border-color: #00E5C8 !important; color: #080810 !important; font-weight: 600 !important; }
 
 .dv-attivi-badge             { background: #00E5C8 !important; color: #080810 !important; }
-.dv-attivi-badge.view-attivi { background: rgba(0,229,200,.10) !important; color: #008a7a !important; border: 1px solid rgba(0,229,200,.35) !important; }
+.dv-attivi-badge.view-attivi { background: rgba(0,229,200,.10) !important; color: #00695c !important; border: 1px solid rgba(0,229,200,.35) !important; }
 .dv-attivi-n                 { background: rgba(0,0,0,.15) !important; color: #080810 !important; }
 .dv-chip-active-item         { background: #00E5C8 !important; color: #080810 !important; border-radius: 6px !important; }
 .dv-chip-remove              { background: rgba(0,0,0,.15) !important; color: #080810 !important; }
@@ -257,21 +251,6 @@ body:not(.light) .adv-input {
 #cooldownText      { color: #666 !important; }
 #cooldownFill      { background: linear-gradient(90deg, #5B35C8, #3D2F8F) !important; }
 #cooldownTrack     { background: #eee !important; }
-
-/* ── Accordion ── */
-.accordion-header       { background: #1e2132 !important; }
-.accordion-header:hover { opacity: .88 !important; }
-.accordion-body         { background: #ffffff !important; border: 1px solid var(--border) !important; border-top: none !important; }
-.adv-label              { color: #9098a9 !important; }
-.adv-input              { background: #f8f9fb !important; border: 1px solid var(--border) !important; color: var(--text) !important; font-family: var(--font-body) !important; border-radius: 6px !important; }
-.adv-input:focus        { border-color: #5B35C8 !important; outline: none !important; }
-.adv-toggle-row         { border-bottom: 1px solid #f0f0f0 !important; }
-.adv-toggle-row span    { color: #444 !important; font-family: var(--font-body) !important; }
-.adv-hint               { color: #b0b8c8 !important; }
-.toggle-track           { background: #ddd !important; }
-.toggle-track.on        { background: #5B35C8 !important; }
-.toggle-thumb           { background: #ffffff !important; }
-.toggle-track.on .toggle-thumb { left: 21px; }
 
 /* ════════════════════════════════════════════════════
    5. PREVIEW COLUMN

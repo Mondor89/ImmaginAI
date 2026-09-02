@@ -147,7 +147,8 @@ exports.handler = async function(event) {
   // (dominio dismesso, verificato con curl — non un errore 4xx, un fallimento di risoluzione).
   // Il sostituto (router.huggingface.co) usa un formato di risposta diverso e richiede una
   // verifica separata prima di riscrivere questo step — vedi backlog in immaginai_stato.md.
-  // HF_TOKEN resta letto/usato altrove (Immaginai.html) come chiave Stable Horde, non toccarlo qui.
+  // HORDE_API_KEY (rinominata da HF_TOKEN in S24 — era la chiave Stable Horde, non HuggingFace)
+  // resta letta/usata altrove (Immaginai.html), non toccarla qui.
 
   return { statusCode: 503, body: JSON.stringify({ error: 'ALL_MODELS_FAILED' }) };
 };
