@@ -7,10 +7,10 @@
 
 | Campo | Valore |
 |-------|--------|
-| Ultimo aggiornamento | 2 Settembre 2026 — S21 |
+| Ultimo aggiornamento | 2 Settembre 2026 — S22 |
 | Versione app | v4.4 |
-| Stato | ✅ Pollinations primario (gratis, illimitato) — CF come backup qualità (steps:4), Together.ai scartato. CLAUDE.md allineato al template APP (U-039→U-052 recepiti S21). Audit completo del progetto in S21 (2 sotto-agenti Opus 5): 4 fix ad alta priorità applicati, resto organizzato in "Backlog per sessioni future" sotto |
-| Prossima task | Sessione A — Backend/sicurezza `generate.js` (validazione input, timeout provider, verifica HF morto) — vedi "Backlog per sessioni future" sotto |
+| Stato | ✅ Pollinations primario (gratis, illimitato) — CF come backup qualità (steps:4), Together.ai disattivato via gate esplicito. CLAUDE.md allineato al template APP (U-039→U-052 recepiti S21). Sessione A del backlog S21 chiusa in S22: `generate.js` validato/con timeout, HuggingFace morto rimosso, Together gated |
+| Prossima task | Sessione B — Flusso di generazione e UX visibile (download/CTA Designer, galleria, ciclo Modifica) — vedi "Backlog per sessioni future" sotto |
 | Admin | ✅ Long press 3s logo → apre `immaginai_admin.html` in nuova scheda |
 | Netlify | ✅ https://wonderspit-ai.netlify.app/ |
 | GitHub | ✅ Repo attivo — https://github.com/Mondor89/ImmaginAI |
@@ -21,13 +21,14 @@
 
 > Tabella di marcia di default, non un contratto rigido: ogni sessione futura riverifica lo stato reale del codice prima di eseguire alla lettera quanto scritto qui — un item può essersi rivelato diverso, o già risolto altrove, nel frattempo. Contiene tutto quanto emerso dall'audit completo S21 (2 sotto-agenti Opus 5, frontend+backend) più i task storici ancora aperti, raggruppati per poter risolvere "una sessione, un argomento" (vedi `CLAUDE.md` → Limite di complessità per sessione). Riferimenti file:riga verificati dai sotto-agenti, alcuni spot-check fatti a mano in chiusura S21.
 
-### Sessione A — Backend/sicurezza `generate.js` [alta]
-- [ ] Validazione input: `prompt`/`width`/`height` non validati prima di inoltrarli ai provider a pagamento (dimensioni assurde, prompt vuoto/enorme, `NaN`→`null` se `width` non è un numero)
-- [ ] Nessun timeout sulle chiamate provider (`AbortSignal.timeout()`) — una CF appesa consuma tutto il budget della function, Together/HF non vengono mai provati
-- [ ] Verificare con un `curl` reale se lo step HuggingFace è ancora vivo — endpoint/modello (`api-inference.huggingface.co`, `runwayml/stable-diffusion-v1-5`) probabilmente non esistono più. Se morto: rimuoverlo o riscriverlo su `router.huggingface.co`, e riallineare `immaginai_sicurezza.md`/questo file
-- [ ] `Together.ai` — gate solo sull'esistenza di `TOGETHER_KEY`: se mai impostata per errore, il provider scartato in S16 tornerebbe attivo senza segnale. Aggiungere un gate esplicito (es. `TOGETHER_ENABLED`) e allineare il commento nel codice alla decisione presa
-- [ ] `netlify.toml`: nessun pin di runtime Node — se Netlify cambiasse il default, `fetch` potrebbe non esistere e tutti e tre i provider fallirebbero in silenzio dentro i `catch` (stesso sintomo di `ALL_MODELS_FAILED` già visto in S18)
+### Sessione A — Backend/sicurezza `generate.js` [alta] — ✅ chiusa S22 (resta 1 item, vedi sotto)
+- [x] Validazione input: `prompt` obbligatorio (non vuoto, max 800 char), `width`/`height` clampati [256,1024] con fallback 512 su valori non numerici (S22)
+- [x] Timeout esplicito 8s per chiamata provider (`AbortSignal.timeout()`) (S22)
+- [x] Verificato con `curl` reale: `api-inference.huggingface.co` non risolve più via DNS (dominio dismesso, non un errore HTTP) — step HuggingFace rimosso da `generate.js`. Il sostituto `router.huggingface.co` usa un formato di risposta diverso: **non riscritto**, richiede una ricerca dedicata prima di reintrodurre il provider (nuovo item sotto) (S22)
+- [x] `Together.ai`: aggiunto gate esplicito `TOGETHER_ENABLED` (env var, default assente = disattivato) oltre alla key (S22)
+- [x] `netlify.toml`: pin `NODE_VERSION = "20"` (S22)
 - [ ] Valutare Netlify Blobs (o store equivalente) per un rate limit persistente cross-cold-start su `generate.js`, in sostituzione dell'attuale rate limit in-memory (si azzera ad ogni cold start) — aggiungerebbe una dipendenza, da valutare con calma; risolverebbe insieme anche un contatore di uso giornaliero CF (oggi assente: nessun modo di sapere quando ci si avvicina al tetto 10k neuroni/giorno)
+- [ ] **Nuovo (da S22)**: valutare se reintrodurre HuggingFace su `router.huggingface.co` — verificare il nuovo formato di risposta (probabilmente diverso da `api-inference`, possibile necessità del campo `provider` o permessi gated sul modello) prima di riscrivere lo step. Priorità bassa: la cascata resta funzionante con Pollinations (client) + CF (proxy)
 
 ### Sessione B — Flusso di generazione e UX visibile [media]
 - [ ] Scarica/CTA Designer inaffidabili sulle immagini Pollinations (primario): niente upscale 2x (`downloadFrom` lo fa solo sui data-URL), `fetch()` cross-origin che può far fallire il download in silenzio — stessa trappola CORS dell'errore storico #1, applicata al download invece che al caricamento
@@ -72,6 +73,20 @@
 - [ ] Rimuovi sfondo vero (Remove.bg o REMBG)
 
 ---
+
+## Task Completate S22
+
+- [x] Sessione A del backlog S21 (Backend/sicurezza `generate.js`), Sonnet 5 impegno medio — bug già diagnosticati dall'audit S21, nessuna escalation necessaria:
+  1. **Validazione input**: `prompt` obbligatorio (stringa non vuota dopo trim, max 800 char) → `400 INVALID_PROMPT` se non rispettato; `width`/`height` passati da una funzione `clampDim()` che scarta valori non numerici (fallback 512) e clampa il risultato a [256,1024] — prima un valore malformato produceva `NaN` inoltrato ai provider a pagamento
+  2. **Timeout provider**: `AbortSignal.timeout(8000)` su CF e Together — prima una chiamata appesa consumava tutto il budget della function senza che il provider successivo venisse mai provato. Verificato via `curl` che `google.com` risolve normalmente (nessun problema di rete generale), isolando il problema al solo dominio HuggingFace
+  3. **HuggingFace rimosso**: confermato via `curl` che `api-inference.huggingface.co` non risolve più via DNS (`Could not resolve host`, non un errore 4xx/5xx — dominio dismesso). Il sostituto `router.huggingface.co` risponde (401 senza auth, atteso) ma con un formato di risposta diverso, non verificato in questa sessione — segnalato come nuovo item backlog invece di riscrivere alla cieca
+  4. **Together.ai**: aggiunto gate esplicito `TOGETHER_ENABLED === 'true'` oltre alla presenza di `TOGETHER_KEY` — prima bastava che la key fosse impostata per errore (es. test, variabile dimenticata) per riattivare un provider scartato in S16 senza alcun segnale
+  5. **`netlify.toml`**: pin `NODE_VERSION = "20"` in `[build.environment]`
+- [x] Sintassi verificata (`node --check`), logica di `clampDim()` testata a mano su 6 casi (numero normale, stringa non numerica, undefined, valore assurdo, negativo, `NaN` letterale) — tutti i fallback/clamp corretti
+- [x] **Non verificabile in Browser pane**: codice server-side Netlify Function con secret reali (`CF_API_TOKEN` ecc.), non riproducibile con `npx serve`. Skip esplicito della verifica visuale per questo motivo, non per omissione
+- [x] `immaginai_sicurezza.md` aggiornato: riga cascata `generate.js` (CF→Together, HF rimosso), nota sulla nuova validazione/timeout, nuova riga nel Registro Decisioni
+- [x] Backlog Sessione A marcato chiuso in `immaginai_stato.md`, con 1 item lasciato aperto (rate limit persistente su Netlify Blobs — decisione esplicitamente rimandata, introduce una dipendenza) e 1 nuovo item aggiunto (riscrittura HF su `router.huggingface.co`, priorità bassa)
+- [x] REGISTRA eseguito a metà sessione (non a fine sessione) su richiesta di Fabio, per chiudere la Sessione A con un commit separato prima di aprire la Sessione B — coerente con "una sessione risolve una cosa sola" (`CLAUDE.md` → Limite di complessità)
 
 ## Task Completate S21
 
@@ -171,10 +186,10 @@ docs/
 
 ### Cascata generazione (client, `generateAuto()` in Immaginai.html)
 1. **Pollinations AI** — `?model=flux` solo, gratis, illimitato, primario dal S16
-2. **generate.js** (Netlify Function) — prova in ordine:
+2. **generate.js** (Netlify Function) — prova in ordine, ciascuna con timeout 8s (S22):
    a. **Cloudflare Workers AI** — FLUX.1-schnell, 10k neuroni/giorno ≈ 20 img, 3-8s (Env: `CF_ACCOUNT_ID`+`CF_API_TOKEN`)
-   b. **Together.ai** — FLUX.1-schnell-Free — **scartato S16, richiede deposito**, non attivare (Env: `TOGETHER_KEY` pronta ma non impostata)
-   c. **HuggingFace** — SD fallback, qualità inferiore (Env: `HF_TOKEN`)
+   b. **Together.ai** — FLUX.1-schnell-Free — **scartato S16, richiede deposito**, non attivare. Gate esplicito `TOGETHER_ENABLED=true` oltre a `TOGETHER_KEY` (S22)
+   c. ~~HuggingFace~~ — **rimosso S22**: `api-inference.huggingface.co` non risolve più via DNS (dominio dismesso). Sostituto `router.huggingface.co` non ancora verificato/riscritto, vedi backlog
 3. **Stable Horde** — ultimo fallback, lento, coda
 
 ### Note critiche
@@ -212,6 +227,7 @@ docs/
 
 | Sessione | Attività |
 |----------|----------|
+| S22 | Sessione A del backlog (Backend/sicurezza `generate.js`), Sonnet 5 impegno medio: validazione input (`prompt` obbligatorio max 800, `width`/`height` clampati [256,1024]), timeout 8s per provider, rimosso HuggingFace (`api-inference.huggingface.co` non risolve più via `curl`), gate `TOGETHER_ENABLED` esplicito, pin `NODE_VERSION=20`. Non verificabile in Browser pane (secret server-side reali) — verificato con `node --check` + test manuale di `clampDim()`. `immaginai_sicurezza.md`/`immaginai_stato.md` aggiornati, REGISTRA a metà sessione su richiesta di Fabio per chiudere la Sessione A prima di aprire la B |
 | S21 | `RECEPISCI` di 14 travasi (`U-039`→`U-052`, 3 non pertinenti con nota), audit pre-scrittura Opus 5 ha corretto 4 errori. Fix immediati: NaN su `ig_cooldown`/`ig_timeout`, percorso stale in `settings.local.json`. Su richiesta di Fabio, audit completo del progetto (2 sotto-agenti Opus 5, frontend+backend): applicati i 4 fix a priorità più alta (cooldown unificato+16s, `DEFAULT_FAQ_DATA` riallineato, `applyUiSettings` implementata — mancava, rompeva il resize —, `generate.js` num_steps→steps+logging, poi riportato a steps:4 su richiesta). Tutto verificato in Browser pane. Resto del backlog riorganizzato in 5 sessioni per argomento/priorità in `immaginai_stato.md` |
 | S20 | Fix riferimento rotto `wonderspit_brand_kit.md`→`.html` in CLAUDE.md, trovato durante un controllo di coerenza tra i 4 progetti condotto da 1WS. Nessuna modifica all'app, nessuna nuova regola — solo fix riferimento. |
 | S18 | `RECEPISCI` di 5 travasi in sospeso (`U-034`→`U-038`): badge/palette limitata, Glob+`.gitignore`, WebFetch→Browser pane, ordine PATCH/audit di chiusura in REGISTRA. `U-038` già presente da S17, marcato recepito |

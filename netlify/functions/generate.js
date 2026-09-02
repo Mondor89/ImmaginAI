@@ -44,15 +44,35 @@ exports.handler = async function(event) {
     return { statusCode: 429, body: JSON.stringify({ error: 'RATE_LIMITED' }) };
   }
 
+  // Clamp a un intervallo sano (multiplo di 8, come richiesto dai provider) — un valore
+  // non numerico o assurdo (es. 999999) non va mai inoltrato a un'API a pagamento.
+  function clampDim(v, def) {
+    const n = Number(v);
+    if (!Number.isFinite(n)) return def;
+    return Math.min(1024, Math.max(256, Math.round(n / 8) * 8));
+  }
+
   let prompt, width, height;
   try {
     const body = JSON.parse(event.body);
-    prompt = body.prompt || '';
-    width  = Math.round((body.width  || 512) / 8) * 8;
-    height = Math.round((body.height || 512) / 8) * 8;
+    prompt = typeof body.prompt === 'string' ? body.prompt.trim() : '';
+    if (!prompt || prompt.length > 800) {
+      return { statusCode: 400, body: JSON.stringify({ error: 'INVALID_PROMPT' }) };
+    }
+    width  = clampDim(body.width, 512);
+    height = clampDim(body.height, 512);
   } catch (e) {
     return { statusCode: 400, body: JSON.stringify({ error: 'BAD_REQUEST' }) };
   }
+
+  // Timeout esplicito: senza questo una CF appesa consuma tutto il budget della function
+  // finché non la uccide Netlify stesso, e Together non viene mai provato.
+  // 8s per provider: ipotesi di lavoro basata sul limite di default delle Netlify Functions
+  // sincrone (~10s, non documentato in modo definitivo da Netlify — vedi CLAUDE.md → Principi
+  // di debug). Con Together disattivato di default (TOGETHER_ENABLED), oggi al massimo un
+  // provider per richiesta usa questo timeout; se Together verrà riattivato, ridurre il valore
+  // per restare sotto il tetto anche con CF+Together in sequenza nella stessa richiesta.
+  const PROVIDER_TIMEOUT_MS = 8000;
 
   // 1. Cloudflare Workers AI — FLUX.1-schnell (gratis, 10k neuroni/giorno, 3-8s)
   const CF_ACCOUNT_ID = process.env.CF_ACCOUNT_ID;
@@ -68,6 +88,7 @@ exports.handler = async function(event) {
             'Content-Type': 'application/json',
           },
           body: JSON.stringify({ prompt, steps: 4, width, height }),
+          signal: AbortSignal.timeout(PROVIDER_TIMEOUT_MS),
         }
       );
       if (res.ok) {
@@ -87,8 +108,12 @@ exports.handler = async function(event) {
   }
 
   // 2. Together.ai — FLUX.1-schnell-Free (gratis con deposito, 2-5s)
+  // Scartato come primario in S16 (richiede deposito) — gate esplicito su TOGETHER_ENABLED,
+  // non solo sull'esistenza della key: se TOGETHER_KEY viene impostata per errore (es. test,
+  // variabile lasciata da una prova), il provider non torna attivo senza un secondo consenso esplicito.
   const TOGETHER_KEY = process.env.TOGETHER_KEY;
-  if (TOGETHER_KEY) {
+  const TOGETHER_ENABLED = process.env.TOGETHER_ENABLED === 'true';
+  if (TOGETHER_ENABLED && TOGETHER_KEY) {
     try {
       const res = await fetch('https://api.together.xyz/v1/images/generations', {
         method: 'POST',
@@ -100,6 +125,7 @@ exports.handler = async function(event) {
           model: 'black-forest-labs/FLUX.1-schnell-Free',
           prompt, width, height, steps: 4, n: 1, response_format: 'b64_json',
         }),
+        signal: AbortSignal.timeout(PROVIDER_TIMEOUT_MS),
       });
       if (res.ok) {
         const data = await res.json();
@@ -117,42 +143,11 @@ exports.handler = async function(event) {
     } catch (e) { console.error('Together error', e.message); }
   }
 
-  // 3. HuggingFace — SD fallback
-  const HF_TOKEN = process.env.HF_TOKEN;
-  if (HF_TOKEN) {
-    const MODELS = [
-      { id: 'stabilityai/stable-diffusion-2-1',  steps: 20, guidance: 7.5 },
-      { id: 'runwayml/stable-diffusion-v1-5',     steps: 20, guidance: 7.5 },
-    ];
-    for (const model of MODELS) {
-      try {
-        const res = await fetch(
-          `https://api-inference.huggingface.co/models/${model.id}`,
-          {
-            method: 'POST',
-            headers: {
-              'Authorization': `Bearer ${HF_TOKEN}`,
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-              inputs: prompt,
-              parameters: { width, height, num_inference_steps: model.steps, guidance_scale: model.guidance },
-            }),
-          }
-        );
-        if (!res.ok) { console.error('HF fail', model.id, res.status); continue; }
-        const buf = await res.arrayBuffer();
-        if (!buf.byteLength) { console.error('HF empty', model.id); continue; }
-        const b64 = Buffer.from(buf).toString('base64');
-        const ct  = res.headers.get('content-type') || 'image/jpeg';
-        return {
-          statusCode: 200,
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ image: `data:${ct};base64,${b64}` }),
-        };
-      } catch (e) { console.error('HF error', model.id, e.message); continue; }
-    }
-  }
+  // 3. HuggingFace — rimosso in S22: api-inference.huggingface.co non risolve più via DNS
+  // (dominio dismesso, verificato con curl — non un errore 4xx, un fallimento di risoluzione).
+  // Il sostituto (router.huggingface.co) usa un formato di risposta diverso e richiede una
+  // verifica separata prima di riscrivere questo step — vedi backlog in immaginai_stato.md.
+  // HF_TOKEN resta letto/usato altrove (Immaginai.html) come chiave Stable Horde, non toccarlo qui.
 
   return { statusCode: 503, body: JSON.stringify({ error: 'ALL_MODELS_FAILED' }) };
 };
