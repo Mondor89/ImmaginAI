@@ -737,7 +737,7 @@ const DEFAULT_FAQ_DATA=[
       {q:'Perché l\'immagine non corrisponde a quello che ho scritto?',a:'L\'intelligenza artificiale interpreta le parole in modo creativo. Se il risultato non ti convince, prova ad essere più specifico nel prompt (es: "un gatto arancione seduto su un tetto di notte" invece di "un gatto") oppure usa i Dettagli visivi per aggiungere stile e atmosfera.',active:true},
       {q:'Cosa significa "cooldown"?',a:'Dopo ogni generazione l\'app attende qualche secondo prima di permettere una nuova richiesta. È una pausa tecnica necessaria per il servizio gratuito. Vedrai una barra di attesa che si svuota — quando sparisce puoi generare di nuovo.',active:true},
       {q:'Perché alcune immagini ci mettono più tempo?',a:'Il tempo di generazione dipende dal carico del server in quel momento. Di solito sono 15-30 secondi. Se l\'attesa supera il minuto, l\'app prova automaticamente con un modello alternativo.',active:true},
-      {q:'L\'immagine viene salvata automaticamente?',a:'Sì, ogni immagine generata viene salvata nella sezione Galleria del tuo browser. Attenzione: se cancelli i dati del browser o usi una finestra in incognito, la galleria viene persa. Per conservare un\'immagine in modo sicuro, scaricala subito.',active:true},
+      {q:'L\'immagine viene salvata automaticamente?',a:'Sì, ogni immagine generata viene salvata nella sezione Galleria del tuo browser — che conserva le ultime 12 immagini: generandone altre, le più vecchie vengono rimosse automaticamente. Attenzione: se cancelli i dati del browser o usi una finestra in incognito, la galleria viene persa. Per conservare un\'immagine in modo sicuro, scaricala subito.',active:true},
     ]
   },
   {
@@ -807,9 +807,14 @@ document.addEventListener('DOMContentLoaded',()=>{
   loadSaved();loadStyles();loadCats();loadFaqs();loadNavBtns();loadBtnColors();
   buildStyles();buildRatios();buildDvTabs();initLongPress();
   loadLogoFromStorage();applyNavBtns();loadUiSettings();
-  window.addEventListener('resize',detectLayout);
+  window.addEventListener('resize',onWindowResize);
 });
 
+let _lastIsMobile=null,_resizeRAF=null;
+function onWindowResize(){
+  if(_resizeRAF) return;
+  _resizeRAF=requestAnimationFrame(()=>{_resizeRAF=null;detectLayout();});
+}
 function detectLayout(){
   const mob=isMobile();
   if(!mob){
@@ -817,13 +822,17 @@ function detectLayout(){
     document.getElementById('controls').style.display='flex';
     document.getElementById('controls').classList.remove('tab-hidden');
     document.getElementById('preview-col').style.display='flex';
-  } else {
+  } else if(_lastIsMobile!==true){
+    // Solo al passaggio desktop→mobile (o al primo caricamento): un resize di sola altezza
+    // (tastiera virtuale che si apre mentre isMobile()==true già prima) non deve richiamare
+    // switchTab(), che nasconderebbe l'immagine generata rimuovendo 'output-active'
     document.getElementById('sidebar').style.display='none';
     document.getElementById('preview-col').style.display='none';
     const activeNav=document.querySelector('.nav-btn.active');
     const t=activeNav?.id?.replace('nav-','')||'create';
     switchTab(t);
   }
+  _lastIsMobile=mob;
 }
 
 function loadSaved(){
@@ -1235,7 +1244,7 @@ async function generateImage(){
     setStatus('✓ Immagine generata!','ok');setTimeout(()=>setStatus('',''),3000);
     ST.gallery.unshift({url:dataUrl,prompt,style:ST.style,ratio:ST.ratio,ts:Date.now()});
     if(ST.gallery.length>12) ST.gallery.pop();
-    try{localStorage.setItem('ig_gallery',JSON.stringify(ST.gallery));}catch(e){}
+    saveGallery();
     renderGallery();
   }catch(e){
     const m=e.message||'';
@@ -1302,15 +1311,18 @@ function keepModifica(){
   ST.currentUrl=m.url;ST.currentPrompt=m.prompt;ST.currentStyle=m.style;
   ST.gallery.unshift({url:m.url,prompt:m.prompt+', '+m.extra,style:m.style,ratio:ST.ratio,ts:Date.now()});
   if(ST.gallery.length>12) ST.gallery.pop();
-  try{localStorage.setItem('ig_gallery',JSON.stringify(ST.gallery));}catch(e){}
+  saveGallery();
   renderGallery();closeCompare();
   document.getElementById('imgActions').classList.add('visible');document.getElementById('ctaWrap').classList.add('visible');
   document.getElementById('modificaInput').value='';
+  ST._pendingModifica=null;
 }
 function discardModifica(){
   document.getElementById('generatedImg').style.display='block';
   closeCompare();
   document.getElementById('imgActions').classList.add('visible');document.getElementById('ctaWrap').classList.add('visible');
+  document.getElementById('modificaInput').value='';
+  ST._pendingModifica=null;
 }
 function closeCompare(){document.getElementById('compareOverlay').classList.remove('open');}
 
@@ -1336,7 +1348,7 @@ async function regenImage(){
     setStatus('✓ Rigenerata!','ok');setTimeout(()=>setStatus('',''),3000);
     ST.gallery.unshift({url:dataUrl,prompt:savedPrompt,style:savedStyle,ratio:savedRatio,ts:Date.now()});
     if(ST.gallery.length>12) ST.gallery.pop();
-    try{localStorage.setItem('ig_gallery',JSON.stringify(ST.gallery));}catch(e){}
+    saveGallery();
     renderGallery();
   }catch(e){
     const m=e.message||'';
@@ -1349,7 +1361,25 @@ async function regenImage(){
 document.addEventListener('keydown',e=>{if(e.ctrlKey&&e.key==='Enter') generateImage();});
 
 /* ── GALLERY ── */
-function renderGallery(){const cnt=document.getElementById('galleryCount'),con=document.getElementById('galleryContent');if(!cnt||!con) return;cnt.textContent=ST.gallery.length+' immagini generate';if(!ST.gallery.length){con.innerHTML=`<div class="empty-state"><div class="empty-icon">🖼️</div><p>Nessuna immagine ancora</p><span>Vai su Crea e genera!</span></div>`;return;}con.innerHTML=`<div class="gallery-grid">${ST.gallery.map((it,i)=>`<div class="gallery-item"><img src="${it.url}" loading="lazy" onclick="openModal(ST.gallery[${i}].url)"><div class="gallery-caption">${it.prompt}</div><div class="gallery-actions"><button class="gal-btn" onclick="downloadFrom(ST.gallery[${i}].url)">⬇</button><button class="gal-btn ac" onclick="reusePrompt(${i})">↺ Riusa</button><button class="gal-btn" onclick="delItem(${i})">🗑</button></div></div>`).join('')}</div>`;}
+function saveGallery(){
+  const beforeLen=ST.gallery.length;
+  while(ST.gallery.length>0){
+    try{
+      localStorage.setItem('ig_gallery',JSON.stringify(ST.gallery));
+      if(ST.gallery.length<beforeLen){
+        setStatus('Spazio esaurito — rimosse le immagini più vecchie per fare posto alla nuova','fail');
+        setTimeout(()=>setStatus('',''),4000);
+      }
+      return true;
+    }catch(e){
+      // QuotaExceededError (comune con immagini data-URL pesanti da Stable Horde/proxy):
+      // scarta la più vecchia e riprova, invece di perdere silenziosamente tutta la galleria
+      ST.gallery.pop();
+    }
+  }
+  return false;
+}
+function renderGallery(){const cnt=document.getElementById('galleryCount'),con=document.getElementById('galleryContent');if(!cnt||!con) return;cnt.textContent=ST.gallery.length+' / 12 immagini — le più vecchie vengono rimosse automaticamente';if(!ST.gallery.length){con.innerHTML=`<div class="empty-state"><div class="empty-icon">🖼️</div><p>Nessuna immagine ancora</p><span>Vai su Crea e genera!</span></div>`;return;}con.innerHTML=`<div class="gallery-grid">${ST.gallery.map((it,i)=>`<div class="gallery-item"><img src="${it.url}" loading="lazy" onclick="openModal(ST.gallery[${i}].url)"><div class="gallery-caption">${it.prompt}</div><div class="gallery-actions"><button class="gal-btn" onclick="downloadFrom(ST.gallery[${i}].url)">⬇</button><button class="gal-btn ac" onclick="reusePrompt(${i})">↺ Riusa</button><button class="gal-btn" onclick="delItem(${i})">🗑</button></div></div>`).join('')}</div>`;}
 function reusePrompt(i){const it=ST.gallery[i];document.getElementById('promptInput').value=it.prompt;ST.style=it.style;buildStyles();switchTab('create');}
 function delItem(i){ST.gallery.splice(i,1);try{localStorage.setItem('ig_gallery',JSON.stringify(ST.gallery));}catch(e){}renderGallery();}
 
@@ -1358,9 +1388,32 @@ function buildRatios(){const r=document.getElementById('ratioRow');if(!r) return
 function toggleSetting(k){ST[k]=!ST[k];document.getElementById('toggle'+k.charAt(0).toUpperCase()+k.slice(1))?.classList.toggle('on',ST[k]);}
 function downloadImg(){if(ST.currentUrl) downloadFrom(ST.currentUrl);}
 function getImgExt(url){if(url.startsWith('data:image/png')) return 'png';if(url.startsWith('data:image/webp')) return 'webp';return 'jpg';}
-function upscaleCanvas(dataUrl,scale){return new Promise(resolve=>{const img=new Image();_imgCache.add(img);img.onload=()=>{const c=document.createElement('canvas');c.width=img.width*scale;c.height=img.height*scale;const ctx=c.getContext('2d');ctx.imageSmoothingEnabled=true;ctx.imageSmoothingQuality='high';ctx.drawImage(img,0,0,c.width,c.height);_imgCache.delete(img);resolve(c.toDataURL('image/png'));};img.onerror=()=>{_imgCache.delete(img);resolve(dataUrl);};img.src=dataUrl;});}
-async function downloadFrom(url){let out=url;if(url.startsWith('data:')){out=await upscaleCanvas(url,2);}fetch(out).then(r=>r.blob()).then(b=>{const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='WS-immagine.png';a.click();URL.revokeObjectURL(a.href);}).catch(()=>{const a=document.createElement('a');a.href=out;a.download='WS-immagine.png';a.click();});}
-function goToDesigner(){if(ST.currentUrl) downloadFrom(ST.currentUrl);window.open('https://wonderspit.myspreadshop.it/create','_blank');}
+function upscaleCanvas(dataUrl,scale){return new Promise(resolve=>{const img=new Image();img.crossOrigin='anonymous';_imgCache.add(img);img.onload=()=>{
+  try{
+    const c=document.createElement('canvas');c.width=img.width*scale;c.height=img.height*scale;const ctx=c.getContext('2d');ctx.imageSmoothingEnabled=true;ctx.imageSmoothingQuality='high';ctx.drawImage(img,0,0,c.width,c.height);
+    const out=c.toDataURL('image/png');
+    _imgCache.delete(img);resolve(out);
+  }catch(e){
+    // Canvas "tainted" (provider senza header CORS sull'immagine) — niente upscale, ma non restare mai in attesa infinita
+    _imgCache.delete(img);resolve(dataUrl);
+  }
+};img.onerror=()=>{_imgCache.delete(img);resolve(dataUrl);};img.src=dataUrl;});}
+async function downloadFrom(url){
+  let out=url;
+  try{out=await upscaleCanvas(url,2);}catch(e){}
+  try{
+    const b=await(await fetch(out)).blob();
+    const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='WS-immagine.png';a.click();URL.revokeObjectURL(a.href);
+  }catch(e){
+    // fetch cross-origin fallito (rete/CORS): l'attributo download viene ignorato dal browser
+    // su un URL cross-origin, quindi un click sull'anchor non scaricherebbe nulla in silenzio —
+    // apriamo l'immagine in una scheda perché l'utente possa salvarla manualmente
+    window.open(out,'_blank');
+    setStatus('Download automatico non riuscito — immagine aperta in una nuova scheda, salvala da lì','fail');
+    setTimeout(()=>setStatus('',''),5000);
+  }
+}
+function goToDesigner(){if(ST.currentUrl) downloadFrom(ST.currentUrl);window.open('https://wonderspit.myspreadshop.net/create','_blank');}
 function downloadModal(){downloadFrom(document.getElementById('modalImg').src);}
 function copyPromptText(){navigator.clipboard.writeText(ST.currentPrompt).then(()=>{const b=document.getElementById('copyBtn');if(b){b.textContent='✓ Copiato!';setTimeout(()=>b.textContent='📋 Prompt',1500);}});}
 function openModal(url){document.getElementById('modalImg').src=url;document.getElementById('modal').classList.add('open');}

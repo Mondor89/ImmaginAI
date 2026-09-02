@@ -124,9 +124,6 @@ body:not(.light) .adv-input {
 .dv-label         { margin-bottom: 10px !important; }
 .dv-wrap          { margin-top: 20px !important; }
 
-/* Status bar nascosta — info già visibili nel pannello anteprima */
-#statusBar        { display: none !important; }
-
 /* Tab DV: wrap su più righe — nessun taglio, niente frecce */
 .dv-tab-row   { flex-wrap: wrap !important; overflow-x: visible !important; }
 #dvArrowLeft,
