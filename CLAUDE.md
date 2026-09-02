@@ -10,7 +10,7 @@ Modulo 3 dell'ecosistema WonderSpit.
 **Target:** Pubblico (clienti finali WonderSpit)
 **Stack tecnico:** HTML+CSS+JS vanilla, single-file (`app/Immaginai.html`) + Netlify Functions per il proxy API key
 **Backend/hosting:** Netlify + Netlify Functions (`netlify/functions/generate.js`)
-**API esterne usate:** Pollinations AI (gratis, no key) → Cloudflare Workers AI (CF_ACCOUNT_ID+CF_API_TOKEN, 10k neuroni/giorno) → Together.ai (TOGETHER_KEY, non attivo — richiede deposito) → HuggingFace (HF_TOKEN, fallback) → Stable Horde (ultimo fallback)
+**API esterne usate:** Pollinations AI (gratis, no key) → Cloudflare Workers AI (CF_ACCOUNT_ID+CF_API_TOKEN, 10k neuroni/giorno) → Together.ai (TOGETHER_KEY + TOGETHER_ENABLED='true', non attivo — richiede deposito) → Stable Horde (ultimo fallback). HuggingFace rimosso in S22: dominio `api-inference.huggingface.co` dismesso
 **Repository:** https://github.com/Mondor89/ImmaginAI
 **Deploy:** https://wonderspit-ai.netlify.app/
 
@@ -34,7 +34,7 @@ Modulo 3 dell'ecosistema WonderSpit.
 
 ## Stack
 HTML + CSS + JS vanilla · singolo file · Pollinations AI gratuita come primaria · Netlify (hosting)
-Cascata generazione: Pollinations → Cloudflare Workers AI → Together.ai (da attivare) → HuggingFace → Stable Horde
+Cascata generazione: Pollinations → Cloudflare Workers AI → Together.ai (da attivare, gate TOGETHER_ENABLED) → Stable Horde
 
 ## URL reali
 - Spreadshop: https://wonderspit.myspreadshop.net
@@ -439,6 +439,10 @@ Messaggio commit: `Sessione N — [funzionalità] / [cosa fatto] / [cosa resta]`
 ### Cleanup asincrono — mai prima di un reject/throw
 - Un cleanup asincrono "best-effort" (`qualcosa().catch(() => {})`) scritto subito prima di un `reject`/`throw` sincrono non garantisce che finisca prima che il chiamante osservi l'errore: sono una corsa, non una sequenza.
 - Incatenare la propagazione dentro `.finally()`, oppure attendere con `await` — mai lasciare il cleanup "in volo" e propagare subito dopo.
+
+### Promise + callback (DOM, timer, reader) — un'eccezione sincrona nel callback lascia la Promise per sempre pending
+- Un `new Promise((resolve,reject)=>{ img.onload = () => { ...corpo senza try/catch... } })` non è sicuro: se il corpo dentro `onload`/`onerror` (o un handler di `setTimeout`/`setInterval`/`FileReader`/`XMLHttpRequest`, o qualunque altro callback) lancia (es. `canvas.toDataURL()` su un'immagine "tainted" → `SecurityError`), l'eccezione interrompe l'handler **prima** di chiamare `resolve()`/`reject()` — e se non è dentro un `try/catch` che la propaghi a un `reject()`/`resolve()` di fallback, la Promise non si risolve né si rigetta mai. Sintomo: un hang silenzioso e indefinito, non un errore visibile collegabile al chiamante (l'eccezione compare come "Uncaught" a parte, ma chi fa `await` resta bloccato per sempre). Scoperto in ImmaginAI in S22 rendendo incondizionata una chiamata a `upscaleCanvas()` prima limitata ai soli `data:` URL (che non taintano mai un canvas) — non un bug che era già in produzione.
+- **Regola pratica:** avvolgere sempre il corpo di un callback dentro l'executor di una Promise in un `try/catch`, e nel `catch` chiamare esplicitamente `resolve()` (con un fallback) o `reject()` — mai lasciare che un'eccezione sincrona interrompa l'handler senza mai risolvere la Promise. Impostare `crossOrigin` su un `<img>` **non basta da solo** a evitare il canvas tainted: se il server non espone `Access-Control-Allow-Origin`, l'immagine smette di caricarsi del tutto (scatta `onerror`, non più il tainted canvas) e in più forza una richiesta di rete separata dalla cache — non sostituisce il `try/catch`, è un'ottimizzazione indipendente. Gemella della regola già in "Principi di debug" ("un'attesa senza limite non fallisce, si pianta"): lì il rischio è un `setTimeout`/poll senza tetto, qui è una Promise che non ha nessun percorso di uscita.
 
 ---
 

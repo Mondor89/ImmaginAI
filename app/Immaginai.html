@@ -817,21 +817,17 @@ function onWindowResize(){
 }
 function detectLayout(){
   const mob=isMobile();
-  if(!mob){
-    document.getElementById('sidebar').style.display='flex';
-    document.getElementById('controls').style.display='flex';
-    document.getElementById('controls').classList.remove('tab-hidden');
-    document.getElementById('preview-col').style.display='flex';
-  } else if(_lastIsMobile!==true){
-    // Solo al passaggio desktop→mobile (o al primo caricamento): un resize di sola altezza
-    // (tastiera virtuale che si apre mentre isMobile()==true già prima) non deve richiamare
-    // switchTab(), che nasconderebbe l'immagine generata rimuovendo 'output-active'
-    document.getElementById('sidebar').style.display='none';
-    document.getElementById('preview-col').style.display='none';
-    const activeNav=document.querySelector('.nav-btn.active');
-    const t=activeNav?.id?.replace('nav-','')||'create';
-    switchTab(t);
+  if(_lastIsMobile===mob){
+    // Nessun cambiamento reale mobile↔desktop (es. tastiera virtuale che cambia solo l'altezza):
+    // non toccare la tab attiva. Prima questa guardia c'era solo sul ramo mobile — il ramo
+    // desktop, incondizionato, rimetteva sempre in vista #controls/#preview-col ad ogni resize
+    // anche con Galleria/FAQ attive, facendoli riapparire accanto alla schermata attiva
+    return;
   }
+  document.getElementById('sidebar').style.display=mob?'none':'flex';
+  const activeNav=document.querySelector('.nav-btn.active');
+  const t=activeNav?.id?.replace('nav-','')||'create';
+  switchTab(t); // switchTab imposta già controls/preview-col/screen-* in base a isMobile() corrente
   _lastIsMobile=mob;
 }
 
@@ -1123,6 +1119,15 @@ function initLongPress(){['sidebarLogo','mobileLogoTitle'].forEach(id=>{const el
 
 /* ── STATUS/COOLDOWN ── */
 function setStatus(m,t){const bar=document.getElementById('statusBar'),sp=document.getElementById('statusSpin'),tx=document.getElementById('statusText');if(!m){bar.className='';return;}bar.className='show '+(t||'');sp.style.display=t==='loading'?'block':'none';tx.textContent=m;}
+let _statusToken=0;
+function flashStatus(m,t,duration){
+  // Un setStatus(...)+setTimeout(()=>setStatus(''),N) "sparato e dimenticato" può cancellare
+  // in anticipo un messaggio successivo impostato nel frattempo — il token fa sì che un timer
+  // vecchio cancelli solo se è ancora l'ultimo messaggio mostrato, non quello che lo ha sostituito
+  const token=++_statusToken;
+  setStatus(m,t);
+  setTimeout(()=>{if(_statusToken===token) setStatus('','');},duration);
+}
 let cdTimer=null;
 function showCooldown(ms){const bar=document.getElementById('cooldownBar'),fill=document.getElementById('cooldownFill'),txt=document.getElementById('cooldownText');bar.classList.add('show');fill.style.width='100%';clearInterval(cdTimer);const t0=Date.now();cdTimer=setInterval(()=>{const e=Date.now()-t0,pct=Math.max(0,100-(e/ms*100)),rem=Math.max(0,Math.ceil((ms-e)/1000));fill.style.width=pct+'%';txt.textContent='⏳ Attendi '+rem+'s…';if(e>=ms){clearInterval(cdTimer);bar.classList.remove('show');}},100);}
 
@@ -1241,7 +1246,7 @@ async function generateImage(){
     imgEl.src=dataUrl;imgEl.onclick=()=>openModal(dataUrl);
     sBox.style.display='none';imgEl.style.display='block';acts.classList.add('visible');document.getElementById('ctaWrap').classList.add('visible');
     imgEl.classList.remove('img-pop');void imgEl.offsetWidth;imgEl.classList.add('img-pop');
-    setStatus('✓ Immagine generata!','ok');setTimeout(()=>setStatus('',''),3000);
+    flashStatus('✓ Immagine generata!','ok',3000);
     ST.gallery.unshift({url:dataUrl,prompt,style:ST.style,ratio:ST.ratio,ts:Date.now()});
     if(ST.gallery.length>12) ST.gallery.pop();
     saveGallery();
@@ -1345,7 +1350,7 @@ async function regenImage(){
     imgEl.src=dataUrl;imgEl.onclick=()=>openModal(dataUrl);
     sBox.style.display='none';imgEl.style.display='block';acts.classList.add('visible');document.getElementById('ctaWrap').classList.add('visible');
     imgEl.classList.remove('img-pop');void imgEl.offsetWidth;imgEl.classList.add('img-pop');
-    setStatus('✓ Rigenerata!','ok');setTimeout(()=>setStatus('',''),3000);
+    flashStatus('✓ Rigenerata!','ok',3000);
     ST.gallery.unshift({url:dataUrl,prompt:savedPrompt,style:savedStyle,ratio:savedRatio,ts:Date.now()});
     if(ST.gallery.length>12) ST.gallery.pop();
     saveGallery();
@@ -1362,26 +1367,33 @@ document.addEventListener('keydown',e=>{if(e.ctrlKey&&e.key==='Enter') generateI
 
 /* ── GALLERY ── */
 function saveGallery(){
-  const beforeLen=ST.gallery.length;
-  while(ST.gallery.length>0){
+  const isQuotaError=e=>e&&(e.name==='QuotaExceededError'||e.name==='NS_ERROR_DOM_QUOTA_REACHED'||e.code===22||e.code===1014);
+  // Si lavora su una COPIA: ST.gallery (lo stato in RAM, già visibile all'utente) viene toccato
+  // solo se il salvataggio riesce davvero — un errore non di quota (localStorage disabilitato,
+  // navigazione privata restrittiva) non deve svuotare la galleria che l'utente sta guardando
+  let trimmed=ST.gallery.slice();
+  while(trimmed.length>0){
     try{
-      localStorage.setItem('ig_gallery',JSON.stringify(ST.gallery));
-      if(ST.gallery.length<beforeLen){
-        setStatus('Spazio esaurito — rimosse le immagini più vecchie per fare posto alla nuova','fail');
-        setTimeout(()=>setStatus('',''),4000);
+      localStorage.setItem('ig_gallery',JSON.stringify(trimmed));
+      if(trimmed.length<ST.gallery.length){
+        ST.gallery=trimmed;
+        renderGallery();
+        flashStatus('Spazio esaurito — rimosse le immagini più vecchie per fare posto alla nuova','fail',4000);
       }
       return true;
     }catch(e){
-      // QuotaExceededError (comune con immagini data-URL pesanti da Stable Horde/proxy):
-      // scarta la più vecchia e riprova, invece di perdere silenziosamente tutta la galleria
-      ST.gallery.pop();
+      if(!isQuotaError(e)) break; // errore diverso da quota: non ha senso scartare immagini per "farci stare" qualcosa che non è un problema di spazio
+      trimmed.pop();
     }
   }
+  // Non è stato possibile salvare nulla (localStorage non disponibile, o anche una sola immagine
+  // supera la quota): ST.gallery NON viene toccato — resta visibile in questa sessione, solo non persistito
+  flashStatus('Impossibile salvare la galleria (spazio esaurito o non disponibile) — le immagini restano visibili solo in questa sessione','fail',5000);
   return false;
 }
 function renderGallery(){const cnt=document.getElementById('galleryCount'),con=document.getElementById('galleryContent');if(!cnt||!con) return;cnt.textContent=ST.gallery.length+' / 12 immagini — le più vecchie vengono rimosse automaticamente';if(!ST.gallery.length){con.innerHTML=`<div class="empty-state"><div class="empty-icon">🖼️</div><p>Nessuna immagine ancora</p><span>Vai su Crea e genera!</span></div>`;return;}con.innerHTML=`<div class="gallery-grid">${ST.gallery.map((it,i)=>`<div class="gallery-item"><img src="${it.url}" loading="lazy" onclick="openModal(ST.gallery[${i}].url)"><div class="gallery-caption">${it.prompt}</div><div class="gallery-actions"><button class="gal-btn" onclick="downloadFrom(ST.gallery[${i}].url)">⬇</button><button class="gal-btn ac" onclick="reusePrompt(${i})">↺ Riusa</button><button class="gal-btn" onclick="delItem(${i})">🗑</button></div></div>`).join('')}</div>`;}
 function reusePrompt(i){const it=ST.gallery[i];document.getElementById('promptInput').value=it.prompt;ST.style=it.style;buildStyles();switchTab('create');}
-function delItem(i){ST.gallery.splice(i,1);try{localStorage.setItem('ig_gallery',JSON.stringify(ST.gallery));}catch(e){}renderGallery();}
+function delItem(i){ST.gallery.splice(i,1);try{localStorage.setItem('ig_gallery',JSON.stringify(ST.gallery));}catch(e){flashStatus('Impossibile salvare la rimozione — riproverà al prossimo salvataggio','fail',4000);}renderGallery();}
 
 /* ── MISC ── */
 function buildRatios(){const r=document.getElementById('ratioRow');if(!r) return;r.innerHTML='';RATIOS.forEach(rt=>{const b=document.createElement('button');b.className='ratio-btn'+(rt.id===ST.ratio?' active':'');b.innerHTML=`<span class="ratio-icon">${rt.icon}</span><span class="ratio-label">${rt.label}</span>`;b.onclick=()=>{ST.ratio=rt.id;document.querySelectorAll('.ratio-btn').forEach(x=>x.classList.remove('active'));b.classList.add('active');};r.appendChild(b);});}
@@ -1399,18 +1411,26 @@ function upscaleCanvas(dataUrl,scale){return new Promise(resolve=>{const img=new
   }
 };img.onerror=()=>{_imgCache.delete(img);resolve(dataUrl);};img.src=dataUrl;});}
 async function downloadFrom(url){
-  let out=url;
-  try{out=await upscaleCanvas(url,2);}catch(e){}
   try{
-    const b=await(await fetch(out)).blob();
-    const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='WS-immagine.png';a.click();URL.revokeObjectURL(a.href);
+    // Un solo fetch, riusato sia per l'upscale che per il download: prima si tentava un
+    // upscale con img.crossOrigin su Pollinations (URL http) e POI un fetch separato per il
+    // blob — due richieste di rete per un servizio generativo, con rischio di una seconda
+    // generazione lenta. Il blob: URL creato qui è sempre "same-origin" per il canvas, quindi
+    // l'upscale non rischia mai un canvas "tainted" per questa via
+    const blob=await(await fetch(url)).blob();
+    let finalBlob=blob,ext=blob.type.includes('png')?'png':blob.type.includes('webp')?'webp':'jpg';
+    const blobUrl=URL.createObjectURL(blob);
+    const upscaled=await upscaleCanvas(blobUrl,2); // non rigetta mai: fallback all'originale se il canvas non è utilizzabile
+    if(upscaled.startsWith('data:image/png')){finalBlob=await(await fetch(upscaled)).blob();ext='png';}
+    URL.revokeObjectURL(blobUrl);
+    const a=document.createElement('a');a.href=URL.createObjectURL(finalBlob);a.download='WS-immagine.'+ext;a.click();URL.revokeObjectURL(a.href);
   }catch(e){
-    // fetch cross-origin fallito (rete/CORS): l'attributo download viene ignorato dal browser
-    // su un URL cross-origin, quindi un click sull'anchor non scaricherebbe nulla in silenzio —
-    // apriamo l'immagine in una scheda perché l'utente possa salvarla manualmente
-    window.open(out,'_blank');
-    setStatus('Download automatico non riuscito — immagine aperta in una nuova scheda, salvala da lì','fail');
-    setTimeout(()=>setStatus('',''),5000);
+    // fetch fallito (rete, o CORS se il provider non espone Access-Control-Allow-Origin
+    // sull'immagine): l'attributo download viene ignorato dal browser su un URL cross-origin,
+    // quindi un click sull'anchor non scaricherebbe nulla in silenzio — apriamo l'immagine in
+    // una scheda perché l'utente possa salvarla manualmente
+    window.open(url,'_blank');
+    flashStatus('Download automatico non riuscito — immagine aperta in una nuova scheda, salvala da lì','fail',5000);
   }
 }
 function goToDesigner(){if(ST.currentUrl) downloadFrom(ST.currentUrl);window.open('https://wonderspit.myspreadshop.net/create','_blank');}

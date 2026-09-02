@@ -392,6 +392,19 @@ body:not(.light) .adv-input {
   .transp-toggle           { padding: 9px 8px !important; font-size: 11px !important; border-radius: 10px !important; }
   #genBtnMobile            { display: none !important; }
   #app #controls-scroll    { padding: 10px 16px 18px !important; gap: 14px !important; }
+
+  /* #statusBar vive dentro #controls-scroll, che su mobile finisce sotto l'overlay
+     #preview-col.output-active (position:fixed, z-index:40) non appena parte una generazione
+     — cioè proprio quando è più probabile che un messaggio (quota galleria, download fallito)
+     debba comparire. Lo si porta fuori flusso con z-index più alto solo quando è visibile. */
+  #statusBar.show {
+    position: fixed !important;
+    top: 60px !important;
+    left: 12px !important;
+    right: 12px !important;
+    z-index: 70 !important;
+    box-shadow: 0 4px 16px rgba(0,0,0,.18) !important;
+  }
 }
 
 /* ════════════════════════════════════════════════════

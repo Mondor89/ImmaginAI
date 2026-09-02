@@ -3,7 +3,12 @@
   functions = "netlify/functions"
 
 [build.environment]
+  # NODE_VERSION governa solo la fase di build, non il runtime delle Functions — che si fissa
+  # con AWS_LAMBDA_JS_RUNTIME (ipotesi di lavoro non verificata in modo definitivo sulla
+  # documentazione Netlify, vedi CLAUDE.md → Principi di debug). Senza questo, un cambio del
+  # default Netlify sotto Node 17.3 romperebbe silenziosamente AbortSignal.timeout() in generate.js
   NODE_VERSION = "20"
+  AWS_LAMBDA_JS_RUNTIME = "nodejs20.x"
 
 [[redirects]]
   from = "/"
