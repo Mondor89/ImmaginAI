@@ -7,9 +7,9 @@
 
 | Campo | Valore |
 |-------|--------|
-| Ultimo aggiornamento | Agosto 2026 — S18 (fine) |
+| Ultimo aggiornamento | 2 Settembre 2026 — S21 |
 | Versione app | v4.4 |
-| Stato | ✅ Pollinations primario (gratis, illimitato) — CF come backup qualità, Together.ai scartato. CLAUDE.md allineato al template APP, 5 travasi in sospeso (U-034→U-038) recepiti in S18 |
+| Stato | ✅ Pollinations primario (gratis, illimitato) — CF come backup qualità, Together.ai scartato. CLAUDE.md allineato al template APP, 14 travasi in sospeso (U-039→U-052) recepiti in S21 |
 | Prossima task | Test funzionale `immaginai_admin.html` + flusso Modifica/compare/CTA (non ancora coperti — rimandati da S16 a S17 a S18 a S19) |
 | Admin | ✅ Long press 3s logo → apre `immaginai_admin.html` in nuova scheda |
 | Netlify | ✅ https://wonderspit-ai.netlify.app/ |
@@ -17,7 +17,7 @@
 
 ---
 
-## Focus S18 — DA FARE
+## Focus — DA FARE
 
 ### Alta priorità
 - [ ] Test funzionale `immaginai_admin.html` (login, tab, salvataggio impostazioni)
@@ -28,6 +28,8 @@
 - [ ] Sanare escape mancante su `it.prompt` in `renderGallery()` — vedi gap in `immaginai_sicurezza.md`
 - [ ] Valutare provider gratuito realmente illimitato con qualità migliore di Pollinations (Together.ai scartato — richiede deposito)
 - [ ] Valutare Netlify Blobs (o store equivalente) per un rate limit persistente cross-cold-start su `generate.js`, in sostituzione dell'attuale rate limit in-memory (si azzera ad ogni cold start) — aggiungerebbe una dipendenza, da valutare in sessione dedicata (S18, dopo il fix Origin+rate limit in-memory)
+- [ ] Validare `ig_cooldown` in `loadSaved()` prima di assegnarlo a `ST.cooldown` — un valore corrotto in `localStorage` produce `NaN` e disattiva il cooldown in silenzio (trovato dall'audit indipendente S21, non ancora osservato come bug reale)
+- [ ] Correggere il percorso stale in `.claude/settings.local.json` (`C:\Users\fabio\Desktop\WonderSpit\`, pre-riorganizzazione in `WS-Cruscotto`) — trovato dall'audit indipendente S21, basso rischio (voce di permessi, non codice applicativo)
 
 ### Backlog
 - [ ] (post P.IVA) Immagini di riferimento con analisi Claude API
@@ -38,6 +40,17 @@
 - [ ] Rimuovi sfondo vero (Remove.bg o REMBG)
 
 ---
+
+## Task Completate S21
+
+- [x] `RECEPISCI` eseguito: 14 travasi in sospeso dal registro (`U-039`→`U-052`) applicati a `CLAUDE.md` — grep su percorso vecchio quando si corregge un path stale, coerenza dei nomi rivolti a chi legge, collisione di etichette testuali (gemella del colore badge), budget di sessione dei sotto-agenti in parallelo, "sola lettura" non enforced sui sotto-agenti + invariante "scrive il chiamante", preferenza per `Explore` su esplorazioni ampie, `NaN` non escluso da `typeof`, countdown/ETA calcolato una volta per fase, ricostruire un vincolo di piattaforma non documentato per analogia, misurare via DOM nel Browser pane per aggiustamenti visivi fini, output letterale da tool AI generativo con tetto 2 tentativi, dev server locale (`preview_stop`) da fermare a fine sessione
+- [x] 4 travasi segnalati non pertinenti con nota in `Travasi recepiti`: `U-043` (nessuno strumento CLI esterno nel codice), `U-048` (nessuna richiesta di rete lato server da URL utente — il logo custom è un `<img src>` lato client), `U-049` (la sezione vale solo per un coordinatore Archetipo C, ImmaginAI è il satellite)
+- [x] Audit indipendente (sotto-agente Opus 5) **prima** di scrivere, su richiesta esplicita a Fabio (2 travasi toccavano Gestione modello, sezione condivisa, e 14 patch venivano applicate insieme): trovata e corretta una riclassificazione sbagliata (`U-045` dichiarato "non pertinente" ma `.claude/launch.json` avvia davvero un dev server a porta fissa per il Browser pane — applicato), una lista di file di config imprecisa in `U-039` (citava un `.claude/settings.json` inesistente, ometteva `netlify.toml`/`.claude/launch.json` reali), un caso mancante in `U-051` (pagina di terzi — `wonderspit_spreadshop.css` posiziona un bottone fisso su una pagina Spreadshop non controllata), una clausola mancante nel countdown/ETA (il dato reale può sempre sovrascrivere la stima anche verso l'alto), e una motivazione da precisare su `U-048`
+- [x] Trovati durante l'audit (non ancora bug osservati, annotati in backlog media priorità): `loadSaved()` non valida `ig_cooldown` da `localStorage` prima di `parseInt` (un valore corrotto produce `NaN`, cooldown disattivato in silenzio); percorso stale pre-riorganizzazione in `.claude/settings.local.json`
+
+## Task Completate S20
+
+- [x] Fix riferimento rotto in CLAUDE.md: `@../_Condivisi/wonderspit_brand_kit.md` → `.html` (il file `.md` non è mai esistito, stesso refuso già corretto in 1WS mesi fa ma mai propagato qui) — trovato durante un controllo di coerenza cross-progetto lanciato da 1WS, che ha anche aggiornato il documento ecosistema condiviso da "3 progetti" a "4 progetti" (1WS-Wonderspit mancava)
 
 ## Task Completate S19
 
@@ -157,6 +170,8 @@ docs/
 
 | Sessione | Attività |
 |----------|----------|
+| S21 | `RECEPISCI` di 14 travasi in sospeso (`U-039`→`U-052`): percorso stale, coerenza nomi/etichette, budget e "sola lettura" dei sotto-agenti, `Explore` per esplorazioni ampie, `NaN`, countdown/ETA, vincoli di piattaforma non documentati, aggiustamento visivo via DOM, output letterale da AI generativa, dev server locale da fermare. 3 non pertinenti con nota. Audit indipendente pre-scrittura (Opus 5, su richiesta a Fabio) ha corretto una riclassificazione (`U-045`), una lista file imprecisa, un caso mancante in U-051, una clausola mancante nel countdown/ETA — e trovato 2 rischi reali non ancora bug (NaN su `ig_cooldown`, percorso stale in `settings.local.json`), annotati in backlog |
+| S20 | Fix riferimento rotto `wonderspit_brand_kit.md`→`.html` in CLAUDE.md, trovato durante un controllo di coerenza tra i 4 progetti condotto da 1WS. Nessuna modifica all'app, nessuna nuova regola — solo fix riferimento. |
 | S18 | `RECEPISCI` di 5 travasi in sospeso (`U-034`→`U-038`): badge/palette limitata, Glob+`.gitignore`, WebFetch→Browser pane, ordine PATCH/audit di chiusura in REGISTRA. `U-038` già presente da S17, marcato recepito |
 | S17 | Prima riconciliazione col template APP: `CLAUDE.md` allineato (6 blocchi aggiunti/modificati, sezione "Allineamento al template" creata, baseline 27/08/2026). Audit indipendente ha trovato 2 errori reali + 4 refusi, tutti corretti. 1 PATCH depositata in `_inbox` di Template Claude. Resta aperto: 4WS non ancora nella tabella "Il perimetro" del registro travasi (da fare su Template Claude) |
 | S16 | Cascata: Pollinations promosso a primario, Together.ai valutato e scartato (deposito richiesto). Adottato processo REVISIONA/VERIFICA-SICUREZZA/PATCH da template esterno, creato `immaginai_sicurezza.md`. Test funzionale completo: Crea/Galleria/FAQ/mobile tutti OK, chiarito che `#genBtnMobile` nascosto è intenzionale |
