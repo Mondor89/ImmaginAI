@@ -9,29 +9,61 @@
 |-------|--------|
 | Ultimo aggiornamento | 2 Settembre 2026 — S21 |
 | Versione app | v4.4 |
-| Stato | ✅ Pollinations primario (gratis, illimitato) — CF come backup qualità, Together.ai scartato. CLAUDE.md allineato al template APP (U-039→U-052 recepiti S21). Audit completo del progetto in S21 (2 sotto-agenti Opus 5): 4 fix ad alta priorità applicati, resto in backlog sotto |
-| Prossima task | Vedi "Backlog audit completo — S21" sotto (priorità alta rimasta: validazione input + timeout in `generate.js`, verifica step HuggingFace probabilmente morto) |
+| Stato | ✅ Pollinations primario (gratis, illimitato) — CF come backup qualità (steps:4), Together.ai scartato. CLAUDE.md allineato al template APP (U-039→U-052 recepiti S21). Audit completo del progetto in S21 (2 sotto-agenti Opus 5): 4 fix ad alta priorità applicati, resto organizzato in "Backlog per sessioni future" sotto |
+| Prossima task | Sessione A — Backend/sicurezza `generate.js` (validazione input, timeout provider, verifica HF morto) — vedi "Backlog per sessioni future" sotto |
 | Admin | ✅ Long press 3s logo → apre `immaginai_admin.html` in nuova scheda |
 | Netlify | ✅ https://wonderspit-ai.netlify.app/ |
 | GitHub | ✅ Repo attivo — https://github.com/Mondor89/ImmaginAI |
 
 ---
 
-## Focus — DA FARE
+## Backlog per sessioni future — organizzato per argomento e priorità (S21)
 
-### Alta priorità
-- [ ] Test funzionale `immaginai_admin.html` (login, tab, salvataggio impostazioni)
-- [ ] Test flusso Modifica (compare overlay, keep/discard) — non coperto in S16
-- [ ] Test click CTA "Usa nel Designer" (download + apertura Spreadshop) — non coperto in S16 (richiede permesso download)
+> Tabella di marcia di default, non un contratto rigido: ogni sessione futura riverifica lo stato reale del codice prima di eseguire alla lettera quanto scritto qui — un item può essersi rivelato diverso, o già risolto altrove, nel frattempo. Contiene tutto quanto emerso dall'audit completo S21 (2 sotto-agenti Opus 5, frontend+backend) più i task storici ancora aperti, raggruppati per poter risolvere "una sessione, un argomento" (vedi `CLAUDE.md` → Limite di complessità per sessione). Riferimenti file:riga verificati dai sotto-agenti, alcuni spot-check fatti a mano in chiusura S21.
 
-### Media priorità
-- [ ] Sanare escape mancante su `it.prompt` in `renderGallery()` — vedi gap in `immaginai_sicurezza.md`
+### Sessione A — Backend/sicurezza `generate.js` [alta]
+- [ ] Validazione input: `prompt`/`width`/`height` non validati prima di inoltrarli ai provider a pagamento (dimensioni assurde, prompt vuoto/enorme, `NaN`→`null` se `width` non è un numero)
+- [ ] Nessun timeout sulle chiamate provider (`AbortSignal.timeout()`) — una CF appesa consuma tutto il budget della function, Together/HF non vengono mai provati
+- [ ] Verificare con un `curl` reale se lo step HuggingFace è ancora vivo — endpoint/modello (`api-inference.huggingface.co`, `runwayml/stable-diffusion-v1-5`) probabilmente non esistono più. Se morto: rimuoverlo o riscriverlo su `router.huggingface.co`, e riallineare `immaginai_sicurezza.md`/questo file
+- [ ] `Together.ai` — gate solo sull'esistenza di `TOGETHER_KEY`: se mai impostata per errore, il provider scartato in S16 tornerebbe attivo senza segnale. Aggiungere un gate esplicito (es. `TOGETHER_ENABLED`) e allineare il commento nel codice alla decisione presa
+- [ ] `netlify.toml`: nessun pin di runtime Node — se Netlify cambiasse il default, `fetch` potrebbe non esistere e tutti e tre i provider fallirebbero in silenzio dentro i `catch` (stesso sintomo di `ALL_MODELS_FAILED` già visto in S18)
+- [ ] Valutare Netlify Blobs (o store equivalente) per un rate limit persistente cross-cold-start su `generate.js`, in sostituzione dell'attuale rate limit in-memory (si azzera ad ogni cold start) — aggiungerebbe una dipendenza, da valutare con calma; risolverebbe insieme anche un contatore di uso giornaliero CF (oggi assente: nessun modo di sapere quando ci si avvicina al tetto 10k neuroni/giorno)
+
+### Sessione B — Flusso di generazione e UX visibile [media]
+- [ ] Scarica/CTA Designer inaffidabili sulle immagini Pollinations (primario): niente upscale 2x (`downloadFrom` lo fa solo sui data-URL), `fetch()` cross-origin che può far fallire il download in silenzio — stessa trappola CORS dell'errore storico #1, applicata al download invece che al caricamento
+- [ ] URL Designer sbagliato: `myspreadshop.it` in `goToDesigner()` vs `myspreadshop.net` in `CLAUDE.md` — verificare a mano se redirige o è un dominio morto
+- [ ] Galleria: con Stable Horde/proxy (data-URL 200-500KB) si supera facilmente la quota `localStorage` (~5MB/12 immagini) → `QuotaExceededError` inghiottito in silenzio, immagini sparite dopo reload senza avviso
+- [ ] Rendere esplicito il limite di 12 immagini in galleria (oggi scarta la più vecchia senza dirlo — la FAQ promette "ogni immagine generata viene salvata")
+- [ ] Decidere destino `#statusBar`: alimentata da 12 chiamate `setStatus()` ma nascosta con `display:none!important` in `immaginai_light.css` — nessun messaggio è mai visibile. Riattivarla (e usarla anche per l'avviso di galleria piena sopra) o rimuovere `setStatus`
+- [ ] Chiudere il ciclo Modifica: `discardModifica` non pulisce `#modificaInput` né `ST._pendingModifica`
+- [ ] `detectLayout()` su resize riporta la vista a "output non attivo" anche su mobile quando si apre la tastiera virtuale (nessun debounce sul resize) — nasconde l'immagine generata mentre si scrive nel campo Modifica
+- [ ] Suggerimento: mostrare quale provider ha generato l'immagine (Pollinations vs Stable Horde hanno qualità molto diversa, oggi l'utente non sa perché)
+- [ ] Test funzionali mai fatti (da S16): `immaginai_admin.html` (login, tab, salvataggio), flusso Modifica (compare overlay, keep/discard), click CTA "Usa nel Designer" (download + apertura Spreadshop)
+
+### Sessione C — Sicurezza minore e coerenza dati admin [media]
+- [ ] Sanare escape mancante su `it.prompt` in `renderGallery()` — gap noto da S16, vedi `immaginai_sicurezza.md`
+- [ ] Altri punti `innerHTML`/attributi non escapati nell'admin: `value="${cat.icon}"`/`value="${cat.label}"` non escapati mentre righe vicine con lo stesso pattern lo sono — un nome con una virgoletta corrompe silenziosamente il dato salvato
+- [ ] Admin → Tema → Dark rompe visivamente l'app (CSS pensato solo per light) — rimuovere l'opzione o sistemare il dark
+- [ ] Tab API dell'admin descrive la cascata sbagliata (ordine invertito, dice "HuggingFace FLUX" invece di Cloudflare) — allineare al reale (Pollinations→CF→Together→HF→Horde)
+- [ ] Campo "Timeout (secondi)" nell'admin non fa nulla (`ST.timeout` letto ma mai consumato, il timeout reale è hardcoded 30000 in `tryPollinations`) — decidere: farlo funzionare o rimuoverlo
+- [ ] `netlify.toml`: aggiungere un blocco `[[headers]]` base (`X-Content-Type-Options`, `Referrer-Policy`, `X-Frame-Options`/CSP) — impatto basso (nessun dato sensibile, nessun cookie) ma ~6 righe
+
+### Sessione D — Pulizia tecnica: dead code + CSS [bassa, zero rischio, sessione dedicata a parte]
+- [ ] Rimuovere `index.html` + i 2 loghi duplicati in root (`git rm` — verificato non serviti da Netlify, `index.html` è la fotocopia pre-S11 e contiene le stesse credenziali admin in chiaro)
+- [ ] Dead code JS in `Immaginai.html`: `applyUiRatioColor`, `liveUiAccordion`, `toggleAccordion`, `removeBackground`, `copyPromptText`, `getImgExt`, `CAT_ID_ATTIVI`, `BRAND_PALETTES` (diversa da quella dell'admin, ma comunque mai usata qui), `ST.enhance`/`ST.safe`/`ST.activeApi`, `updateApiInfo`
+- [ ] `tryPollinations`/`generateAuto` accettano ancora `width`/`height` senza usarli (rimossi dall'URL per il bug storico #10/#14) — la firma sopravvive al parametro rimosso: rimuoverli o commentare il motivo, altrimenti una sessione futura può "ricollegarli" pensando siano stati dimenticati e reintrodurre il 402
+- [ ] 6 funzioni no-op nell'admin (`loadSavedApiKeys`, `setActiveApi`, `saveApiKey`, `toggleKey`, `saveHfToken`, `updateApiCards` — puntano a elementi rimossi dal markup)
+- [ ] `HF_TOKEN` (variabile app) è in realtà la chiave di Stable Horde, non un token HuggingFace — nome fuorviante da chiarire (rinominare o commentare), rischia confusione col secret server-side vero
+- [ ] CSS morto: ~46 regole (99 `!important`) in `immaginai_light.css`, 19 selettori morti nell'inline dell'app — inclusi due blocchi interi di un vecchio pannello admin pre-S11 e un accordion "Opzioni avanzate" rimosso; selettori duplicati non conflittuali (`#controls-scroll`, `#preview-col`, ecc.) da consolidare
+- [ ] Pannello admin: 5 colori diversi nella stessa schermata (navy/teal dello `<style>` inline dell'admin vs viola di `immaginai_light.css`, che vince solo sui selettori ancora vivi) — uniformare
+- [ ] Collisione di significato sui colori attivi: `immaginai_light.css` appiattisce su viola sia i controlli "Dettagli visivi" (cyan nel tema originale) sia "Stile/Formato" — la distinzione si perde nel tema effettivamente in uso. Minore: dado e `.neg-toggle.open` condividono lo stesso pink nella stessa vista
+- [ ] Unificare i 3 blocchi quasi identici `generateImage`/`generateModifica`/`regenImage` (~90 righe duplicate: messaggio d'errore, salvataggio in galleria)
+- [ ] Leak di listener su scroll tab (`buildDvTabs`), `generateModifica` non disabilita i bottoni Genera durante l'attesa, guardia NaN su `ig_cooldown` applicata solo nell'app non nell'admin
+
+### Sessione E — Roadmap prodotto [bassa, esplorativa]
 - [ ] Valutare provider gratuito realmente illimitato con qualità migliore di Pollinations (Together.ai scartato — richiede deposito)
-- [ ] Valutare Netlify Blobs (o store equivalente) per un rate limit persistente cross-cold-start su `generate.js`, in sostituzione dell'attuale rate limit in-memory (si azzera ad ogni cold start) — aggiungerebbe una dipendenza, da valutare in sessione dedicata (S18, dopo il fix Origin+rate limit in-memory)
-- [x] ~~Validare `ig_cooldown` in `loadSaved()` prima di assegnarlo a `ST.cooldown`~~ — risolto S21: `cd`/`to` ora validati con `Number.isNaN()` prima di assegnarli a `ST.cooldown`/`ST.timeout` in `Immaginai.html`
-- [x] ~~Correggere il percorso stale in `.claude/settings.local.json`~~ — risolto S21: aggiornato a `C:\Users\fabio\Desktop\Download Desktop\WS-Cruscotto\WonderSpit\`; grep sul frammento vecchio non ha trovato altre occorrenze nel progetto (solo i riferimenti storici in questo log e in `CLAUDE.md`)
 
-### Backlog
+### Idee prodotto (backlog libero, non dall'audit)
 - [ ] (post P.IVA) Immagini di riferimento con analisi Claude API
 - [ ] Login Google Firebase (storico cloud)
 - [ ] Bilingue IT/EN
@@ -47,7 +79,7 @@
 - [x] 4 travasi segnalati non pertinenti con nota in `Travasi recepiti`: `U-043` (nessuno strumento CLI esterno nel codice), `U-048` (nessuna richiesta di rete lato server da URL utente — il logo custom è un `<img src>` lato client), `U-049` (la sezione vale solo per un coordinatore Archetipo C, ImmaginAI è il satellite)
 - [x] Audit indipendente (sotto-agente Opus 5) **prima** di scrivere, su richiesta esplicita a Fabio (2 travasi toccavano Gestione modello, sezione condivisa, e 14 patch venivano applicate insieme): trovata e corretta una riclassificazione sbagliata (`U-045` dichiarato "non pertinente" ma `.claude/launch.json` avvia davvero un dev server a porta fissa per il Browser pane — applicato), una lista di file di config imprecisa in `U-039` (citava un `.claude/settings.json` inesistente, ometteva `netlify.toml`/`.claude/launch.json` reali), un caso mancante in `U-051` (pagina di terzi — `wonderspit_spreadshop.css` posiziona un bottone fisso su una pagina Spreadshop non controllata), una clausola mancante nel countdown/ETA (il dato reale può sempre sovrascrivere la stima anche verso l'alto), e una motivazione da precisare su `U-048`
 - [x] Trovati durante l'audit (non ancora bug osservati) e **risolti nella stessa sessione** su richiesta di Fabio: `loadSaved()` non valida `ig_cooldown`/`ig_timeout` da `localStorage` prima di `parseInt` (un valore corrotto produce `NaN`) — ora entrambi validati con `Number.isNaN()`; percorso stale pre-riorganizzazione in `.claude/settings.local.json` — aggiornato a `WS-Cruscotto`, nessun'altra occorrenza trovata col grep
-- [x] Su richiesta esplicita di Fabio ("audit approfondito su tutto il progetto"), lanciati 2 sotto-agenti in parallelo su Opus 5 (sola lettura, budget dichiarato prima del lancio) per un audit completo: **Agente A** frontend (`Immaginai.html`, `immaginai_admin.html`, CSS, dead code, drift dati admin/app), **Agente B** backend+sicurezza (`generate.js`, `netlify.toml`, coerenza con `immaginai_sicurezza.md`). Findings completi in "Backlog audit completo — S21" sotto
+- [x] Su richiesta esplicita di Fabio ("audit approfondito su tutto il progetto"), lanciati 2 sotto-agenti in parallelo su Opus 5 (sola lettura, budget dichiarato prima del lancio) per un audit completo: **Agente A** frontend (`Immaginai.html`, `immaginai_admin.html`, CSS, dead code, drift dati admin/app), **Agente B** backend+sicurezza (`generate.js`, `netlify.toml`, coerenza con `immaginai_sicurezza.md`). Findings completi organizzati per sessione futura in cima a questo file
 - [x] Applicati i 4 fix a priorità più alta scelti da Fabio dall'elenco dell'audit (Sonnet 5, nessun secondo audit Opus — bug già diagnosticati con file:riga esatti, non serviva nuova esplorazione):
   1. **Cooldown unificato**: nuova funzione `attendiCooldown()` in `Immaginai.html`, usata da `generateImage`/`generateModifica`/`regenImage` (prima solo `generateImage` lo rispettava — `regenImage`/`generateModifica`/`resetAndRetry` azzeravano `ST.lastGenTime` bypassandolo). Default portato da 5000 a 16000ms (violava la regola ferrea "16s obbligatorio" per ogni utente nuovo)
   2. **`DEFAULT_FAQ_DATA` riallineato**: l'admin aveva 8 domande troncate contro le 13 complete dell'app (mancava anche l'avviso legale sull'uso commerciale) — un "Salva tutto" sulla tab FAQ avrebbe cancellato quel contenuto in produzione. Copiato il blocco completo dall'app
@@ -55,34 +87,8 @@
   4. **`generate.js`**: `num_steps` → `steps` (il parametro Cloudflare corretto — prima non aveva mai avuto effetto) + `console.error` nei 3 rami provider (CF/Together/HF) su fallimento — prima tutti i `catch` erano vuoti, rendendo `ALL_MODELS_FAILED` (già visto in S18) undiagnosticabile. Valore riportato a `steps: 4` su richiesta di Fabio dopo aver segnalato che 8 step raddoppia il consumo di neuroni/immagine e dimezza le immagini/giorno disponibili su CF backup — preferito il volume alla qualità leggermente superiore
 - [x] Verificato in Browser pane (server locale S21): sintassi JS valida (`node --check` su tutti e 3 i file), nessun errore console al caricamento, `applyUiSettings` applica correttamente label/colori con `ig_ui` impostato (scenario che prima crashava), il listener `resize` ora funziona (layout passa a mobile dal vivo), `ST.cooldown` conferma 16000
 - [x] `immaginai_sicurezza.md` aggiornato con 2 dettagli emersi dall'audit: le credenziali admin restano in chiaro anche dentro `localStorage` (`ig_admin_session`, non solo nel codice sorgente); Stable Horde interpola `wait_time`/`queue_position` in `innerHTML` da una risposta JSON esterna non fidata (non "solo messaggi statici" come descritto prima)
-
-## Backlog audit completo — S21
-
-*Findings dell'audit non ancora sistemati, in ordine di priorità. Riferimenti file:riga verificati dai 2 sotto-agenti Opus 5, alcuni spot-check fatti a mano.*
-
-### Alta
-- [ ] `generate.js`: nessuna validazione su `prompt`/`width`/`height` prima di inoltrarli ai provider a pagamento (dimensioni assurde, prompt vuoto/enorme) + nessun timeout sulle chiamate provider (una CF appesa consuma tutto il budget della function, Together/HF mai provati)
-- [ ] Verificare con un `curl` reale se lo step HuggingFace è ancora vivo — endpoint/modello (`api-inference.huggingface.co`, `runwayml/stable-diffusion-v1-5`) probabilmente non esistono più. Se morto: rimuoverlo o riscriverlo su `router.huggingface.co`, e riallineare `immaginai_sicurezza.md`/questo file
-- [ ] `Together.ai` — gate solo sull'esistenza di `TOGETHER_KEY`: se mai impostata per errore, il provider scartato in S16 tornerebbe attivo senza segnale. Commento nel codice non riflette la decisione presa
-
-### Media
-- [ ] Scarica/CTA Designer inaffidabili sulle immagini Pollinations (primario): niente upscale 2x, `fetch()` cross-origin che può far fallire il download in silenzio
-- [ ] URL Designer sbagliato: `myspreadshop.it` in `goToDesigner()` vs `myspreadshop.net` in `CLAUDE.md` — verificare a mano se redirige o è un dominio morto
-- [ ] Galleria: con Stable Horde/proxy (data-URL 200-500KB) si supera facilmente la quota `localStorage` (~5MB/12 immagini) → `QuotaExceededError` inghiottito in silenzio, immagini sparite dopo reload senza avviso
-- [ ] Admin → Tema → Dark rompe visivamente l'app (CSS pensato solo per light) — rimuovere l'opzione o sistemare il dark
-- [ ] Escaping HTML incoerente oltre al gap noto (`it.prompt`): in `immaginai_admin.html`, `value="${cat.icon}"`/`value="${cat.label}"` non escapati mentre righe vicine con lo stesso pattern lo sono — un nome con una virgoletta corrompe il dato salvato
-- [ ] Tab API dell'admin descrive la cascata sbagliata (ordine invertito, dice "HuggingFace FLUX" invece di Cloudflare)
-- [ ] `#statusBar` alimentata da 12 chiamate `setStatus()` ma nascosta con `display:none!important` in `immaginai_light.css` — nessun messaggio è mai visibile. Decidere: riattivarla o rimuovere `setStatus`
-- [ ] Collisione di significato sui colori attivi: `immaginai_light.css` appiattisce su viola sia i controlli "Dettagli visivi" (cyan nel tema originale) sia "Stile/Formato" — la distinzione si perde nel tema effettivamente in uso
-
-### Bassa / pulizia (nessun rischio, solo peso morto — sessione dedicata a parte)
-- [ ] Rimuovere `index.html` + i 2 loghi duplicati in root (`git rm` — verificato non serviti da Netlify, `index.html` è la fotocopia pre-S11 e contiene le stesse credenziali admin in chiaro)
-- [ ] ~12 funzioni/variabili morte in `Immaginai.html` (`applyUiRatioColor`, `liveUiAccordion`, `toggleAccordion`, `removeBackground`, `copyPromptText`, `getImgExt`, `CAT_ID_ATTIVI`, `BRAND_PALETTES`, `ST.enhance`/`ST.safe`/`ST.activeApi`, `updateApiInfo`, `ST.timeout` mai consumato — il timeout reale è hardcoded 30000 in `tryPollinations`)
-- [ ] 6 funzioni no-op nell'admin (`loadSavedApiKeys`, `setActiveApi`, `saveApiKey`, `toggleKey`, `saveHfToken`, `updateApiCards` — puntano a elementi rimossi dal markup)
-- [ ] CSS morto: ~46 regole (99 `!important`) in `immaginai_light.css`, 19 selettori morti nell'inline dell'app — inclusi due blocchi interi di un vecchio pannello admin pre-S11 e un accordion "Opzioni avanzate" rimosso
-- [ ] Unificare i 3 blocchi quasi identici `generateImage`/`generateModifica`/`regenImage` (~90 righe duplicate: messaggio d'errore, salvataggio in galleria)
-- [ ] Leak di listener su scroll tab (`buildDvTabs`), `generateModifica` non disabilita i bottoni Genera durante l'attesa, guardia NaN su `ig_cooldown` applicata solo nell'app non nell'admin, `discardModifica` non pulisce il campo Modifica
-- [ ] `BRAND_PALETTES` diverso tra app (dead, mai usata) e admin — solo l'admin la usa, nessuna azione sull'app
+- [x] `steps: 8` riportato a `steps: 4` in `generate.js` su richiesta di Fabio (preferito il volume di immagini/giorno su CF backup alla qualità leggermente superiore)
+- [x] Riorganizzato tutto il backlog emerso dall'audit in "Backlog per sessioni future" (sostituisce "Focus — DA FARE" e "Backlog audit completo — S21", ora rimosse): 5 sessioni per argomento — A Backend/sicurezza `generate.js`, B Flusso di generazione/UX, C Sicurezza minore e dati admin, D Pulizia tecnica dead code/CSS, E Roadmap prodotto. Ricontrollati entrambi i report dell'audit riga per riga per non perdere nulla: aggiunti 8 item non ancora tracciati (header di sicurezza e pin runtime Node mancanti in `netlify.toml`, resize senza debounce durante tastiera virtuale mobile, naming fuorviante di `HF_TOKEN`, campo Timeout admin non funzionante, 5 colori diversi nel pannello admin, parametri `width`/`height` morti in `tryPollinations`/`generateAuto` — trappola per una sessione futura, suggerimento di mostrare quale provider ha generato l'immagine)
 
 ## Task Completate S20
 
@@ -206,7 +212,7 @@ docs/
 
 | Sessione | Attività |
 |----------|----------|
-| S21 | `RECEPISCI` di 14 travasi in sospeso (`U-039`→`U-052`): percorso stale, coerenza nomi/etichette, budget e "sola lettura" dei sotto-agenti, `Explore` per esplorazioni ampie, `NaN`, countdown/ETA, vincoli di piattaforma non documentati, aggiustamento visivo via DOM, output letterale da AI generativa, dev server locale da fermare. 3 non pertinenti con nota. Audit indipendente pre-scrittura (Opus 5, su richiesta a Fabio) ha corretto una riclassificazione (`U-045`), una lista file imprecisa, un caso mancante in U-051, una clausola mancante nel countdown/ETA — e trovato 2 rischi reali non ancora bug (NaN su `ig_cooldown`, percorso stale in `settings.local.json`), annotati in backlog |
+| S21 | `RECEPISCI` di 14 travasi (`U-039`→`U-052`, 3 non pertinenti con nota), audit pre-scrittura Opus 5 ha corretto 4 errori. Fix immediati: NaN su `ig_cooldown`/`ig_timeout`, percorso stale in `settings.local.json`. Su richiesta di Fabio, audit completo del progetto (2 sotto-agenti Opus 5, frontend+backend): applicati i 4 fix a priorità più alta (cooldown unificato+16s, `DEFAULT_FAQ_DATA` riallineato, `applyUiSettings` implementata — mancava, rompeva il resize —, `generate.js` num_steps→steps+logging, poi riportato a steps:4 su richiesta). Tutto verificato in Browser pane. Resto del backlog riorganizzato in 5 sessioni per argomento/priorità in `immaginai_stato.md` |
 | S20 | Fix riferimento rotto `wonderspit_brand_kit.md`→`.html` in CLAUDE.md, trovato durante un controllo di coerenza tra i 4 progetti condotto da 1WS. Nessuna modifica all'app, nessuna nuova regola — solo fix riferimento. |
 | S18 | `RECEPISCI` di 5 travasi in sospeso (`U-034`→`U-038`): badge/palette limitata, Glob+`.gitignore`, WebFetch→Browser pane, ordine PATCH/audit di chiusura in REGISTRA. `U-038` già presente da S17, marcato recepito |
 | S17 | Prima riconciliazione col template APP: `CLAUDE.md` allineato (6 blocchi aggiunti/modificati, sezione "Allineamento al template" creata, baseline 27/08/2026). Audit indipendente ha trovato 2 errori reali + 4 refusi, tutti corretti. 1 PATCH depositata in `_inbox` di Template Claude. Resta aperto: 4WS non ancora nella tabella "Il perimetro" del registro travasi (da fare su Template Claude) |
