@@ -797,7 +797,7 @@ const BRAND_PALETTES=[
   {name:'Neon Caldo',c:{accent:'#FFE600',accent2:'#F0008C',violet:'#5B35C8'}},
 ];
 
-const ST={style:'',ratio:'1:1',enhance:true,safe:true,transpOn:false,gallery:[],currentUrl:'',currentPrompt:'',currentStyle:'',lastGenTime:0,busy:false,theme:'light',activeApi:'huggingface',cooldown:16000,timeout:120000};
+const ST={style:'',ratio:'1:1',enhance:true,safe:true,transpOn:false,gallery:[],currentUrl:'',currentPrompt:'',currentStyle:'',lastGenTime:0,busy:false,theme:'light',activeApi:'huggingface',cooldown:16000};
 let STYLES=[],CATS=[],currentCatId=null,lpTimer=null;
 const isMobile=()=>window.innerWidth<1024;
 
@@ -833,12 +833,13 @@ function detectLayout(){
 
 function loadSaved(){
   try{ST.gallery=JSON.parse(localStorage.getItem('ig_gallery')||'[]');}catch(e){}
-  const t=localStorage.getItem('ig_theme')||'light';applyTheme(t);
+  // 'dark' non è più supportato (immaginai_light.css lo rompe) — self-heal per chi ha ig_theme='dark' residuo da prima di questo fix
+  if(localStorage.getItem('ig_theme')&&localStorage.getItem('ig_theme')!=='light') localStorage.setItem('ig_theme','light');
+  applyTheme('light');
   const c=JSON.parse(localStorage.getItem('ig_colors')||'null');if(c) applyColors(c);
   const f=JSON.parse(localStorage.getItem('ig_fonts')||'null');if(f) applyFonts(f);
   ST.activeApi=localStorage.getItem('ig_active_api')||'huggingface';
   const cd=localStorage.getItem('ig_cooldown');const cdNum=parseInt(cd);if(cd&&!Number.isNaN(cdNum)) ST.cooldown=cdNum;
-  const to=localStorage.getItem('ig_timeout');const toNum=parseInt(to);if(to&&!Number.isNaN(toNum)) ST.timeout=toNum;
   const hft=localStorage.getItem('ig_apikey_hf');if(hft) HF_TOKEN=hft;
   updateApiInfo();
 }
@@ -910,7 +911,7 @@ function buildDvChipsArea(){
       SELECTED_TAGS.forEach((label,prompt)=>{
         const wrap=document.createElement('span');
         wrap.className='dv-chip-active-item';
-        wrap.innerHTML=label+' <button class="dv-chip-remove" aria-label="Rimuovi">✕</button>';
+        wrap.innerHTML=escapeHtml(label)+' <button class="dv-chip-remove" aria-label="Rimuovi">✕</button>';
         wrap.querySelector('.dv-chip-remove').onclick=()=>{
           SELECTED_TAGS.delete(prompt);
           if(SELECTED_TAGS.size===0) dvShowAttivi=false;
@@ -1018,14 +1019,14 @@ function renderFaq(){
   if(!activeCats.length){el.innerHTML='<p style="color:var(--muted);font-size:13px;">Nessuna FAQ disponibile.</p>';return;}
   el.innerHTML=activeCats.map(cat=>`
     <div class="faq-block">
-      <div class="faq-section-title">${cat.cat}</div>
+      <div class="faq-section-title">${escapeHtml(cat.cat)}</div>
       ${cat.items.filter(i=>i.active).map((item,idx)=>`
         <div class="faq-item" id="faq-${cat.id}-${idx}">
           <button class="faq-q" onclick="toggleFaq('${cat.id}',${idx})">
-            <span class="faq-q-text">${item.q}</span>
+            <span class="faq-q-text">${escapeHtml(item.q)}</span>
             <span class="faq-q-icon">+</span>
           </button>
-          <div class="faq-a"><p class="faq-a-text">${item.a}</p></div>
+          <div class="faq-a"><p class="faq-a-text">${escapeHtml(item.a)}</p></div>
         </div>`).join('')}
     </div>`).join('');
 }
@@ -1089,7 +1090,7 @@ function loadLogoFromStorage(){
 }
 
 function applyTheme(t){document.body.classList.toggle('light',t==='light');const lbl=document.getElementById('themeLabel');if(lbl) lbl.textContent=t==='light'?'Light':'Dark';const desk=document.getElementById('themeToggleDesktop');if(desk) desk.textContent=(t==='light'?'🌙':'☀️')+' Cambia tema';ST.theme=t;}
-function toggleTheme(){const n=ST.theme==='dark'?'light':'dark';applyTheme(n);localStorage.setItem('ig_theme',n);const s=document.getElementById('aThemeSelect');if(s) s.value=n;}
+function toggleTheme(){applyTheme('light');localStorage.setItem('ig_theme','light');} // dark non è più un'opzione valida
 
 /* ── COLORS ── */
 function applyColors(c){document.documentElement.style.setProperty('--c-accent',c.accent);document.documentElement.style.setProperty('--c-accent2',c.accent2);document.documentElement.style.setProperty('--c-violet',c.violet);const a=document.getElementById('colorAccent');if(a) a.value=c.accent;const b=document.getElementById('colorAccent2');if(b) b.value=c.accent2;const v=document.getElementById('colorViolet');if(v) v.value=c.violet;}
@@ -1104,14 +1105,14 @@ function buildStyles(){
   STYLES.filter(s=>s.active).forEach(s=>{
     const b=document.createElement('button');
     b.className='style-btn'+(s.id===ST.style?' active':'');
-    b.innerHTML=`<span class="style-emoji">${s.emoji}</span><span class="style-label">${s.label}</span>`;
+    b.innerHTML=`<span class="style-emoji">${escapeHtml(s.emoji)}</span><span class="style-label">${escapeHtml(s.label)}</span>`;
     b.onclick=()=>{ST.style=s.id;document.querySelectorAll('.style-btn').forEach(x=>x.classList.remove('active'));b.classList.add('active');};
     g.appendChild(b);
   });
 }
 
 /* ── API ── */
-function updateApiInfo(){const names={pollinations:'Pollinations AI',openai:'OpenAI DALL·E 3',stability:'Stability AI'};const n=names[ST.activeApi]||ST.activeApi,cd=Math.round(ST.cooldown/1000);['sidebarApiName','proApiName','infoActiveApi'].forEach(id=>{const e=document.getElementById(id);if(e) e.textContent=n;});const sc=document.getElementById('sidebarCooldown');if(sc) sc.textContent=cd;const pc=document.getElementById('proCooldown');if(pc) pc.textContent='~'+cd+'s';const ac=document.getElementById('aCooldown');if(ac) ac.value=cd;const at=document.getElementById('aTimeout');if(at) at.value=Math.round(ST.timeout/1000);}
+function updateApiInfo(){const names={pollinations:'Pollinations AI',openai:'OpenAI DALL·E 3',stability:'Stability AI'};const n=names[ST.activeApi]||ST.activeApi,cd=Math.round(ST.cooldown/1000);['sidebarApiName','proApiName','infoActiveApi'].forEach(id=>{const e=document.getElementById(id);if(e) e.textContent=n;});const sc=document.getElementById('sidebarCooldown');if(sc) sc.textContent=cd;const pc=document.getElementById('proCooldown');if(pc) pc.textContent='~'+cd+'s';const ac=document.getElementById('aCooldown');if(ac) ac.value=cd;}
 
 /* ── USERS ── */
 
@@ -1391,7 +1392,7 @@ function saveGallery(){
   flashStatus('Impossibile salvare la galleria (spazio esaurito o non disponibile) — le immagini restano visibili solo in questa sessione','fail',5000);
   return false;
 }
-function escapeHtml(s){const d=document.createElement('div');d.textContent=s??'';return d.innerHTML;}
+function escapeHtml(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
 function renderGallery(){const cnt=document.getElementById('galleryCount'),con=document.getElementById('galleryContent');if(!cnt||!con) return;cnt.textContent=ST.gallery.length+' / 12 immagini — le più vecchie vengono rimosse automaticamente';if(!ST.gallery.length){con.innerHTML=`<div class="empty-state"><div class="empty-icon">🖼️</div><p>Nessuna immagine ancora</p><span>Vai su Crea e genera!</span></div>`;return;}con.innerHTML=`<div class="gallery-grid">${ST.gallery.map((it,i)=>`<div class="gallery-item"><img src="${it.url}" loading="lazy" onclick="openModal(ST.gallery[${i}].url)"><div class="gallery-caption">${escapeHtml(it.prompt)}</div><div class="gallery-actions"><button class="gal-btn" onclick="downloadFrom(ST.gallery[${i}].url)">⬇</button><button class="gal-btn ac" onclick="reusePrompt(${i})">↺ Riusa</button><button class="gal-btn" onclick="delItem(${i})">🗑</button></div></div>`).join('')}</div>`;}
 function reusePrompt(i){const it=ST.gallery[i];document.getElementById('promptInput').value=it.prompt;ST.style=it.style;buildStyles();switchTab('create');}
 function delItem(i){ST.gallery.splice(i,1);try{localStorage.setItem('ig_gallery',JSON.stringify(ST.gallery));}catch(e){flashStatus('Impossibile salvare la rimozione — riproverà al prossimo salvataggio','fail',4000);}renderGallery();}
