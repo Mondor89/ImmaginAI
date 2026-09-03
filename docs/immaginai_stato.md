@@ -10,7 +10,7 @@
 | Ultimo aggiornamento | 3 Settembre 2026 — S26 |
 | Versione app | v4.4 |
 | Stato | ✅ Pollinations primario (gratis, illimitato) — CF come backup qualità (steps:4), Together.ai disattivato via gate esplicito. **Sessioni A-F del backlog S21 tutte chiuse**: Sessione F (3 debiti minori S25) risolta in S26 — retry dopo errore ripete il flusso giusto (Genera/Modifica/Rigenera invece di ripartire sempre da Genera), default color-picker admin allineati al brand reale viola/cyan. Restano 3 item facoltativi esplicitamente rimandati dentro le Sessioni A e B (rate limit persistente su Netlify Blobs, riscrittura HuggingFace su `router.huggingface.co`, provider label) — non sono debiti nascosti, sono annotati come tali nel backlog |
-| Prossima task | Nessun backlog obbligatorio aperto — resta solo Sessione E (Roadmap prodotto, esplorativa), **rimandata di proposito da Fabio** a quando ImmaginAI sarà "completamente aggiornato". Prossima sessione: resoconto completo di tutte le modifiche/fix con un file dedicato di test per Fabio (vedi nota S26 sotto) |
+| Prossima task | Nessun backlog obbligatorio aperto — resta solo Sessione E (Roadmap prodotto, esplorativa), **rimandata di proposito da Fabio** a quando ImmaginAI sarà "completamente aggiornato". `docs/immaginai_test_manuale.md` creato in S26 (36 prove per area funzionale) — Fabio lo esegue e segnala eventuali esiti diversi da quelli attesi |
 | Admin | ✅ Long press 3s logo → apre `immaginai_admin.html` in nuova scheda |
 | Netlify | ✅ https://wonderspit-ai.netlify.app/ |
 | GitHub | ✅ Repo attivo — https://github.com/Mondor89/ImmaginAI |

@@ -51,6 +51,7 @@ File CSS Spreadshop pronto: `wonderspit_spreadshop.css` (manca URL Netlify reale
 ## File di riferimento
 - @docs/immaginai_stato.md → stato, task, log, note tecniche (fonte di verità per lo stato — non duplicare qui)
 - @docs/immaginai_sicurezza.md → invarianti di sicurezza, superficie di attacco, gap noti
+- @docs/immaginai_test_manuale.md → checklist di test manuali persistente per Fabio (per area funzionale, non per sessione) — aggiornarla quando cambia un comportamento visibile, non lasciarla decadere
 - @app/Immaginai.html → ultima versione funzionante
 - @app/immaginai_light.css → override CSS light theme
 - @app/immaginai_admin.html → pannello admin separato
