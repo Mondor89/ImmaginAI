@@ -316,9 +316,9 @@ textarea.a-input { resize: vertical; min-height: 50px; }
         <div class="card">
           <div class="card-header">Colori personalizzati</div>
           <div class="card-body">
-            <div class="a-row"><div class="a-row-label">Accento principale<div class="a-row-sub">Bordi attivi, teal</div></div><div style="display:flex;gap:7px;align-items:center;"><input type="color" id="colorAccent" value="#3fc7ba" oninput="previewColor('--c-accent',this.value)" style="width:44px;height:32px;padding:2px;cursor:pointer;border:1px solid #e0e3f0;border-radius:7px;"><button class="a-btn ghost sm" onclick="resetColor('Accent','#3fc7ba','--c-accent')">Reset</button></div></div>
-            <div class="a-row"><div class="a-row-label">Accento secondario<div class="a-row-sub">Navy, bottone genera</div></div><div style="display:flex;gap:7px;align-items:center;"><input type="color" id="colorAccent2" value="#1a237e" oninput="previewColor('--c-accent2',this.value)" style="width:44px;height:32px;padding:2px;cursor:pointer;border:1px solid #e0e3f0;border-radius:7px;"><button class="a-btn ghost sm" onclick="resetColor('Accent2','#1a237e','--c-accent2')">Reset</button></div></div>
-            <div class="a-row"><div class="a-row-label">Viola/Primario</div><div style="display:flex;gap:7px;align-items:center;"><input type="color" id="colorViolet" value="#1a237e" oninput="previewColor('--c-violet',this.value)" style="width:44px;height:32px;padding:2px;cursor:pointer;border:1px solid #e0e3f0;border-radius:7px;"><button class="a-btn ghost sm" onclick="resetColor('Violet','#1a237e','--c-violet')">Reset</button></div></div>
+            <div class="a-row"><div class="a-row-label">Accento principale<div class="a-row-sub">Viola, stato/spinner/CTA (statusBar.ok, gradienti)</div></div><div style="display:flex;gap:7px;align-items:center;"><input type="color" id="colorAccent" value="#5B35C8" oninput="previewColor('--c-accent',this.value)" style="width:44px;height:32px;padding:2px;cursor:pointer;border:1px solid #e0e3f0;border-radius:7px;"><button class="a-btn ghost sm" onclick="resetColor('Accent','#5B35C8','--c-accent')">Reset</button></div></div>
+            <div class="a-row"><div class="a-row-label">Accento secondario<div class="a-row-sub">Viola scuro, estremo dei gradienti (CTA/Modifica/Confronto)</div></div><div style="display:flex;gap:7px;align-items:center;"><input type="color" id="colorAccent2" value="#3D2F8F" oninput="previewColor('--c-accent2',this.value)" style="width:44px;height:32px;padding:2px;cursor:pointer;border:1px solid #e0e3f0;border-radius:7px;"><button class="a-btn ghost sm" onclick="resetColor('Accent2','#3D2F8F','--c-accent2')">Reset</button></div></div>
+            <div class="a-row"><div class="a-row-label">Viola/Primario<div class="a-row-sub">Bordi/sfondi attivi (stile, formato, focus, tab nav)</div></div><div style="display:flex;gap:7px;align-items:center;"><input type="color" id="colorViolet" value="#5B35C8" oninput="previewColor('--c-violet',this.value)" style="width:44px;height:32px;padding:2px;cursor:pointer;border:1px solid #e0e3f0;border-radius:7px;"><button class="a-btn ghost sm" onclick="resetColor('Violet','#5B35C8','--c-violet')">Reset</button></div></div>
           </div>
         </div>
         <div class="actions-row">
@@ -338,8 +338,8 @@ textarea.a-input { resize: vertical; min-height: 50px; }
         <div class="card"><div class="card-header">◈ Dettagli visivi</div><div class="card-body">
           <div class="a-row"><div class="a-row-label">Icona</div><input type="text" id="uiDvIcon" class="a-input" value="◈" style="width:60px;"></div>
           <div class="a-row"><div class="a-row-label">Etichetta</div><input type="text" id="uiDvLabel" class="a-input" value="Dettagli visivi" style="width:200px;"></div>
-          <div class="a-row"><div class="a-row-label">Colore tab attiva</div><input type="color" id="uiTabActiveBg" value="#1a237e" style="width:40px;height:28px;padding:1px;cursor:pointer;border:1px solid #e0e3f0;border-radius:5px;"></div>
-          <div class="a-row"><div class="a-row-label">Colore chip attivo</div><input type="color" id="uiChipActiveBg" value="#1a237e" style="width:40px;height:28px;padding:1px;cursor:pointer;border:1px solid #e0e3f0;border-radius:5px;"></div>
+          <div class="a-row"><div class="a-row-label">Colore tab attiva</div><input type="color" id="uiTabActiveBg" value="#00E5C8" style="width:40px;height:28px;padding:1px;cursor:pointer;border:1px solid #e0e3f0;border-radius:5px;"></div>
+          <div class="a-row"><div class="a-row-label">Colore chip attivo</div><input type="color" id="uiChipActiveBg" value="#00E5C8" style="width:40px;height:28px;padding:1px;cursor:pointer;border:1px solid #e0e3f0;border-radius:5px;"></div>
         </div></div>
         <div class="card"><div class="card-header">❋ Stile artistico</div><div class="card-body">
           <div class="a-row"><div class="a-row-label">Icona</div><input type="text" id="uiStileIcon" class="a-input" value="❋" style="width:60px;"></div>
@@ -348,11 +348,11 @@ textarea.a-input { resize: vertical; min-height: 50px; }
         <div class="card"><div class="card-header">▣ Formato</div><div class="card-body">
           <div class="a-row"><div class="a-row-label">Icona</div><input type="text" id="uiFormatoIcon" class="a-input" value="▣" style="width:60px;"></div>
           <div class="a-row"><div class="a-row-label">Etichetta</div><input type="text" id="uiFormatoLabel" class="a-input" value="Formato" style="width:200px;"></div>
-          <div class="a-row"><div class="a-row-label">Colore bottone attivo</div><input type="color" id="uiRatioActiveBg" value="#1a237e" style="width:40px;height:28px;padding:1px;cursor:pointer;border:1px solid #e0e3f0;border-radius:5px;"></div>
+          <div class="a-row"><div class="a-row-label">Colore bottone attivo</div><input type="color" id="uiRatioActiveBg" value="#5B35C8" style="width:40px;height:28px;padding:1px;cursor:pointer;border:1px solid #e0e3f0;border-radius:5px;"></div>
         </div></div>
         <div class="card"><div class="card-header">✨ Bottone Genera</div><div class="card-body">
           <div class="a-row"><div class="a-row-label">Testo</div><input type="text" id="uiGeneraLabel" class="a-input" value="GENERA IMMAGINE" style="width:200px;"></div>
-          <div class="a-row"><div class="a-row-label">Sfondo</div><input type="color" id="uiGeneraBg" value="#1a237e" style="width:40px;height:28px;padding:1px;cursor:pointer;border:1px solid #e0e3f0;border-radius:5px;"></div>
+          <div class="a-row"><div class="a-row-label">Sfondo</div><input type="color" id="uiGeneraBg" value="#5B35C8" style="width:40px;height:28px;padding:1px;cursor:pointer;border:1px solid #e0e3f0;border-radius:5px;"></div>
           <div class="a-row"><div class="a-row-label">Colore testo</div><input type="color" id="uiGeneraColor" value="#ffffff" style="width:40px;height:28px;padding:1px;cursor:pointer;border:1px solid #e0e3f0;border-radius:5px;"></div>
         </div></div>
         <div class="actions-row">
@@ -592,8 +592,8 @@ const DEFAULT_FAQ_DATA = [
 ];
 
 const BRAND_PALETTES = [
-  {name:'Designer (default)',c:{accent:'#3fc7ba',accent2:'#1a237e',violet:'#1a237e'}},
-  {name:'Teal + Navy',c:{accent:'#3fc7ba',accent2:'#283593',violet:'#283593'}},
+  {name:'ImmaginAI (default)',c:{accent:'#5B35C8',accent2:'#3D2F8F',violet:'#5B35C8'}},
+  {name:'Teal + Navy (Designer, storico)',c:{accent:'#3fc7ba',accent2:'#283593',violet:'#283593'}},
   {name:'Viola Brand',c:{accent:'#5B35C8',accent2:'#00E5C8',violet:'#3D2F8F'}},
   {name:'Dark Originale',c:{accent:'#00E5C8',accent2:'#F0008C',violet:'#5B35C8'}},
 ];
@@ -850,7 +850,7 @@ function loadLogoFromStorage(){
 function previewColor(cssVar,val){document.documentElement.style.setProperty(cssVar,val);}
 function resetColor(id,def,cssVar){document.getElementById('color'+id).value=def;document.documentElement.style.setProperty(cssVar,def);}
 function saveColors(){const c={accent:document.getElementById('colorAccent').value,accent2:document.getElementById('colorAccent2').value,violet:document.getElementById('colorViolet').value};localStorage.setItem('ig_colors',JSON.stringify(c));msg('✓ Colori salvati!');}
-function resetAllColors(){document.getElementById('colorAccent').value='#3fc7ba';document.getElementById('colorAccent2').value='#1a237e';document.getElementById('colorViolet').value='#1a237e';localStorage.removeItem('ig_colors');msg('✓ Reset');}
+function resetAllColors(){document.getElementById('colorAccent').value='#5B35C8';document.getElementById('colorAccent2').value='#3D2F8F';document.getElementById('colorViolet').value='#5B35C8';localStorage.removeItem('ig_colors');msg('✓ Reset');}
 function applyBrandPalette(i){const c=BRAND_PALETTES[i].c;document.getElementById('colorAccent').value=c.accent;document.getElementById('colorAccent2').value=c.accent2;document.getElementById('colorViolet').value=c.violet;msg('Palette applicata — premi Salva');}
 function buildBrandSwatches(){
   const el=document.getElementById('brandSwatches');if(!el) return;
@@ -881,11 +881,11 @@ function saveUiSettings(){
     formatoIcon:document.getElementById('uiFormatoIcon')?.value||'▣',
     formatoLabel:document.getElementById('uiFormatoLabel')?.value||'Formato',
     generaLabel:document.getElementById('uiGeneraLabel')?.value||'GENERA IMMAGINE',
-    generaBg:document.getElementById('uiGeneraBg')?.value||'#1a237e',
+    generaBg:document.getElementById('uiGeneraBg')?.value||'#5B35C8',
     generaColor:document.getElementById('uiGeneraColor')?.value||'#ffffff',
-    tabActiveBg:document.getElementById('uiTabActiveBg')?.value||'#1a237e',
-    chipActiveBg:document.getElementById('uiChipActiveBg')?.value||'#1a237e',
-    ratioActiveBg:document.getElementById('uiRatioActiveBg')?.value||'#1a237e',
+    tabActiveBg:document.getElementById('uiTabActiveBg')?.value||'#00E5C8',
+    chipActiveBg:document.getElementById('uiChipActiveBg')?.value||'#00E5C8',
+    ratioActiveBg:document.getElementById('uiRatioActiveBg')?.value||'#5B35C8',
   };
   localStorage.setItem('ig_ui',JSON.stringify(data));
   msg('✓ UI salvata! Ricarica l\'app per vedere le modifiche.');
