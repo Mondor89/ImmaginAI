@@ -7,7 +7,7 @@
 
 | Campo | Valore |
 |-------|--------|
-| Ultimo aggiornamento | 5 Settembre 2026 — S28 |
+| Ultimo aggiornamento | 4 Settembre 2026 — S28 |
 | Versione app | v4.6 |
 | Stato | ✅ Pollinations primario (gratis, illimitato) — CF come backup qualità (steps:4), Together.ai disattivato via gate esplicito. Bottone "✏️✨ Modifica precisa (beta)" (Kontext, S27) attivo e verificato in produzione. **Nuovo in S28, ATTIVO**: bottone "🪄 Sfondo" — rimozione sfondo vera, interamente client-side (`@imgly/background-removal`, WASM in-browser), nessun costo/server coinvolto. Sessioni A-F del backlog S21 tutte chiuse (S22-S26) |
 | Prossima task | Nessun backlog obbligatorio aperto. Monitorare saldo/uso di Modifica precisa via dashboard Pollinations ("Pollen"/"Activity") — nessun limite per-utente nel codice, solo un tetto di spesa condiviso da tutti i visitatori (vedi Sessione A backlog per la soluzione server-side rimandata). Monitoraggio automatico impostato su repo GitHub Pollinations (ogni 10 giorni, S28) |
@@ -122,6 +122,7 @@
 - [x] **Osservazione emersa durante il test, non un difetto della feature**: `image.pollinations.ai` può rispondere `403 "Missing Turnstile token"` su `fetch()` diretti se il volume di richieste è alto in una finestra breve (osservato durante test ripetuti in rapida successione) — la cascata esistente (fallback automatico a Cloudflare) ha già gestito il caso senza intervento, osservato dal vivo. Non specifico alla nuova feature: lo stesso pattern `fetch()` è già usato da `toDataUrl()` (Kontext) e `downloadFrom()` da S22 — nessuna azione necessaria, annotato per consapevolezza
 - [x] `docs/immaginai_sicurezza.md` aggiornato: nuova riga in "Superficie di Attacco" per `runRimuoviSfondo()`, nuova riga nel Registro Decisioni sul bug del nome parametro
 - [x] Nessuna escalation di modello necessaria — bug isolato (nome parametro), diagnosticato e corretto nello stesso turno testando dal vivo, coerente col fast-path
+- [x] **Comando `PATCH` eseguito** (mancava nel primo giro di REGISTRA, segnalato da Fabio) — 3 patch scritte in `CLAUDE.md` dopo un audit indipendente (Opus 5) sul testo delle patch stesse, che ha corretto entrambe le bozze iniziali (Patch 1: errore tecnico `absolute`/`fixed` trattati come intercambiabili, rimedio descritto come CSS quando in realtà era JS; Patch 2: precondizione ereditata da un bullet non applicabile al caso reale, rischio di ridondanza con un bullet vicino) e ne ha proposta una terza non ancora individuata (test dal vivo che non copre i dintorni del componente sotto test). Depositate in `patch/_inbox` di Template Claude (AMBITO confermato da Fabio per tutte e 3): "overlay riusato non copre i sibling", "un valore da libreria esterna va eseguito, non solo letto sulla fonte primaria" (estensione di un bullet esistente), "il test dal vivo di una feature nuova deve controllare anche i dintorni"
 
 ## Task Completate S27
 
