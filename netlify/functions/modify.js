@@ -158,6 +158,10 @@ exports.handler = async function (event) {
       return { statusCode: 502, body: JSON.stringify({ error: 'KONTEXT_EMPTY' }) };
     }
 
+    // Solo per i log delle Netlify Functions — nessun contatore persistente, nessun dato utente:
+    // permette a Fabio di incrociare "quante modifiche riuscite" con l'Activity di Pollinations
+    // senza costruire un'infrastruttura di monitoraggio dedicata (vedi backlog per la versione vera).
+    console.log('Kontext success', clientIp);
     return {
       statusCode: 200,
       headers: { 'Content-Type': 'application/json' },
