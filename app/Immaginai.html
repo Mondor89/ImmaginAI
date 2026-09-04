@@ -1230,10 +1230,15 @@ async function generateModifica(basePrompt,baseStyle,extra){
 }
 // L'immagine corrente può essere un URL remoto (Pollinations) o già un data: URL (CF/Horde) —
 // il server non deve mai risolvere un URL per conto del client (stesso principio di generate.js,
-// vedi CLAUDE.md → U-029/U-048), quindi i byte vanno letti qui, non lì.
+// vedi CLAUDE.md → U-029/U-048), quindi i byte vanno letti qui, non lì. Deroga dichiarata alla
+// regola ferrea "caricamento immagini con new Image(), mai fetch()" (vedi CLAUDE.md): qui servono
+// i byte da inviare, non un'immagine da visualizzare — stesso caso già accettato in downloadFrom()
+// da S22, dove è verificato dal vivo che Pollinations onora CORS su richiesta esplicita.
 async function toDataUrl(url){
   if(url.startsWith('data:')) return url;
-  const blob=await(await fetch(url)).blob();
+  const res=await fetch(url);
+  if(!res.ok) throw new Error('IMG_FETCH_FAIL');
+  const blob=await res.blob();
   return new Promise((resolve,reject)=>{
     const r=new FileReader();
     r.onload=()=>resolve(r.result);
@@ -1242,6 +1247,9 @@ async function toDataUrl(url){
   });
 }
 async function modifyViaKontext(imageDataUrl,editPrompt,width,height){
+  // Limite pratico dei body Netlify Functions (~6MB): un controllo qui rende raggiungibile il
+  // messaggio amichevole IMAGE_TOO_LARGE invece di un 413 grezzo che il fetch sotto non spiega.
+  if(imageDataUrl.length>4*1024*1024) throw new Error('IMAGE_TOO_LARGE');
   const res=await fetch('/.netlify/functions/modify',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({image:imageDataUrl,prompt:editPrompt,width,height})});
   const d=await res.json().catch(()=>({}));
   if(!res.ok) throw new Error(d.error||('MODIFY_'+res.status));
@@ -1250,8 +1258,12 @@ async function modifyViaKontext(imageDataUrl,editPrompt,width,height){
 }
 const KONTEXT_ERROR_MSG={
   KONTEXT_DISABLED:'Modifica precisa non è ancora attiva su questa app — usa "✨ Genera modifica" qui sopra nel frattempo.',
-  KONTEXT_BUDGET_EXHAUSTED:'Budget giornaliero di Modifica precisa esaurito per oggi — riprova domani, oppure usa "✨ Genera modifica".',
+  KONTEXT_BUDGET_EXHAUSTED:'Modifica precisa non disponibile al momento (credito esaurito) — usa "✨ Genera modifica" nel frattempo.',
   KONTEXT_AUTH_ERROR:'Modifica precisa temporaneamente non disponibile (errore di configurazione) — usa "✨ Genera modifica".',
+  KONTEXT_FAILED:'Modifica precisa non riuscita (servizio non disponibile) — riprova tra qualche minuto o usa "✨ Genera modifica".',
+  KONTEXT_EMPTY:'Modifica precisa non ha restituito un\'immagine — riprova o usa "✨ Genera modifica".',
+  INVALID_PROMPT:'Testo troppo lungo per Modifica precisa (max 500 caratteri) — accorcialo e riprova.',
+  INVALID_IMAGE:'Impossibile leggere l\'immagine corrente per Modifica precisa — riprova tra poco.',
   RATE_LIMITED:'Troppe richieste di Modifica precisa — attendi qualche minuto.',
   IMAGE_TOO_LARGE:'Immagine troppo grande per la Modifica precisa — prova con "✨ Genera modifica".',
   IMG_FETCH_FAIL:'Impossibile leggere l\'immagine corrente — riprova tra poco.',
@@ -1259,20 +1271,36 @@ const KONTEXT_ERROR_MSG={
 async function runModificaPrecisa(){
   const extra=document.getElementById('modificaInput').value.trim();
   if(!extra||ST.busy) return;
+  if(extra.length>500){
+    setStatus('Testo troppo lungo per Modifica precisa (max 500 caratteri)','fail');
+    return;
+  }
   closeCompare();
   ST.busy=true;
+  document.getElementById('modificaPanel').classList.remove('open');
+  document.getElementById('imgActions').classList.remove('visible');
+  document.getElementById('ctaWrap').classList.remove('visible');
   const sBox=document.getElementById('spinnerBox'),imgEl=document.getElementById('generatedImg');
   const btn=document.getElementById('genBtn'),btnM=document.getElementById('genBtnMobile')?.querySelector('button');
-  [btn,btnM].forEach(b=>{if(b){b.disabled=true;b.textContent='⏳ GENERANDO…';}});
+  const goBtn=document.getElementById('modificaGoBtn'),preciseBtn=document.getElementById('modificaPreciseBtn');
+  [btn,btnM,goBtn,preciseBtn].forEach(b=>{if(b) b.disabled=true;});
+  [btn,btnM].forEach(b=>{if(b) b.textContent='⏳ GENERANDO…';});
   const prevUrl=ST.currentUrl;
   sBox.style.display='flex';sBox.innerHTML='<div class="big-spin"></div><div id="spinnerMsg">Modifica precisa…<br><small style="font-size:11px;opacity:.6">Può richiedere più tempo del solito</small></div>';
   imgEl.style.display='none';showOutput(true);
-  await attendiCooldown();
-  const ratio=RATIOS.find(r=>r.id===ST.ratio);
+  if(isMobile()) setTimeout(()=>{const pc=document.getElementById('preview-col');if(pc) pc.scrollTop=0;},100);
+  // Nessun attendiCooldown() qui, a differenza degli altri 3 flussi: quel cooldown protegge i
+  // provider gratuiti (Pollinations/CF/Horde) dall'essere martellati — Kontext è un provider
+  // diverso, a pagamento, con il proprio limite server-side (3 richieste/60s in modify.js) che è
+  // il freno reale. Farlo comunque aspettare fino a 16s solo per scoprire poi che la feature è
+  // spenta (KONTEXT_DISABLED) è pura frizione senza alcun beneficio di sicurezza.
   setStatus('Modifica precisa in corso…','loading');
   try{
     const srcDataUrl=await toDataUrl(prevUrl);
-    const dataUrl=await modifyViaKontext(srcDataUrl,extra,ratio.w,ratio.h);
+    // Dimensioni reali dell'immagine da modificare, non il formato selezionato ora nei controlli
+    // (che può essere cambiato dopo la generazione) — un editing deve rispettare la sorgente.
+    const w=imgEl.naturalWidth||1024,h=imgEl.naturalHeight||1024;
+    const dataUrl=await modifyViaKontext(srcDataUrl,extra,w,h);
     ST.lastGenTime=Date.now();
     sBox.style.display='none';
     document.getElementById('compareImgOld').src=prevUrl;
@@ -1285,8 +1313,11 @@ async function runModificaPrecisa(){
     sBox.innerHTML=`<div style="padding:28px;text-align:center"><div style="font-size:40px;margin-bottom:12px">⚠️</div><p style="color:var(--danger);font-size:15px;font-weight:700;margin-bottom:8px;font-family:var(--font-title)">MODIFICA PRECISA NON RIUSCITA</p><p style="color:var(--muted);font-size:12px;line-height:1.6;margin-bottom:18px">${escapeHtml(help)}</p><button onclick="retryGeneration()" style="padding:11px 28px;background:linear-gradient(135deg,var(--c-accent),var(--c-violet));color:#FFFFFF;border:none;border-radius:11px;font-size:13px;font-weight:800;cursor:pointer;">🔄 RIPROVA</button></div>`;
     _lastRetry=()=>runModificaPrecisa();
     setStatus('Modifica precisa non riuscita','fail');
+    document.getElementById('imgActions').classList.add('visible');
+    document.getElementById('ctaWrap').classList.add('visible');
   }
-  [btn,btnM].forEach(b=>{if(b){b.disabled=false;b.textContent='✨ GENERA IMMAGINE';}});
+  [btn,btnM,goBtn,preciseBtn].forEach(b=>{if(b) b.disabled=false;});
+  [btn,btnM].forEach(b=>{if(b) b.textContent='✨ GENERA IMMAGINE';});
   ST.busy=false;
 }
 function keepModifica(){

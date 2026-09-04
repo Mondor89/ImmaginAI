@@ -9,7 +9,7 @@ Modulo 3 dell'ecosistema WonderSpit.
 **Cosa fa:** Genera immagini AI gratuite per i clienti WonderSpit, da usare anche sui prodotti Spreadshop
 **Target:** Pubblico (clienti finali WonderSpit)
 **Stack tecnico:** HTML+CSS+JS vanilla, single-file (`app/Immaginai.html`) + Netlify Functions per il proxy API key
-**Backend/hosting:** Netlify + Netlify Functions (`netlify/functions/generate.js`)
+**Backend/hosting:** Netlify + Netlify Functions (`netlify/functions/generate.js`, `netlify/functions/modify.js`)
 **API esterne usate:** Pollinations AI (gratis, no key) → Cloudflare Workers AI (CF_ACCOUNT_ID+CF_API_TOKEN, 10k neuroni/giorno) → Together.ai (TOGETHER_KEY + TOGETHER_ENABLED='true', non attivo — richiede deposito) → Stable Horde (ultimo fallback). HuggingFace rimosso in S22: dominio `api-inference.huggingface.co` dismesso. **S27**: Pollinations Kontext (editing immagine, a pagamento) per il bottone opzionale "Modifica precisa" — non fa parte della cascata sopra, gate POLLINATIONS_KEY + KONTEXT_ENABLED='true', non attivo finché Fabio non crea la chiave
 **Repository:** https://github.com/Mondor89/ImmaginAI
 **Deploy:** https://wonderspit-ai.netlify.app/

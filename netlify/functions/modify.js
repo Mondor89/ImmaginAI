@@ -52,17 +52,20 @@ exports.handler = async function (event) {
     return { statusCode: 403, body: JSON.stringify({ error: 'ORIGIN_NOT_ALLOWED' }) };
   }
 
-  const clientIp = event.headers['x-nf-client-connection-ip'] || 'unknown';
-  if (isRateLimited(clientIp)) {
-    return { statusCode: 429, body: JSON.stringify({ error: 'RATE_LIMITED' }) };
-  }
-
   // Gate esplicito, stesso schema di TOGETHER_ENABLED: la sola presenza della chiave non basta,
   // serve un secondo consenso esplicito prima che il provider sia raggiungibile davvero.
+  // Controllato PRIMA del rate limit: mentre la feature è spenta (stato di default, oggi),
+  // ogni tentativo consumerebbe comunque uno dei 3 slot/minuto per niente — un utente curioso
+  // che clicca 4 volte vedrebbe RATE_LIMITED invece del messaggio corretto "non è ancora attiva".
   const POLLINATIONS_KEY = process.env.POLLINATIONS_KEY;
   const KONTEXT_ENABLED = process.env.KONTEXT_ENABLED === 'true';
   if (!KONTEXT_ENABLED || !POLLINATIONS_KEY) {
     return { statusCode: 503, body: JSON.stringify({ error: 'KONTEXT_DISABLED' }) };
+  }
+
+  const clientIp = event.headers['x-nf-client-connection-ip'] || 'unknown';
+  if (isRateLimited(clientIp)) {
+    return { statusCode: 429, body: JSON.stringify({ error: 'RATE_LIMITED' }) };
   }
 
   let imageDataUrl, prompt, width, height;
@@ -130,13 +133,25 @@ exports.handler = async function (event) {
     let b64 = data?.data?.[0]?.b64_json;
     const remoteUrl = data?.data?.[0]?.url;
     if (!b64 && remoteUrl) {
-      // La risposta di Pollinations (non un URL fornito dal client) può restituire un url invece
-      // di b64_json a seconda del modello — recuperato server-side per mantenere al client un
-      // contratto unico (riceve sempre un data: URL, mai un URL remoto da gestire lui stesso).
-      const imgRes = await fetch(remoteUrl, { signal: AbortSignal.timeout(KONTEXT_TIMEOUT_MS) });
-      if (imgRes.ok) {
-        const ab = await imgRes.arrayBuffer();
-        b64 = Buffer.from(ab).toString('base64');
+      // La risposta di Pollinations (non un URL fornito dal client — quello resta vietato, vedi
+      // sopra) può restituire un url invece di b64_json a seconda del modello — recuperato
+      // server-side per mantenere al client un contratto unico (riceve sempre un data: URL).
+      // Allowlist di schema/host anche qui: se la risposta del provider fosse manipolata, questo
+      // fetch non deve poter raggiungere un host arbitrario (SSRF) né restituire una risposta
+      // enorme senza limite.
+      let parsed;
+      try { parsed = new URL(remoteUrl); } catch (e) { parsed = null; }
+      const hostOk = parsed && parsed.protocol === 'https:' && /(^|\.)pollinations\.ai$/.test(parsed.hostname);
+      if (hostOk) {
+        const imgRes = await fetch(remoteUrl, { signal: AbortSignal.timeout(KONTEXT_TIMEOUT_MS) });
+        if (imgRes.ok) {
+          const ab = await imgRes.arrayBuffer();
+          if (ab.byteLength <= 8 * 1024 * 1024) {
+            b64 = Buffer.from(ab).toString('base64');
+          }
+        }
+      } else {
+        console.error('Kontext remoteUrl host non in allowlist', remoteUrl);
       }
     }
     if (!b64) {
