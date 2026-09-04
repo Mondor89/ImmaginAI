@@ -113,6 +113,15 @@ Admin: long press 3s sul logo (desktop o mobile) → apre `immaginai_admin.html`
 36. **Come:** su mobile, genera un'immagine e forza un errore di quota o di rete (difficile da simulare manualmente — se capita spontaneamente, verificalo).
     **Risposta attesa:** un eventuale avviso (statusBar) deve comparire ben visibile in alto, non nascosto dietro l'immagine.
 
+## 12. Rimozione sfondo vera (S28)
+
+37. **Come:** dopo una generazione, premi "🪄 Sfondo" nella riga di bottoni sotto l'anteprima.
+    **Risposta attesa:** appare un messaggio "Rimozione sfondo in corso… (al primo utilizzo scarica ~40MB, poi resta in cache)", il bottone mostra "⏳ Elaboro…" e gli altri bottoni della riga si disattivano. Al primo utilizzo l'attesa può essere di qualche decina di secondi (download del modello); le volte successive è molto più veloce (modello in cache del browser).
+38. **Come:** dopo l'elaborazione, guarda l'overlay di confronto che appare (stesso stile di "Modifica precisa").
+    **Risposta attesa:** a sinistra "Precedente" (l'immagine originale), a destra "Nuova" (con lo sfondo rimosso — visibile come area vuota/trasparente, che nell'anteprima del browser appare bianca o a scacchiera a seconda del tema). Premi "✓ Tieni questa": l'immagine con sfondo rimosso sostituisce quella corrente e viene aggiunta in Galleria con didascalia "...sfondo rimosso (elaborazione locale)".
+39. **Come:** ripeti il punto 37 ma questa volta premi "↩ Torna alla precedente".
+    **Risposta attesa:** torna visibile l'immagine originale (con sfondo), che NON viene aggiunta in Galleria — identico comportamento a "Modifica precisa".
+
 ---
 
 ## Come segnalare un problema trovato
