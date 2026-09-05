@@ -118,10 +118,13 @@ body.light {
 .dv-label         { margin-bottom: 10px !important; }
 .dv-wrap          { margin-top: 20px !important; }
 
-/* Tab DV: wrap su più righe — nessun taglio, niente frecce */
-.dv-tab-row   { flex-wrap: wrap !important; overflow-x: visible !important; }
-#dvArrowLeft,
-#dvArrowRight { display: none !important; }
+/* Tab DV categorie: una riga sola, scorrimento orizzontale con frecce (S29, revert esplicito
+   della scelta "wrap su più righe" — Fabio vuole poter aggiungere categorie future senza far
+   crescere l'altezza del pannello). Nessuna regola qui: basta NON sovrascrivere più flex-wrap/
+   overflow-x/display — .dv-tab-row (scroll nativo) e le frecce #dvArrowLeft/#dvArrowRight già
+   esistono nell'inline di Immaginai.html con tutta la logica JS di show/hide (buildDvTabs());
+   restavano solo disattivate da qui. I chip dentro una categoria (.dv-chips) non sono toccati:
+   restano a capo su più righe come richiesto. */
 
 /* Label sezione — grigio testo, icona viola */
 .slabel,
@@ -151,25 +154,24 @@ body.light {
 #diceBtn       { background: #F0008C !important; border-left: 1px solid rgba(0,0,0,.08) !important; }
 #diceBtn:hover { background: #d4007c !important; }
 
-/* ── DV Tabs — cyan (distinto dal viola di Stile/Formato, vedi CLAUDE.md → collisione colori attivi).
-   Testo #00695c, non #00E5C8/#008a7a: contrasto calcolato (WCAG) contro tutti gli sfondi cyan
-   chiari coinvolti (tab, hover, chip, badge Attivi) — #008a7a scendeva a 4.0:1 sotto la soglia
-   AA 4.5:1 per testo piccolo, #00a896 sull'hover crollava a 2.6:1 ── */
+/* ── DV Tabs — viola come Stile/Formato (S29, revert esplicito della scelta cyan di S24 su
+   richiesta di Fabio: preferisce l'uniformità col resto del design alla distinzione fra sezioni
+   attive — collisione visiva accettata consapevolmente, vedi CLAUDE.md → Badge/pill/toggle) ── */
 .dv-tab {
-  background:    rgba(0,229,200,.10) !important;
-  border:        1px solid #00E5C8 !important;
-  color:         #00695c !important;
+  background:    rgba(91,53,200,.10) !important;
+  border:        1px solid #5B35C8 !important;
+  color:         #5B35C8 !important;
   font-size:     11px !important;
   padding:       5px 10px !important;
   border-radius: 20px !important;
 }
-.dv-tab:hover  { background: rgba(0,229,200,.20) !important; border-color: #00695c !important; color: #00695c !important; }
-.dv-tab.active { background: #00E5C8 !important; border-color: #00E5C8 !important; color: #080810 !important; font-weight: 700 !important; }
+.dv-tab:hover  { background: rgba(91,53,200,.20) !important; border-color: #3D2F8F !important; color: #3D2F8F !important; }
+.dv-tab.active { background: #5B35C8 !important; border-color: #5B35C8 !important; color: #ffffff !important; font-weight: 700 !important; }
 
 .dv-arrow { background: #e2e4ea !important; color: #555 !important; }
-.dv-arrow:hover { background: #00E5C8 !important; color: #080810 !important; }
+.dv-arrow:hover { background: #5B35C8 !important; color: #fff !important; }
 
-/* ── DV Chips — grigio chiaro default, attivo cyan ── */
+/* ── DV Chips — grigio chiaro default, attivo viola ── */
 .dv-chip {
   background:    #f4f4f8 !important;
   border:        1.5px solid var(--border) !important;
@@ -177,14 +179,14 @@ body.light {
   border-radius: 6px !important;
   font-size:     11px !important;
 }
-.dv-chip:hover  { border-color: #00E5C8 !important; color: #00695c !important; background: rgba(0,229,200,.06) !important; }
-.dv-chip.active { background: #00E5C8 !important; border-color: #00E5C8 !important; color: #080810 !important; font-weight: 600 !important; }
+.dv-chip:hover  { border-color: #5B35C8 !important; color: #5B35C8 !important; background: rgba(91,53,200,.04) !important; }
+.dv-chip.active { background: #5B35C8 !important; border-color: #5B35C8 !important; color: #ffffff !important; font-weight: 600 !important; }
 
-.dv-attivi-badge             { background: #00E5C8 !important; color: #080810 !important; }
-.dv-attivi-badge.view-attivi { background: rgba(0,229,200,.10) !important; color: #00695c !important; border: 1px solid rgba(0,229,200,.35) !important; }
-.dv-attivi-n                 { background: rgba(0,0,0,.15) !important; color: #080810 !important; }
-.dv-chip-active-item         { background: #00E5C8 !important; color: #080810 !important; border-radius: 6px !important; }
-.dv-chip-remove              { background: rgba(0,0,0,.15) !important; color: #080810 !important; }
+.dv-attivi-badge             { background: #5B35C8 !important; color: #ffffff !important; }
+.dv-attivi-badge.view-attivi { background: rgba(91,53,200,.08) !important; color: #5B35C8 !important; border: 1px solid rgba(91,53,200,.3) !important; }
+.dv-attivi-n                 { background: rgba(255,255,255,.25) !important; color: #ffffff !important; }
+.dv-chip-active-item         { background: #5B35C8 !important; color: #ffffff !important; border-radius: 6px !important; }
+.dv-chip-remove              { background: rgba(0,0,0,.15) !important; color: #ffffff !important; }
 .dv-empty-msg                { color: #b0b8c8 !important; }
 
 /* ── Stili AI — grigio chiaro default, attivo viola ── */

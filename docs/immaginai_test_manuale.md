@@ -22,15 +22,15 @@ Admin: long press 3s sul logo (desktop o mobile) → apre `immaginai_admin.html`
 ## 2. Dettagli visivi, stile, formato
 
 5. **Come:** apri una categoria di Dettagli visivi (es. "Luce"), clicca un paio di chip (es. "Luce cinema", "Neon").
-   **Risposta attesa:** i chip cliccati diventano cyan/evidenziati. In alto compare il badge "✓ Attivi 2".
+   **Risposta attesa:** i chip cliccati diventano viola pieno con testo bianco (S29 — prima erano ciano). In alto compare il badge "✓ Attivi 2", anch'esso viola.
 6. **Come:** clicca il badge "✓ Attivi".
    **Risposta attesa:** la vista cambia mostrando solo i tag selezionati, ciascuno con una ✕ per rimuoverlo. Rimuovendone uno il contatore scende.
 7. **Come:** seleziona uno Stile artistico (es. "Anime") e un Formato (es. "16:9"), poi genera.
    **Risposta attesa:** l'immagine generata rispetta approssimativamente lo stile scelto e ha proporzioni coerenti col formato (panoramica per 16:9).
 8. **Come:** apri "✕ Cosa non vuoi", scrivi qualcosa (es. "sfondo confuso"), genera.
    **Risposta attesa:** il pannello si apre con un placeholder di esempio; la generazione parte normalmente (l'effetto sul risultato non è verificabile a occhio in modo affidabile, ma non deve dare errori).
-9. **Come:** attiva "✂️ Senza sfondo", genera.
-   **Risposta attesa:** il bottone diventa pieno/evidenziato con la spunta ("✂️ Senza sfondo ✓"); l'immagine tende ad avere uno sfondo più pulito/isolato (non garantito al 100%, dipende dal modello).
+9. **Come (S29 — comportamento cambiato):** attiva "✂️ Senza sfondo" (il bottone diventa pieno/evidenziato con la spunta), poi genera.
+   **Risposta attesa:** dopo che l'immagine è pronta, parte **in automatico** anche la vera rimozione sfondo (stesso messaggio "Rimozione sfondo in corso…" del bottone "🪄 Sfondo") e si apre l'overlay di confronto Precedente/Nuova — devi comunque premere "✓ Tieni questa" o "↩ Torna alla precedente" per decidere. Non è più solo un suggerimento testuale al prompt: il file finale ha davvero lo sfondo trasparente se tieni il risultato.
 
 ## 3. Modifica (S26: verifica anche il retry)
 
@@ -113,14 +113,23 @@ Admin: long press 3s sul logo (desktop o mobile) → apre `immaginai_admin.html`
 36. **Come:** su mobile, genera un'immagine e forza un errore di quota o di rete (difficile da simulare manualmente — se capita spontaneamente, verificalo).
     **Risposta attesa:** un eventuale avviso (statusBar) deve comparire ben visibile in alto, non nascosto dietro l'immagine.
 
-## 12. Rimozione sfondo vera (S28)
+## 12. Rimozione sfondo vera (S28, modello aggiornato in S29)
 
 37. **Come:** dopo una generazione, premi "🪄 Sfondo" nella riga di bottoni sotto l'anteprima.
-    **Risposta attesa:** appare un messaggio "Rimozione sfondo in corso… (al primo utilizzo scarica ~40MB, poi resta in cache)", il bottone mostra "⏳ Elaboro…" e gli altri bottoni della riga si disattivano. Al primo utilizzo l'attesa può essere di qualche decina di secondi (download del modello); le volte successive è molto più veloce (modello in cache del browser).
+    **Risposta attesa:** appare un messaggio "Rimozione sfondo in corso… (al primo utilizzo scarica ~80MB, poi resta in cache)" (S29 — prima ~40MB, ora un modello più preciso), il bottone mostra "⏳ Elaboro…" e gli altri bottoni della riga si disattivano. Al primo utilizzo l'attesa può essere di qualche decina di secondi in più rispetto a prima (download del modello più pesante); le volte successive è molto più veloce (modello in cache del browser).
 38. **Come:** dopo l'elaborazione, guarda l'overlay di confronto che appare (stesso stile di "Modifica precisa").
     **Risposta attesa:** a sinistra "Precedente" (l'immagine originale), a destra "Nuova" (con lo sfondo rimosso — visibile come area vuota/trasparente, che nell'anteprima del browser appare bianca o a scacchiera a seconda del tema). Premi "✓ Tieni questa": l'immagine con sfondo rimosso sostituisce quella corrente e viene aggiunta in Galleria con didascalia "...sfondo rimosso (elaborazione locale)".
 39. **Come:** ripeti il punto 37 ma questa volta premi "↩ Torna alla precedente".
     **Risposta attesa:** torna visibile l'immagine originale (con sfondo), che NON viene aggiunta in Galleria — identico comportamento a "Modifica precisa".
+40. **Come (S29 — bug corretto, verifica che non sia tornato):** dopo aver premuto "✓ Tieni questa" al punto 38 (o "↩ Torna alla precedente" al punto 39), controlla i 4 bottoni sotto l'immagine (Scarica/Rigenera/Modifica/Sfondo).
+    **Risposta attesa:** sono tutti cliccabili normalmente, non grigi/disattivati. (Prima di S29 restavano bloccati per sempre dopo un "Tieni questa" riuscito.)
+
+## 13. Dettagli visivi — tab a scorrimento (S29)
+
+41. **Come:** su schermo stretto (mobile, o finestra ridotta sotto ~500px), guarda la riga di tab principali di Dettagli visivi (Luce, Colore, Sfondo, Qualità, Prospettiva, Atmosfera).
+    **Risposta attesa:** stanno tutte su una riga sola (non vanno a capo su più righe), con una freccia "›" sul bordo destro per scorrere.
+42. **Come:** premi la freccia "›" ripetutamente fino in fondo, poi la freccia "‹" per tornare indietro.
+    **Risposta attesa:** la riga scorre orizzontalmente mostrando le categorie nascoste; la freccia destra sparisce quando non c'è più nulla a destra da mostrare, la sinistra sparisce quando sei tornato all'inizio. I chip dentro una categoria (es. "Luce cinema", "Ora dorata"...) restano invece a capo su più righe come sempre, non scorrono.
 
 ---
 

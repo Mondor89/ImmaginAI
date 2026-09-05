@@ -216,7 +216,12 @@ body.light .dv-tab.active{background:#00E5C8;border-color:#00E5C8;color:#080810;
 /* Frecce pill azzurro */
 .dv-arrow{flex-shrink:0;width:28px;height:30px;background:#00E5C8;border:none;border-radius:14px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:#080810;font-size:16px;font-weight:700;line-height:1;transition:opacity .15s;padding:0;}
 .dv-arrow:hover{opacity:.82;}
-.dv-arrow.hidden{display:none;}
+/* visibility, non display: la freccia deve occupare lo spazio anche da nascosta, altrimenti
+   apparire/sparire cambia la larghezza disponibile di .dv-tab-row e il calcolo "sono arrivato
+   in fondo?" in scrollDvTabs()/updateArrows() resta sistematicamente indietro di quanto la
+   freccia stessa occupa (S29, trovato testando lo scroll fino in fondo dopo aver riattivato
+   le frecce — mai esercitato prima perché erano permanentemente disattivate da CSS) */
+.dv-arrow.hidden{visibility:hidden;}
 
 /* Chip FIGLIO — rettangolare, testo tema, hover azzurro */
 .dv-chips{display:flex;flex-wrap:wrap;gap:4px;margin-top:7px;min-height:28px;}
@@ -1030,14 +1035,20 @@ function buildStyles(){
 function initLongPress(){['sidebarLogo','mobileLogoTitle'].forEach(id=>{const el=document.getElementById(id);if(!el) return;el.addEventListener('mousedown',()=>{lpTimer=setTimeout(()=>window.open('immaginai_admin.html','_blank'),3000);});el.addEventListener('touchstart',()=>{lpTimer=setTimeout(()=>window.open('immaginai_admin.html','_blank'),3000);},{passive:true});['mouseup','mouseleave','touchend'].forEach(ev=>el.addEventListener(ev,()=>clearTimeout(lpTimer)));});}
 
 /* ── STATUS/COOLDOWN ── */
-function setStatus(m,t){const bar=document.getElementById('statusBar'),sp=document.getElementById('statusSpin'),tx=document.getElementById('statusText');if(!m){bar.className='';return;}bar.className='show '+(t||'');sp.style.display=t==='loading'?'block':'none';tx.textContent=m;}
 let _statusToken=0;
+// _statusToken si incrementa qui, non solo dentro flashStatus (bug S29 trovato da audit
+// indipendente): runRimuoviSfondo() chiama setStatus() direttamente (non flashStatus) per
+// mostrare "Rimozione sfondo in corso…" — se il token restava quello dell'ultima flashStatus
+// precedente (es. "✓ Modifica generata" da showGeneratedImage), il timer di autoclear da 3s di
+// quel messaggio precedente scattava DURANTE l'elaborazione in corso e la cancellava a metà,
+// lasciando l'utente senza feedback per il resto del download/elaborazione
+function setStatus(m,t){const bar=document.getElementById('statusBar'),sp=document.getElementById('statusSpin'),tx=document.getElementById('statusText');_statusToken++;if(!m){bar.className='';return;}bar.className='show '+(t||'');sp.style.display=t==='loading'?'block':'none';tx.textContent=m;}
 function flashStatus(m,t,duration){
   // Un setStatus(...)+setTimeout(()=>setStatus(''),N) "sparato e dimenticato" può cancellare
   // in anticipo un messaggio successivo impostato nel frattempo — il token fa sì che un timer
   // vecchio cancelli solo se è ancora l'ultimo messaggio mostrato, non quello che lo ha sostituito
-  const token=++_statusToken;
   setStatus(m,t);
+  const token=_statusToken;
   setTimeout(()=>{if(_statusToken===token) setStatus('','');},duration);
 }
 let cdTimer=null;
@@ -1150,6 +1161,14 @@ async function runGeneration(fullPrompt,ratioId,statusMsg,onSuccess,onRetry){
   [btn,btnM].forEach(b=>{if(b){b.disabled=true;b.textContent='⏳ GENERANDO…';}});
   document.getElementById('modificaPanel').classList.remove('open');
   document.getElementById('compareOverlay').classList.remove('open');
+  // Se l'utente preme "Genera"/"Rigenera" mentre un overlay di confronto (Modifica/Sfondo) è
+  // ancora aperto, l'overlay si chiude sopra ma senza mai passare da keepModifica()/discardModifica()
+  // — bug reale trovato da audit indipendente S29: i bottoni azione, se erano stati disabilitati da
+  // runRimuoviSfondo() in corso, restavano disabilitati per sempre. Il pendente va anche scartato,
+  // altrimenti un "Tieni questa" tardivo su un flusso già abbandonato produrrebbe un risultato confuso
+  reenableImgActions();
+  ST._pendingModifica=null;
+  ST._autoBgPending=false;
   sBox.style.display='flex';sBox.innerHTML='<div class="big-spin"></div><div id="spinnerMsg">Avvio…<br><small style="font-size:11px;opacity:.6">Pollinations FLUX</small></div>';
   imgEl.style.display='none';acts.classList.remove('visible');document.getElementById('ctaWrap').classList.remove('visible');
   showOutput(true);
@@ -1184,6 +1203,20 @@ function showGeneratedImage(dataUrl,prompt,style,ratio,msg){
   if(ST.gallery.length>12) ST.gallery.pop();
   saveGallery();
   renderGallery();
+  // "Senza sfondo" (S29, opzione 2 scelta da Fabio): il toggle a monte è solo un suggerimento
+  // testuale al prompt — Pollinations non supporta trasparenza reale, quindi da solo non basta
+  // (vedi CLAUDE.md). Per ottenere davvero un file trasparente si incatena qui la rimozione
+  // sfondo vera (client-side), in automatico, dopo ogni Genera/Rigenera con il toggle attivo —
+  // l'utente conferma comunque il risultato nell'overlay di confronto già esistente, non è
+  // un'applicazione irreversibile e silenziosa. Deferito con un microtask: a questo punto
+  // ST.busy è ancora true (runGeneration lo azzera solo DOPO aver richiamato questa funzione) e
+  // runRimuoviSfondo() si rifiuta di partire finché busy resta true.
+  // ST._autoBgPending segnala a keepModifica() che il risultato che sta per confermare è la
+  // STESSA generazione appena aggiunta qui in galleria (non una modifica distinta) — trovato da
+  // audit indipendente: senza questo flag, ogni generazione con "Senza sfondo" attivo finiva per
+  // consumare 2 dei 12 slot di galleria (l'originale con sfondo + la versione rimossa), lasciando
+  // in giro anche la copia con sfondo che l'utente non ha mai scelto di tenere
+  if(ST.transpOn){ST._autoBgPending=true;Promise.resolve().then(()=>runRimuoviSfondo());}
 }
 async function generateImage(){
   const prompt=document.getElementById('promptInput').value.trim();
@@ -1229,6 +1262,10 @@ async function generateModifica(basePrompt,baseStyle,extra){
     document.getElementById('compareImgNew').src=dataUrl;
     document.getElementById('compareOverlay').classList.add('open');
     ST._pendingModifica={url:dataUrl,prompt:basePrompt,extra,style:baseStyle};
+    // runGeneration lascia lo statusBar su "Generando modifica…" (loading) — a differenza del
+    // ramo Genera/Rigenera (showGeneratedImage), qui nessuno lo chiudeva mai: restava bloccato
+    // a schermo anche dopo che l'operazione era finita (bug segnalato da Fabio, S29)
+    flashStatus('✓ Modifica generata — confronta il risultato','ok',3000);
   },()=>generateModifica(basePrompt,baseStyle,extra));
 }
 // L'immagine corrente può essere un URL remoto (Pollinations) o già un data: URL (CF/Horde) —
@@ -1251,10 +1288,12 @@ async function toDataUrl(url){
 }
 // Rimozione sfondo vera, client-side (@imgly/background-removal, WASM in-browser — nessun server coinvolto,
 // nessun dato lascia il browser). Import dinamico via CDN jsDelivr: lazy-load, un solo download per sessione
-// (poi cache HTTP del browser). Il modulo JS arriva da jsDelivr, ma il modello/wasm (~40MB) li scarica la
-// libreria stessa da staticimgly.com (CDN di IMG.LY, default interno non passato qui) — due domini esterni
-// diversi, non uno solo. Deroga dichiarata alla regola "niente build step": nessun bundler richiesto,
-// import ESM diretto da CDN — coerente con l'architettura single-file dell'app.
+// (poi cache HTTP del browser). Il modulo JS arriva da jsDelivr, ma il modello/wasm (~80MB, model:'isnet_fp16'
+// — S29, prima 'isnet_quint8'/~40MB: il README ufficiale lo descrive esplicitamente come soggetto a più
+// artefatti, coerente con la lamentela di Fabio sui bordi imprecisi) li scarica la libreria stessa da
+// staticimgly.com (CDN di IMG.LY, default interno non passato qui) — due domini esterni diversi, non uno
+// solo. Deroga dichiarata alla regola "niente build step": nessun bundler richiesto, import ESM diretto da
+// CDN — coerente con l'architettura single-file dell'app.
 let _bgRemovalFn=null;
 function loadBgRemoval(){
   if(_bgRemovalFn) return Promise.resolve(_bgRemovalFn);
@@ -1272,7 +1311,7 @@ function blobToDataUrl(blob){
 }
 const BG_ERROR_MSG={
   BG_LIB_LOAD_FAIL:'Libreria di rimozione sfondo non disponibile (CDN irraggiungibile) — riprova tra poco.',
-  // Copre anche il download del modello (~40MB, da un CDN separato da quello della libreria) e
+  // Copre anche il download del modello (~80MB, da un CDN separato da quello della libreria) e
   // ogni altro errore durante l'elaborazione — non solo "modello AI confuso", il messaggio resta
   // generico apposta perché la causa reale può essere di rete, non solo di elaborazione
   BG_PROCESS_FAIL:'Rimozione sfondo non riuscita (elaborazione o download del modello) — riprova, o usa "✂️ Senza sfondo" nel prompt prima di generare.',
@@ -1295,11 +1334,11 @@ async function runRimuoviSfondo(){
   // rimostrano già a flusso concluso, qui vanno solo nascosti prima di iniziare
   document.getElementById('imgActions').classList.remove('visible');
   document.getElementById('ctaWrap').classList.remove('visible');
-  setStatus('Rimozione sfondo in corso… (al primo utilizzo scarica ~40MB, poi resta in cache)','loading');
+  setStatus('Rimozione sfondo in corso… (al primo utilizzo scarica ~80MB, poi resta in cache)','loading');
   try{
     const removeBackground=await loadBgRemoval();
     if(typeof removeBackground!=='function') throw new Error('BG_LIB_LOAD_FAIL');
-    const blob=await removeBackground(ST.currentUrl,{model:'isnet_quint8'}).catch(()=>{throw new Error('BG_PROCESS_FAIL');});
+    const blob=await removeBackground(ST.currentUrl,{model:'isnet_fp16'}).catch(()=>{throw new Error('BG_PROCESS_FAIL');});
     const dataUrl=await blobToDataUrl(blob);
     document.getElementById('compareImgOld').src=ST.currentUrl;
     document.getElementById('compareImgNew').src=dataUrl;
@@ -1321,7 +1360,22 @@ async function modifyViaKontext(imageDataUrl,editPrompt,width,height){
   // Limite pratico dei body Netlify Functions (~6MB): un controllo qui rende raggiungibile il
   // messaggio amichevole IMAGE_TOO_LARGE invece di un 413 grezzo che il fetch sotto non spiega.
   if(imageDataUrl.length>4*1024*1024) throw new Error('IMAGE_TOO_LARGE');
-  const res=await fetch('/.netlify/functions/modify',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({image:imageDataUrl,prompt:editPrompt,width,height})});
+  // Timeout lato client (bug S29): modify.js ha un timeout interno di 20s verso Pollinations, ma
+  // le Netlify Functions sincrone hanno un limite di esecuzione proprio più corto in alcuni piani —
+  // se la Function viene interrotta a metà senza inviare risposta, un fetch senza AbortSignal
+  // resta in attesa indefinita e la UI mostra "Modifica precisa in corso…" per sempre. 25s è
+  // volutamente sopra i 20s server-side: lo lascia rispondere per primo nel caso normale.
+  // Guard su browser senza AbortSignal.timeout (Safari <16, Chrome <103): senza, la sua stessa
+  // chiamata lancerebbe un TypeError PRIMA del fetch, dentro il try — ma con un messaggio grezzo
+  // ("AbortSignal.timeout is not a function") invece di un errore gestito (trovato da audit S29)
+  const signal=(typeof AbortSignal!=='undefined'&&typeof AbortSignal.timeout==='function')?AbortSignal.timeout(25000):undefined;
+  let res;
+  try{
+    res=await fetch('/.netlify/functions/modify',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({image:imageDataUrl,prompt:editPrompt,width,height}),signal});
+  }catch(e){
+    if(e.name==='TimeoutError'||e.name==='AbortError') throw new Error('KONTEXT_TIMEOUT');
+    throw e;
+  }
   const d=await res.json().catch(()=>({}));
   if(!res.ok) throw new Error(d.error||('MODIFY_'+res.status));
   if(!d.image) throw new Error('MODIFY_EMPTY');
@@ -1338,6 +1392,7 @@ const KONTEXT_ERROR_MSG={
   RATE_LIMITED:'Troppe richieste di Modifica precisa — attendi qualche minuto.',
   IMAGE_TOO_LARGE:'Immagine troppo grande per la Modifica precisa — prova con "✨ Genera modifica".',
   IMG_FETCH_FAIL:'Impossibile leggere l\'immagine corrente — riprova tra poco.',
+  KONTEXT_TIMEOUT:'Modifica precisa troppo lenta a rispondere — riprova o usa "✨ Genera modifica".',
 };
 async function runModificaPrecisa(){
   const extra=document.getElementById('modificaInput').value.trim();
@@ -1378,6 +1433,9 @@ async function runModificaPrecisa(){
     document.getElementById('compareImgNew').src=dataUrl;
     document.getElementById('compareOverlay').classList.add('open');
     ST._pendingModifica={url:dataUrl,prompt:ST.currentPrompt,extra,style:ST.currentStyle};
+    // Stesso bug di generateModifica (S29): senza questo, lo statusBar restava bloccato su
+    // "Modifica precisa in corso…" anche a operazione conclusa
+    flashStatus('✓ Modifica precisa completata — confronta il risultato','ok',3000);
   }catch(e){
     const m=e.message||'';
     const help=KONTEXT_ERROR_MSG[m]||('Modifica precisa non riuscita ('+m+') — usa "✨ Genera modifica" nel frattempo.');
@@ -1391,15 +1449,31 @@ async function runModificaPrecisa(){
   [btn,btnM].forEach(b=>{if(b) b.textContent='✨ GENERA IMMAGINE';});
   ST.busy=false;
 }
+// runRimuoviSfondo (e in futuro qualunque flusso che riusa questo overlay) disabilita i bottoni
+// azione durante l'elaborazione e li riabilita solo nel proprio ramo di errore — se l'operazione
+// riesce, l'unico punto per cui si passa sempre è uno di questi due, quindi è qui che vanno
+// riabilitati in modo universale. Bug reale (S29): dopo "🪄 Sfondo" andato a buon fine, i 4
+// bottoni (Scarica/Rigenera/Modifica/Sfondo) restavano grigi per sempre — mai riabilitati
+function reenableImgActions(){document.querySelectorAll('.img-actions .img-btn').forEach(b=>b.disabled=false);}
 function keepModifica(){
   const m=ST._pendingModifica;if(!m) return;
   const imgEl=document.getElementById('generatedImg');
   imgEl.src=m.url;imgEl.onclick=()=>openModal(m.url);imgEl.style.display='block';
   ST.currentUrl=m.url;ST.currentPrompt=m.prompt;ST.currentStyle=m.style;
-  ST.gallery.unshift({url:m.url,prompt:m.extra?(m.prompt+', '+m.extra):m.prompt,style:m.style,ratio:ST.ratio,ts:Date.now()});
-  if(ST.gallery.length>12) ST.gallery.pop();
+  const newPrompt=m.extra?(m.prompt+', '+m.extra):m.prompt;
+  if(ST._autoBgPending&&ST.gallery.length){
+    // Rimozione sfondo avviata in automatico sulla stessa generazione appena aggiunta in galleria
+    // da showGeneratedImage() — sostituisce quella voce invece di aggiungerne una seconda (vedi
+    // commento su ST._autoBgPending)
+    ST.gallery[0]={url:m.url,prompt:newPrompt,style:m.style,ratio:ST.ratio,ts:Date.now()};
+  }else{
+    ST.gallery.unshift({url:m.url,prompt:newPrompt,style:m.style,ratio:ST.ratio,ts:Date.now()});
+    if(ST.gallery.length>12) ST.gallery.pop();
+  }
+  ST._autoBgPending=false;
   saveGallery();
   renderGallery();closeCompare();
+  reenableImgActions();
   document.getElementById('imgActions').classList.add('visible');document.getElementById('ctaWrap').classList.add('visible');
   document.getElementById('modificaInput').value='';
   ST._pendingModifica=null;
@@ -1407,9 +1481,11 @@ function keepModifica(){
 function discardModifica(){
   document.getElementById('generatedImg').style.display='block';
   closeCompare();
+  reenableImgActions();
   document.getElementById('imgActions').classList.add('visible');document.getElementById('ctaWrap').classList.add('visible');
   document.getElementById('modificaInput').value='';
   ST._pendingModifica=null;
+  ST._autoBgPending=false;
 }
 function closeCompare(){document.getElementById('compareOverlay').classList.remove('open');}
 
