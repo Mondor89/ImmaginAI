@@ -32,15 +32,17 @@ Admin: long press 3s sul logo (desktop o mobile) → apre `immaginai_admin.html`
 9. **Come (S29 — comportamento cambiato):** attiva "✂️ Senza sfondo" (il bottone diventa pieno/evidenziato con la spunta), poi genera.
    **Risposta attesa:** dopo che l'immagine è pronta, parte **in automatico** anche la vera rimozione sfondo (stesso messaggio "Rimozione sfondo in corso…" del bottone "🪄 Sfondo") e si apre l'overlay di confronto Precedente/Nuova — devi comunque premere "✓ Tieni questa" o "↩ Torna alla precedente" per decidere. Non è più solo un suggerimento testuale al prompt: il file finale ha davvero lo sfondo trasparente se tieni il risultato.
 
-## 3. Modifica (S26: verifica anche il retry)
+## 3. Modifica (S30: un solo bottone, tetto di 3 modifiche per immagine — verifica anche il retry)
 
-10. **Come:** dopo aver generato un'immagine, premi "✏️ Modifica", scrivi un'aggiunta (es. "aggiungi un cappello"), premi "✨ Genera modifica".
-    **Risposta attesa:** appare un overlay a confronto: "Precedente" a sinistra, "Nuova" a destra. In basso 2 bottoni: "↩ Torna alla precedente" e "✓ Tieni questa".
+10. **Come:** dopo aver generato un'immagine, premi "✏️ Modifica", scrivi un'aggiunta (es. "aggiungi un cappello"), premi il bottone "✨ Modifica (3 rimaste)".
+    **Risposta attesa:** appare un overlay a confronto: "Precedente" a sinistra, "Nuova" a destra. In basso 2 bottoni: "↩ Torna alla precedente" e "✓ Tieni questa". Dopo aver riaperto il pannello, il bottone mostra "✨ Modifica (2 rimaste)".
+10bis. **Come:** ripeti la modifica altre 2 volte sulla stessa immagine (senza generarne una nuova).
+    **Risposta attesa:** dopo la terza modifica il bottone mostra "Limite modifiche raggiunto" ed è disattivato — un quarto tentativo non parte, appare un avviso "Hai raggiunto il limite di 3 modifiche per questa immagine". Generando una nuova immagine (Genera o Rigenera) il contatore torna a "3 rimaste".
 11. **Come:** nell'overlay di confronto, premi "✓ Tieni questa".
     **Risposta attesa:** l'overlay si chiude, l'immagine nuova resta visibile, viene aggiunta in Galleria con il prompt completo (base + aggiunta).
 12. **Come:** ripeti la modifica ma questa volta premi "↩ Torna alla precedente".
     **Risposta attesa:** l'overlay si chiude, torna visibile l'immagine di prima (non quella appena generata), che NON viene aggiunta in Galleria.
-13. **Come (retry mirato):** apri gli strumenti sviluppatore del browser (F12 → Console) — non è necessario per l'uso normale, solo per questa prova — e disattiva temporaneamente il WiFi/dati subito dopo aver premuto "Genera modifica", così da forzare un errore.
+13. **Come (retry mirato):** apri gli strumenti sviluppatore del browser (F12 → Console) — non è necessario per l'uso normale, solo per questa prova — e disattiva temporaneamente il WiFi/dati subito dopo aver premuto "✨ Modifica", così da forzare un errore.
     **Risposta attesa:** appare il box "⚠️ GENERAZIONE FALLITA" con un bottone "🔄 RIPROVA". Riattiva la connessione e premi Riprova: **deve ripartire la Modifica** (stesso prompt base + la tua aggiunta), non un Genera da zero col prompt box vuoto.
 
 ## 4. Rigenera

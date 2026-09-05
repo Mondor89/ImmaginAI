@@ -10,7 +10,7 @@ Modulo 3 dell'ecosistema WonderSpit.
 **Target:** Pubblico (clienti finali WonderSpit)
 **Stack tecnico:** HTML+CSS+JS vanilla, single-file (`app/Immaginai.html`) + Netlify Functions per il proxy API key
 **Backend/hosting:** Netlify + Netlify Functions (`netlify/functions/generate.js`, `netlify/functions/modify.js`)
-**API esterne usate:** Pollinations AI (gratis, no key) → Cloudflare Workers AI (CF_ACCOUNT_ID+CF_API_TOKEN, 10k neuroni/giorno) → Together.ai (TOGETHER_KEY + TOGETHER_ENABLED='true', non attivo — richiede deposito) → Stable Horde (ultimo fallback). HuggingFace rimosso in S22: dominio `api-inference.huggingface.co` dismesso. **S27**: Pollinations Kontext (editing immagine, a pagamento) per il bottone opzionale "Modifica precisa" — non fa parte della cascata sopra, gate POLLINATIONS_KEY + KONTEXT_ENABLED='true', non attivo finché Fabio non crea la chiave
+**API esterne usate:** Pollinations AI (gratis, no key) → Cloudflare Workers AI (CF_ACCOUNT_ID+CF_API_TOKEN, 10k neuroni/giorno) → Together.ai (TOGETHER_KEY + TOGETHER_ENABLED='true', non attivo — richiede deposito) → Stable Horde (ultimo fallback). HuggingFace rimosso in S22: dominio `api-inference.huggingface.co` dismesso. **S27, attivo**: Pollinations Kontext (editing immagine, a pagamento) per il bottone "✨ Modifica" — non fa parte della cascata sopra, gate POLLINATIONS_KEY + KONTEXT_ENABLED='true'. **S30**: unico percorso di modifica rimasto (la versione classica gratuita è stata rimossa), con tetto di 3 modifiche riuscite per immagine generata lato client (`ST.modifyCount`/`MODIFY_MAX`)
 **Repository:** https://github.com/Mondor89/ImmaginAI
 **Deploy:** https://wonderspit-ai.netlify.app/
 

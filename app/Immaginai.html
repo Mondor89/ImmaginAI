@@ -332,10 +332,9 @@ body.light .ratio-btn.active{background:var(--c-violet);border-color:var(--c-vio
 #modificaInput{width:100%;background:var(--card);border:1.5px solid var(--border);border-radius:10px;color:var(--text);font-size:12px;font-family:var(--font-body);padding:9px 12px;resize:none;transition:border-color .2s;margin-bottom:8px;}
 #modificaInput:focus{outline:none;border-color:var(--c-violet);}
 #modificaInput::placeholder{color:var(--muted);}
-#modificaGoBtn{width:100%;padding:10px;background:linear-gradient(135deg,var(--c-violet),var(--c-accent2));color:#FFFFFF;border:none;border-radius:10px;font-size:12px;font-weight:800;font-family:var(--font-body);cursor:pointer;letter-spacing:.5px;transition:opacity .2s;}
-#modificaGoBtn:hover{opacity:.88;}
-#modificaPreciseBtn{width:100%;padding:9px;margin-top:6px;background:transparent;border:1.5px solid var(--c-violet);color:var(--c-violet);border-radius:10px;font-size:11px;font-weight:700;font-family:var(--font-body);cursor:pointer;letter-spacing:.3px;transition:all .2s;}
-#modificaPreciseBtn:hover{background:rgba(91,53,200,.08);}
+#modificaPreciseBtn{width:100%;padding:10px;background:linear-gradient(135deg,var(--c-violet),var(--c-accent2));color:#FFFFFF;border:none;border-radius:10px;font-size:12px;font-weight:800;font-family:var(--font-body);cursor:pointer;letter-spacing:.5px;transition:opacity .2s;}
+#modificaPreciseBtn:hover{opacity:.88;}
+#modificaPreciseBtn:disabled{opacity:.5;cursor:not-allowed;}
 /* ── COMPARE OVERLAY ── */
 #compareOverlay{display:none;position:absolute;inset:0;z-index:50;background:var(--surface);border-radius:20px;flex-direction:column;overflow:hidden;}
 #compareOverlay.open{display:flex;}
@@ -554,8 +553,7 @@ body.light .ratio-btn.active{background:var(--c-violet);border-color:var(--c-vio
         <div id="modificaPanel">
           <span class="modifica-label">Aggiungi al prompt</span>
           <textarea id="modificaInput" rows="2" placeholder="Es: aggiungi una palla rossa, togli lo sfondo…"></textarea>
-          <button id="modificaGoBtn" onclick="runModifica()">✨ Genera modifica</button>
-          <button id="modificaPreciseBtn" onclick="runModificaPrecisa()">✏️✨ Modifica precisa (beta)</button>
+          <button id="modificaPreciseBtn" onclick="runModificaPrecisa()">✨ Modifica</button>
         </div>
         <div id="compareOverlay">
           <div class="compare-imgs">
@@ -750,7 +748,8 @@ const DICE_FULL=[
 const RATIOS=[{id:'1:1',w:1024,h:1024,icon:'▪',label:'1:1'},{id:'16:9',w:1024,h:576,icon:'▬',label:'16:9'},{id:'9:16',w:576,h:1024,icon:'▮',label:'9:16'},{id:'4:3',w:1024,h:768,icon:'▭',label:'4:3'}];
 let HORDE_API_KEY=''; // Chiave Stable Horde (non HuggingFace, nonostante la chiave localStorage 'ig_apikey_hf' rimasta dal nome storico) — caricata da localStorage
 
-const ST={style:'',ratio:'1:1',transpOn:false,gallery:[],currentUrl:'',currentPrompt:'',currentStyle:'',lastGenTime:0,busy:false,theme:'light',cooldown:16000};
+const ST={style:'',ratio:'1:1',transpOn:false,gallery:[],currentUrl:'',currentPrompt:'',currentStyle:'',lastGenTime:0,busy:false,theme:'light',cooldown:16000,modifyCount:0};
+const MODIFY_MAX=3; // Limite di modifiche per immagine (Fabio, S30) — riparte da 0 ad ogni nuova generazione (showGeneratedImage), non persistito
 let STYLES=[],CATS=[],currentCatId=null,lpTimer=null;
 const isMobile=()=>window.innerWidth<1024;
 
@@ -1215,6 +1214,7 @@ async function runGeneration(fullPrompt,ratioId,statusMsg,onSuccess,onRetry){
 function showGeneratedImage(dataUrl,prompt,style,ratio,msg){
   const imgEl=document.getElementById('generatedImg'),acts=document.getElementById('imgActions');
   ST.currentUrl=dataUrl;ST.currentPrompt=prompt;ST.currentStyle=style;
+  ST.modifyCount=0;updateModificaBtnLabel(); // nuova immagine → tetto modifiche riparte da 0
   imgEl.src=dataUrl;imgEl.onclick=()=>openModal(dataUrl);
   imgEl.style.display='block';acts.classList.add('visible');document.getElementById('ctaWrap').classList.add('visible');
   imgEl.classList.remove('img-pop');void imgEl.offsetWidth;imgEl.classList.add('img-pop');
@@ -1256,8 +1256,8 @@ async function retryGeneration(){
   _lastRetry=null;
   await fn();
   // Se il flusso richiamato abortisce prima di richiamare runGeneration() (es. generateImage()
-  // con prompt svuotato nel frattempo, o regenImage()/generateModifica() senza più uno stato
-  // valido), lo spinner "Riconnessione…" resterebbe a schermo per sempre — nessun bottone
+  // con prompt svuotato nel frattempo, o regenImage() senza più uno stato valido), lo spinner
+  // "Riconnessione…" resterebbe a schermo per sempre — nessun bottone
   // Riprova (rimosso dal DOM) e nessun _lastRetry per ritentare. runGeneration() sovrascrive
   // sempre questo innerHTML appena parte davvero: se è ancora qui, il flusso non è partito
   if(sBox.innerHTML.includes('Riconnessione')) showOutput(false);
@@ -1267,26 +1267,17 @@ function toggleModifica(){
   const p=document.getElementById('modificaPanel');
   p.classList.toggle('open');
   if(p.classList.contains('open')) document.getElementById('modificaInput').focus();
+  updateModificaBtnLabel();
 }
-async function runModifica(){
-  const extra=document.getElementById('modificaInput').value.trim();
-  if(!extra) return;
-  closeCompare();
-  await generateModifica(ST.currentPrompt,ST.currentStyle,extra);
-}
-async function generateModifica(basePrompt,baseStyle,extra){
-  if(ST.busy) return;
-  const prevUrl=ST.currentUrl;
-  await runGeneration(basePrompt+', '+extra+(baseStyle?', '+baseStyle:''),ST.ratio,'Generando modifica…',dataUrl=>{
-    document.getElementById('compareImgOld').src=prevUrl;
-    document.getElementById('compareImgNew').src=dataUrl;
-    document.getElementById('compareOverlay').classList.add('open');
-    ST._pendingModifica={url:dataUrl,prompt:basePrompt,extra,style:baseStyle};
-    // runGeneration lascia lo statusBar su "Generando modifica…" (loading) — a differenza del
-    // ramo Genera/Rigenera (showGeneratedImage), qui nessuno lo chiudeva mai: restava bloccato
-    // a schermo anche dopo che l'operazione era finita (bug segnalato da Fabio, S29)
-    flashStatus('✓ Modifica generata — confronta il risultato','ok',3000);
-  },()=>generateModifica(basePrompt,baseStyle,extra));
+// Etichetta del bottone riflette le modifiche rimaste su QUESTA immagine (MODIFY_MAX per
+// generazione, azzerato in showGeneratedImage()) — Fabio ha chiesto un tetto di 3 per tenere
+// sotto controllo il costo di Modifica precisa (Kontext, a pagamento), unica Modifica rimasta
+// dopo aver tolto la versione classica gratuita (troppi bottoni, confondeva)
+function updateModificaBtnLabel(){
+  const btn=document.getElementById('modificaPreciseBtn');if(!btn) return;
+  const left=MODIFY_MAX-ST.modifyCount;
+  if(left<=0){btn.textContent='Limite modifiche raggiunto';btn.disabled=true;}
+  else{btn.textContent=`✨ Modifica (${left} rimaste)`;btn.disabled=false;}
 }
 // L'immagine corrente può essere un URL remoto (Pollinations) o già un data: URL (CF/Horde) —
 // il server non deve mai risolvere un URL per conto del client (stesso principio di generate.js,
@@ -1344,7 +1335,7 @@ async function runRimuoviSfondo(){
   ST.busy=true;
   const btn=document.getElementById('bgRemovalBtn');
   const rowBtns=document.querySelectorAll('.img-actions .img-btn');
-  const genBtns=[document.getElementById('genBtn'),document.getElementById('genBtnMobile')?.querySelector('button'),document.getElementById('modificaGoBtn'),document.getElementById('modificaPreciseBtn')];
+  const genBtns=[document.getElementById('genBtn'),document.getElementById('genBtnMobile')?.querySelector('button'),document.getElementById('modificaPreciseBtn')];
   rowBtns.forEach(b=>b.disabled=true);
   genBtns.forEach(b=>{if(b) b.disabled=true;});
   if(btn) btn.textContent='⏳ Elaboro…';
@@ -1434,7 +1425,7 @@ async function runUpscale(){
   ST.busy=true;
   const btn=document.getElementById('upscaleBtn');
   const rowBtns=document.querySelectorAll('.img-actions .img-btn');
-  const genBtns=[document.getElementById('genBtn'),document.getElementById('genBtnMobile')?.querySelector('button'),document.getElementById('modificaGoBtn'),document.getElementById('modificaPreciseBtn')];
+  const genBtns=[document.getElementById('genBtn'),document.getElementById('genBtnMobile')?.querySelector('button'),document.getElementById('modificaPreciseBtn')];
   rowBtns.forEach(b=>b.disabled=true);
   genBtns.forEach(b=>{if(b) b.disabled=true;});
   if(btn) btn.textContent='⏳ Elaboro…';
@@ -1496,23 +1487,27 @@ async function modifyViaKontext(imageDataUrl,editPrompt,width,height){
   return d.image;
 }
 const KONTEXT_ERROR_MSG={
-  KONTEXT_DISABLED:'Modifica precisa non è ancora attiva su questa app — usa "✨ Genera modifica" qui sopra nel frattempo.',
-  KONTEXT_BUDGET_EXHAUSTED:'Modifica precisa non disponibile al momento (credito esaurito) — usa "✨ Genera modifica" nel frattempo.',
-  KONTEXT_AUTH_ERROR:'Modifica precisa temporaneamente non disponibile (errore di configurazione) — usa "✨ Genera modifica".',
-  KONTEXT_FAILED:'Modifica precisa non riuscita (servizio non disponibile) — riprova tra qualche minuto o usa "✨ Genera modifica".',
-  KONTEXT_EMPTY:'Modifica precisa non ha restituito un\'immagine — riprova o usa "✨ Genera modifica".',
-  INVALID_PROMPT:'Testo troppo lungo per Modifica precisa (max 500 caratteri) — accorcialo e riprova.',
-  INVALID_IMAGE:'Impossibile leggere l\'immagine corrente per Modifica precisa — riprova tra poco.',
-  RATE_LIMITED:'Troppe richieste di Modifica precisa — attendi qualche minuto.',
-  IMAGE_TOO_LARGE:'Immagine troppo grande per la Modifica precisa — prova con "✨ Genera modifica".',
+  KONTEXT_DISABLED:'Modifica non è ancora attiva su questa app — riprova più tardi.',
+  KONTEXT_BUDGET_EXHAUSTED:'Modifica non disponibile al momento (credito esaurito) — riprova più tardi.',
+  KONTEXT_AUTH_ERROR:'Modifica temporaneamente non disponibile (errore di configurazione).',
+  KONTEXT_FAILED:'Modifica non riuscita (servizio non disponibile) — riprova tra qualche minuto.',
+  KONTEXT_EMPTY:'Modifica non ha restituito un\'immagine — riprova.',
+  INVALID_PROMPT:'Testo troppo lungo (max 500 caratteri) — accorcialo e riprova.',
+  INVALID_IMAGE:'Impossibile leggere l\'immagine corrente — riprova tra poco.',
+  RATE_LIMITED:'Troppe richieste di Modifica — attendi qualche minuto.',
+  IMAGE_TOO_LARGE:'Immagine troppo grande per la Modifica.',
   IMG_FETCH_FAIL:'Impossibile leggere l\'immagine corrente — riprova tra poco.',
-  KONTEXT_TIMEOUT:'Modifica precisa troppo lenta a rispondere — riprova o usa "✨ Genera modifica".',
+  KONTEXT_TIMEOUT:'Modifica troppo lenta a rispondere — riprova.',
 };
 async function runModificaPrecisa(){
   const extra=document.getElementById('modificaInput').value.trim();
   if(!extra||ST.busy) return;
   if(extra.length>500){
     setStatus('Testo troppo lungo per Modifica precisa (max 500 caratteri)','fail');
+    return;
+  }
+  if(ST.modifyCount>=MODIFY_MAX){
+    setStatus(`Hai raggiunto il limite di ${MODIFY_MAX} modifiche per questa immagine — genera una nuova immagine per continuare.`,'fail');
     return;
   }
   closeCompare();
@@ -1522,11 +1517,11 @@ async function runModificaPrecisa(){
   document.getElementById('ctaWrap').classList.remove('visible');
   const sBox=document.getElementById('spinnerBox'),imgEl=document.getElementById('generatedImg');
   const btn=document.getElementById('genBtn'),btnM=document.getElementById('genBtnMobile')?.querySelector('button');
-  const goBtn=document.getElementById('modificaGoBtn'),preciseBtn=document.getElementById('modificaPreciseBtn');
-  [btn,btnM,goBtn,preciseBtn].forEach(b=>{if(b) b.disabled=true;});
+  const preciseBtn=document.getElementById('modificaPreciseBtn');
+  [btn,btnM,preciseBtn].forEach(b=>{if(b) b.disabled=true;});
   [btn,btnM].forEach(b=>{if(b) b.textContent='⏳ GENERANDO…';});
   const prevUrl=ST.currentUrl;
-  sBox.style.display='flex';sBox.innerHTML='<div class="big-spin"></div><div id="spinnerMsg">Modifica precisa in corso…</div>';
+  sBox.style.display='flex';sBox.innerHTML='<div class="big-spin"></div><div id="spinnerMsg">Modifica in corso…</div>';
   imgEl.style.display='none';showOutput(true);
   if(isMobile()) setTimeout(()=>{const pc=document.getElementById('preview-col');if(pc) pc.scrollTop=0;},100);
   // Nessun attendiCooldown() qui, a differenza degli altri 3 flussi: quel cooldown protegge i
@@ -1534,7 +1529,7 @@ async function runModificaPrecisa(){
   // diverso, a pagamento, con il proprio limite server-side (3 richieste/60s in modify.js) che è
   // il freno reale. Farlo comunque aspettare fino a 16s solo per scoprire poi che la feature è
   // spenta (KONTEXT_DISABLED) è pura frizione senza alcun beneficio di sicurezza.
-  setStatus('Modifica precisa in corso…','loading');
+  setStatus('Modifica in corso…','loading');
   try{
     const srcDataUrl=await toDataUrl(prevUrl);
     // Dimensioni reali dell'immagine da modificare, non il formato selezionato ora nei controlli
@@ -1547,19 +1542,24 @@ async function runModificaPrecisa(){
     document.getElementById('compareImgNew').src=dataUrl;
     document.getElementById('compareOverlay').classList.add('open');
     ST._pendingModifica={url:dataUrl,prompt:ST.currentPrompt,extra,style:ST.currentStyle};
+    // Contato solo sul SUCCESSO: Kontext addebita per chiamata riuscita, non per un tentativo
+    // fallito/bloccato — il tetto (MODIFY_MAX) esiste per il costo reale sostenuto, non per il
+    // numero di click. updateModificaBtnLabel() aggiorna testo/disabled del bottone di conseguenza
+    ST.modifyCount++;
+    updateModificaBtnLabel();
     // Stesso bug di generateModifica (S29): senza questo, lo statusBar restava bloccato su
     // "Modifica precisa in corso…" anche a operazione conclusa
-    flashStatus('✓ Modifica precisa completata — confronta il risultato','ok',3000);
+    flashStatus('✓ Modifica completata — confronta il risultato','ok',3000);
   }catch(e){
     const m=e.message||'';
-    const help=KONTEXT_ERROR_MSG[m]||('Modifica precisa non riuscita ('+m+') — usa "✨ Genera modifica" nel frattempo.');
-    sBox.innerHTML=`<div style="padding:28px;text-align:center"><div style="font-size:40px;margin-bottom:12px">⚠️</div><p style="color:var(--danger);font-size:15px;font-weight:700;margin-bottom:8px;font-family:var(--font-title)">MODIFICA PRECISA NON RIUSCITA</p><p style="color:var(--muted);font-size:12px;line-height:1.6;margin-bottom:18px">${escapeHtml(help)}</p><button onclick="retryGeneration()" style="padding:11px 28px;background:linear-gradient(135deg,var(--c-accent),var(--c-violet));color:#FFFFFF;border:none;border-radius:11px;font-size:13px;font-weight:800;cursor:pointer;">🔄 RIPROVA</button></div>`;
+    const help=KONTEXT_ERROR_MSG[m]||('Modifica non riuscita ('+m+').');
+    sBox.innerHTML=`<div style="padding:28px;text-align:center"><div style="font-size:40px;margin-bottom:12px">⚠️</div><p style="color:var(--danger);font-size:15px;font-weight:700;margin-bottom:8px;font-family:var(--font-title)">MODIFICA NON RIUSCITA</p><p style="color:var(--muted);font-size:12px;line-height:1.6;margin-bottom:18px">${escapeHtml(help)}</p><button onclick="retryGeneration()" style="padding:11px 28px;background:linear-gradient(135deg,var(--c-accent),var(--c-violet));color:#FFFFFF;border:none;border-radius:11px;font-size:13px;font-weight:800;cursor:pointer;">🔄 RIPROVA</button></div>`;
     _lastRetry=()=>runModificaPrecisa();
-    setStatus('Modifica precisa non riuscita','fail');
+    setStatus('Modifica non riuscita','fail');
     document.getElementById('imgActions').classList.add('visible');
     document.getElementById('ctaWrap').classList.add('visible');
   }
-  [btn,btnM,goBtn,preciseBtn].forEach(b=>{if(b) b.disabled=false;});
+  [btn,btnM,preciseBtn].forEach(b=>{if(b) b.disabled=(b===preciseBtn?ST.modifyCount>=MODIFY_MAX:false);});
   [btn,btnM].forEach(b=>{if(b) b.textContent='✨ GENERA IMMAGINE';});
   ST.busy=false;
 }
