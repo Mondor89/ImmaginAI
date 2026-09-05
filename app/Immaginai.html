@@ -549,7 +549,7 @@ body.light .ratio-btn.active{background:var(--c-violet);border-color:var(--c-vio
         <div class="preview-sub">Scrivi un prompt e premi Genera</div>
       </div>
       <div id="outputArea">
-        <div id="spinnerBox"><div class="big-spin"></div><div id="spinnerMsg">Sto creando la tua immagine…<br><small style="font-size:11px;opacity:.6">15–30 secondi</small></div></div>
+        <div id="spinnerBox"><div class="big-spin"></div><div id="spinnerMsg">Sto creando la tua immagine…</div></div>
         <img id="generatedImg" src="" alt="">
         <div id="modificaPanel">
           <span class="modifica-label">Aggiungi al prompt</span>
@@ -1107,9 +1107,9 @@ function tryPollinations(fullPrompt){
 }
 async function generateAuto(fullPrompt,width,height){
   function updSpin(t){const e=document.getElementById('spinnerMsg');if(e)e.innerHTML=t;}
-  updSpin('Generando…<br><small style="font-size:11px;opacity:.6">Pollinations FLUX — gratis</small>');
+  updSpin('Generando…');
   try{return await tryPollinations(fullPrompt);}catch(e){}
-  updSpin('Generando…<br><small style="font-size:11px;opacity:.6">FLUX via server…</small>');
+  updSpin('Generando…');
   try{return await generateViaProxy(fullPrompt,width,height);}catch(e){}
   return await generateHorde(fullPrompt,width,height);
 }
@@ -1117,7 +1117,7 @@ async function generateHorde(fullPrompt,width,height){
   const w=Math.min(512,Math.max(64,Math.round(width/64)*64));
   const h=Math.min(512,Math.max(64,Math.round(height/64)*64));
   function updSpin(t){const e=document.getElementById('spinnerMsg');if(e)e.innerHTML=t;}
-  updSpin('Connessione a Stable Horde…<br><small style="font-size:11px;opacity:.6">Servizio gratuito</small>');
+  updSpin('Generando…');
   let hordeKey=HORDE_API_KEY||'0000000000';
   const hdrs=()=>({'Content-Type':'application/json','apikey':hordeKey,'Client-Agent':'ImmaginAI:4.4:wonderspit'});
   let job;
@@ -1146,13 +1146,13 @@ async function generateHorde(fullPrompt,width,height){
     await new Promise(r=>setTimeout(r,3000));
     try{
       const chk=await(await fetch(`https://stablehorde.net/api/v2/generate/check/${job.id}`,{headers:ph})).json();
-      updSpin(`In coda: ${chk.queue_position??'...'}° posto<br><small style="font-size:11px;opacity:.6">~${chk.wait_time??'?'}s rimasti</small>`);
+      updSpin(`In coda: ${chk.queue_position??'...'}° posto`);
       if(chk.faulted) throw new Error('HORDE_FAULT');
       if(chk.done){done=true;break;}
     }catch(e){if(e.message==='HORDE_FAULT') throw e;}
   }
   if(!done) throw new Error('TIMEOUT');
-  updSpin('Elaborazione…<br><small style="font-size:11px;opacity:.6">Quasi pronto…</small>');
+  updSpin('Elaborazione…');
   const st=await(await fetch(`https://stablehorde.net/api/v2/generate/status/${job.id}`,{headers:ph})).json();
   if(!st.generations?.length||!st.generations[0]?.img) throw new Error('HORDE_EMPTY');
   return 'data:image/webp;base64,'+st.generations[0].img;
@@ -1164,7 +1164,7 @@ async function attendiCooldown(){
     const wait=ST.cooldown-elapsed;
     showCooldown(wait);
     const msgEl=document.getElementById('spinnerMsg');
-    if(msgEl) msgEl.innerHTML=`Cooldown…<br><small>attendi ${Math.round(ST.cooldown/1000)}s</small>`;
+    if(msgEl) msgEl.innerHTML='Un attimo…';
     await new Promise(r=>setTimeout(r,wait));
   }
 }
@@ -1189,7 +1189,7 @@ async function runGeneration(fullPrompt,ratioId,statusMsg,onSuccess,onRetry){
   reenableImgActions();
   ST._pendingModifica=null;
   ST._autoBgPending=false;
-  sBox.style.display='flex';sBox.innerHTML='<div class="big-spin"></div><div id="spinnerMsg">Avvio…<br><small style="font-size:11px;opacity:.6">Pollinations FLUX</small></div>';
+  sBox.style.display='flex';sBox.innerHTML='<div class="big-spin"></div><div id="spinnerMsg">Avvio…</div>';
   imgEl.style.display='none';acts.classList.remove('visible');document.getElementById('ctaWrap').classList.remove('visible');
   showOutput(true);
   if(isMobile()) setTimeout(()=>{const pc=document.getElementById('preview-col');if(pc) pc.scrollTop=0;},100);
@@ -1361,7 +1361,7 @@ async function runRimuoviSfondo(){
   const imgEl=document.getElementById('generatedImg'),sBox=document.getElementById('spinnerBox');
   imgEl.style.display='none';
   sBox.style.display='flex';
-  sBox.innerHTML='<div class="big-spin"></div><div id="spinnerMsg">Rimozione sfondo in corso…<br><small style="font-size:11px;opacity:.6">al primo utilizzo scarica ~80MB, poi resta in cache</small></div>';
+  sBox.innerHTML='<div class="big-spin"></div><div id="spinnerMsg">Rimozione sfondo in corso…</div>';
   try{
     const removeBackground=await loadBgRemoval();
     if(typeof removeBackground!=='function') throw new Error('BG_LIB_LOAD_FAIL');
@@ -1445,7 +1445,7 @@ async function runUpscale(){
   const sBox=document.getElementById('spinnerBox');
   imgEl.style.display='none';
   sBox.style.display='flex';
-  sBox.innerHTML='<div class="big-spin"></div><div id="spinnerMsg">Upscale in corso…<br><small style="font-size:11px;opacity:.6">può sembrare bloccata fino a 30-60s, non chiudere la pagina — al primo utilizzo scarica anche ~2MB di modello, poi resta in cache</small></div>';
+  sBox.innerHTML='<div class="big-spin"></div><div id="spinnerMsg">Upscale in corso…<br><small style="font-size:11px;opacity:.6">non chiudere la pagina, può volerci fino a un minuto</small></div>';
   try{
     const upscaler=await loadUpscaler();
     const srcDataUrl=await toDataUrl(ST.currentUrl);
@@ -1526,7 +1526,7 @@ async function runModificaPrecisa(){
   [btn,btnM,goBtn,preciseBtn].forEach(b=>{if(b) b.disabled=true;});
   [btn,btnM].forEach(b=>{if(b) b.textContent='⏳ GENERANDO…';});
   const prevUrl=ST.currentUrl;
-  sBox.style.display='flex';sBox.innerHTML='<div class="big-spin"></div><div id="spinnerMsg">Modifica precisa…<br><small style="font-size:11px;opacity:.6">Può richiedere più tempo del solito</small></div>';
+  sBox.style.display='flex';sBox.innerHTML='<div class="big-spin"></div><div id="spinnerMsg">Modifica precisa in corso…</div>';
   imgEl.style.display='none';showOutput(true);
   if(isMobile()) setTimeout(()=>{const pc=document.getElementById('preview-col');if(pc) pc.scrollTop=0;},100);
   // Nessun attendiCooldown() qui, a differenza degli altri 3 flussi: quel cooldown protegge i
