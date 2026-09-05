@@ -569,6 +569,7 @@ body.light .ratio-btn.active{background:var(--c-violet);border-color:var(--c-vio
         <button class="img-btn" onclick="regenImage()">🔁 Rigenera</button>
         <button class="img-btn" onclick="toggleModifica()">✏️ Modifica</button>
         <button class="img-btn" id="bgRemovalBtn" onclick="runRimuoviSfondo()" title="Rimozione sfondo reale (beta) — elaborazione locale nel browser, nessun dato inviato a server esterni">🪄 Sfondo</button>
+        <button class="img-btn" id="upscaleBtn" onclick="runUpscale()" title="Ingrandisce l'immagine 2x (beta) — elaborazione locale nel browser, nessun dato inviato a server esterni">🔍 Upscale</button>
       </div>
       <div id="ctaWrap">
         <div class="ctaB-inner">
@@ -1354,6 +1355,73 @@ async function runRimuoviSfondo(){
   }
   genBtns.forEach(b=>{if(b) b.disabled=false;});
   if(btn) btn.textContent='🪄 Sfondo';
+  ST.busy=false;
+}
+// Upscale 2x client-side (UpscalerJS, TensorFlow.js WebGL) — stesso pattern di runRimuoviSfondo
+// sopra: overlay di confronto già esistente, nessun server coinvolto. Modello di default
+// (~900KB, molto più leggero degli 80MB di background-removal) scaricato da jsDelivr al primo
+// utilizzo, poi in cache HTTP del browser. patchSize/padding evitano di processare un'immagine
+// 1024×1024 intera in un solo passaggio (più lento e più pesante in RAM) — verificato dal vivo
+// che l'output raddoppia davvero le dimensioni (2x2→4x4) prima di scrivere questo codice.
+let _upscalerInstance=null;
+function loadUpscaler(){
+  if(_upscalerInstance) return Promise.resolve(_upscalerInstance);
+  return Promise.all([
+    import('https://cdn.jsdelivr.net/npm/upscaler@1.0.0/+esm'),
+    import('https://cdn.jsdelivr.net/npm/@upscalerjs/default-model@1.0.0/+esm'),
+  ]).then(([{default:Upscaler},{default:model}])=>{
+    _upscalerInstance=new Upscaler({model});
+    return _upscalerInstance;
+  }).catch(()=>{throw new Error('UPSCALE_LIB_LOAD_FAIL');});
+}
+const UPSCALE_ERROR_MSG={
+  UPSCALE_LIB_LOAD_FAIL:'Libreria di upscale non disponibile (CDN irraggiungibile) — riprova tra poco.',
+  UPSCALE_PROCESS_FAIL:'Upscale non riuscito — riprova, o scarica l\'immagine originale.',
+  IMG_FETCH_FAIL:'Impossibile leggere l\'immagine corrente — riprova tra poco.',
+  UPSCALE_TOO_LARGE:'Questa immagine è già alla risoluzione massima gestibile da Upscale (es. un risultato già ingrandito in precedenza) — scaricala direttamente.',
+};
+// Tetto pixel = la generazione più grande possibile in app (1024×1024, vedi RATIOS), con un
+// margine. Verificato dal vivo (S30): un secondo upscale sullo stesso risultato già ingrandito
+// (1536×1536 → target 3072×3072) ha bloccato l'intero tab del browser, non rispondeva più a
+// nessuno script — non "lento", un freeze vero. Il rifiuto esplicito qui evita di scoprirlo a
+// spese dell'utente reale.
+const UPSCALE_MAX_PIXELS=1100*1100;
+async function runUpscale(){
+  if(ST.busy||!ST.currentUrl) return;
+  const imgEl=document.getElementById('generatedImg');
+  if((imgEl.naturalWidth*imgEl.naturalHeight)>UPSCALE_MAX_PIXELS){
+    setStatus(UPSCALE_ERROR_MSG.UPSCALE_TOO_LARGE,'fail');
+    return;
+  }
+  closeCompare();
+  ST.busy=true;
+  const btn=document.getElementById('upscaleBtn');
+  const rowBtns=document.querySelectorAll('.img-actions .img-btn');
+  const genBtns=[document.getElementById('genBtn'),document.getElementById('genBtnMobile')?.querySelector('button'),document.getElementById('modificaGoBtn'),document.getElementById('modificaPreciseBtn')];
+  rowBtns.forEach(b=>b.disabled=true);
+  genBtns.forEach(b=>{if(b) b.disabled=true;});
+  if(btn) btn.textContent='⏳ Elaboro…';
+  document.getElementById('imgActions').classList.remove('visible');
+  document.getElementById('ctaWrap').classList.remove('visible');
+  setStatus('Upscale in corso… la pagina può sembrare bloccata fino a 30-60s: non chiuderla, il calcolo sta lavorando (al primo utilizzo scarica anche ~2MB di modello, poi resta in cache)','loading');
+  try{
+    const upscaler=await loadUpscaler();
+    const srcDataUrl=await toDataUrl(ST.currentUrl);
+    const dataUrl=await upscaler.upscale(srcDataUrl,{patchSize:64,padding:4}).catch(()=>{throw new Error('UPSCALE_PROCESS_FAIL');});
+    document.getElementById('compareImgOld').src=ST.currentUrl;
+    document.getElementById('compareImgNew').src=dataUrl;
+    document.getElementById('compareOverlay').classList.add('open');
+    ST._pendingModifica={url:dataUrl,prompt:ST.currentPrompt,extra:'',style:ST.currentStyle};
+    flashStatus('✓ Immagine ingrandita 2x — confronta il risultato','ok',3000);
+  }catch(e){
+    const help=UPSCALE_ERROR_MSG[e.message]||('Upscale non riuscito ('+e.message+').');
+    setStatus(help,'fail');
+    rowBtns.forEach(b=>b.disabled=false);
+    document.getElementById('imgActions').classList.add('visible');
+    document.getElementById('ctaWrap').classList.add('visible');
+  }
+  genBtns.forEach(b=>{if(b) b.disabled=false;});
+  if(btn) btn.textContent='🔍 Upscale';
   ST.busy=false;
 }
 async function modifyViaKontext(imageDataUrl,editPrompt,width,height){
