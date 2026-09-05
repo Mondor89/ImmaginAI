@@ -197,7 +197,7 @@ body.light {
 }
 .style-btn:hover  { border-color: #5B35C8 !important; background: rgba(91,53,200,.04) !important; }
 .style-btn.active { background: #5B35C8 !important; border-color: #5B35C8 !important; box-shadow: 0 2px 8px rgba(91,53,200,.25) !important; }
-.style-label      { color: #666 !important; font-size: 9px !important; }
+.style-label      { color: #666 !important; font-size: 12px !important; }
 .style-btn.active .style-label { color: #ffffff !important; }
 
 /* ── Formato/Ratio — grigio chiaro default, attivo viola ── */

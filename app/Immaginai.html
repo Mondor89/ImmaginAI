@@ -203,7 +203,7 @@ body.light .dv-attivi-badge.view-attivi{background:rgba(0,229,200,.12);}
 .dv-label-icon{font-size:12px;color:var(--c-violet);}
 
 /* Tab row con scroll e frecce pill sx+dx */
-.dv-tab-row-wrap{display:flex;align-items:center;gap:5px;}
+.dv-tab-row-wrap{display:flex;align-items:center;gap:5px;position:relative;}
 .dv-tab-row{display:flex;gap:4px;overflow-x:auto;scrollbar-width:none;flex:1;}
 .dv-tab-row::-webkit-scrollbar{display:none;}
 /* Tab CATEGORIA — pill azzurro */
@@ -222,6 +222,17 @@ body.light .dv-tab.active{background:#00E5C8;border-color:#00E5C8;color:#080810;
    freccia stessa occupa (S29, trovato testando lo scroll fino in fondo dopo aver riattivato
    le frecce — mai esercitato prima perché erano permanentemente disattivate da CSS) */
 .dv-arrow.hidden{visibility:hidden;}
+/* La freccia SINISTRA è tolta dal flusso flex (position:absolute, sovrapposta al bordo
+   sinistro di .dv-tab-row) invece di restare come sibling flex che riserva sempre spazio:
+   da sibling flex, riservarle spazio anche da nascosta (stato iniziale, sempre) spingeva
+   "Luce" e tutta la riga a destra rispetto all'etichetta "Dettagli visivi" e agli altri
+   controlli sopra/sotto — segnalato da Fabio. Semplicemente nasconderla con display:none
+   invece risolveva l'allineamento ma rompeva di nuovo il calcolo "fine scroll" della freccia
+   DESTRA (stesso bug S29, questa volta causato dalla larghezza della sinistra che cambia
+   tabRow.clientWidth proprio mentre si scorre verso destra — verificato dal vivo). Tolta dal
+   flusso flex, non influenza più clientWidth in nessun caso: risolve entrambi senza conflitto */
+#dvArrowLeft{position:absolute;left:0;top:50%;transform:translateY(-50%);z-index:2;}
+#dvArrowLeft.hidden{display:none;}
 
 /* Chip FIGLIO — rettangolare, testo tema, hover azzurro */
 .dv-chips{display:flex;flex-wrap:wrap;gap:4px;margin-top:7px;min-height:28px;}
@@ -247,7 +258,7 @@ body.light .style-btn{background:rgba(91,53,200,.06);border-color:rgba(91,53,200
 body.light .style-btn:hover{background:rgba(91,53,200,.12);}
 body.light .style-btn.active{background:var(--c-violet);border-color:var(--c-violet);}
 .style-emoji{font-size:17px;}
-.style-label{font-size:9px;font-weight:700;color:var(--c-violet);}
+.style-label{font-size:12px;font-weight:700;color:var(--c-violet);}
 body.light .style-label{color:var(--c-violet);}
 .style-btn.active .style-label{color:#fff;}
 
@@ -257,7 +268,7 @@ body.light .style-label{color:var(--c-violet);}
 .ratio-btn:hover{border-color:var(--c-violet);background:rgba(91,53,200,.14);}
 .ratio-btn.active{background:var(--c-violet);border-color:var(--c-violet);}
 .ratio-icon{font-size:12px;color:var(--c-violet);}
-.ratio-label{font-size:10px;font-weight:700;color:var(--c-violet);}
+.ratio-label{font-size:13px;font-weight:700;color:var(--c-violet);}
 .ratio-btn.active .ratio-icon,.ratio-btn.active .ratio-label{color:#fff;}
 body.light .ratio-btn{background:rgba(91,53,200,.06);border-color:rgba(91,53,200,.18);}
 body.light .ratio-btn:hover{background:rgba(91,53,200,.12);}
@@ -1312,6 +1323,7 @@ function blobToDataUrl(blob){
 }
 const BG_ERROR_MSG={
   BG_LIB_LOAD_FAIL:'Libreria di rimozione sfondo non disponibile (CDN irraggiungibile) — riprova tra poco.',
+  IMG_FETCH_FAIL:'Impossibile leggere l\'immagine corrente — riprova tra poco.',
   // Copre anche il download del modello (~80MB, da un CDN separato da quello della libreria) e
   // ogni altro errore durante l'elaborazione — non solo "modello AI confuso", il messaggio resta
   // generico apposta perché la causa reale può essere di rete, non solo di elaborazione
@@ -1335,12 +1347,27 @@ async function runRimuoviSfondo(){
   // rimostrano già a flusso concluso, qui vanno solo nascosti prima di iniziare
   document.getElementById('imgActions').classList.remove('visible');
   document.getElementById('ctaWrap').classList.remove('visible');
-  setStatus('Rimozione sfondo in corso… (al primo utilizzo scarica ~80MB, poi resta in cache)','loading');
+  // Messaggio "in corso" mostrato nella zona immagine (stesso #spinnerBox di runGeneration()),
+  // non in #statusBar sopra al prompt — segnalato da Fabio: i messaggi di un'operazione sulla
+  // immagine devono stare nella zona di generazione immagini, non sopra al prompt a sinistra
+  const imgEl=document.getElementById('generatedImg'),sBox=document.getElementById('spinnerBox');
+  imgEl.style.display='none';
+  sBox.style.display='flex';
+  sBox.innerHTML='<div class="big-spin"></div><div id="spinnerMsg">Rimozione sfondo in corso…<br><small style="font-size:11px;opacity:.6">al primo utilizzo scarica ~80MB, poi resta in cache</small></div>';
   try{
     const removeBackground=await loadBgRemoval();
     if(typeof removeBackground!=='function') throw new Error('BG_LIB_LOAD_FAIL');
-    const blob=await removeBackground(ST.currentUrl,{model:'isnet_fp16'}).catch(()=>{throw new Error('BG_PROCESS_FAIL');});
+    // Convertito in data: URL PRIMA di passarlo alla libreria — bug reale trovato dal vivo
+    // (S30): passando ST.currentUrl direttamente, la libreria fa una SECONDA richiesta di rete
+    // a Pollinations per leggere i byte. `image.pollinations.ai` è un endpoint generativo, non
+    // un file statico: quella seconda richiesta può fallire (403 "Turnstile", già noto da S28)
+    // o restituire un'immagine diversa/vuota invece dei byte già mostrati a schermo. Stessa
+    // tecnica già in uso da Kontext/Upscale per lo stesso motivo (vedi toDataUrl()).
+    const srcDataUrl=await toDataUrl(ST.currentUrl);
+    const blob=await removeBackground(srcDataUrl,{model:'isnet_fp16'}).catch(()=>{throw new Error('BG_PROCESS_FAIL');});
     const dataUrl=await blobToDataUrl(blob);
+    sBox.style.display='none';
+    imgEl.style.display='block';
     document.getElementById('compareImgOld').src=ST.currentUrl;
     document.getElementById('compareImgNew').src=dataUrl;
     document.getElementById('compareOverlay').classList.add('open');
@@ -1348,6 +1375,8 @@ async function runRimuoviSfondo(){
     flashStatus('✓ Sfondo rimosso — confronta il risultato','ok',3000);
   }catch(e){
     const help=BG_ERROR_MSG[e.message]||('Rimozione sfondo non riuscita ('+e.message+').');
+    sBox.style.display='none';
+    imgEl.style.display='block';
     setStatus(help,'fail');
     rowBtns.forEach(b=>b.disabled=false);
     document.getElementById('imgActions').classList.add('visible');
@@ -1403,11 +1432,18 @@ async function runUpscale(){
   if(btn) btn.textContent='⏳ Elaboro…';
   document.getElementById('imgActions').classList.remove('visible');
   document.getElementById('ctaWrap').classList.remove('visible');
-  setStatus('Upscale in corso… la pagina può sembrare bloccata fino a 30-60s: non chiuderla, il calcolo sta lavorando (al primo utilizzo scarica anche ~2MB di modello, poi resta in cache)','loading');
+  // Stesso spostamento di runRimuoviSfondo(): messaggio "in corso" nella zona immagine
+  // (#spinnerBox), non in #statusBar sopra al prompt
+  const sBox=document.getElementById('spinnerBox');
+  imgEl.style.display='none';
+  sBox.style.display='flex';
+  sBox.innerHTML='<div class="big-spin"></div><div id="spinnerMsg">Upscale in corso…<br><small style="font-size:11px;opacity:.6">può sembrare bloccata fino a 30-60s, non chiudere la pagina — al primo utilizzo scarica anche ~2MB di modello, poi resta in cache</small></div>';
   try{
     const upscaler=await loadUpscaler();
     const srcDataUrl=await toDataUrl(ST.currentUrl);
     const dataUrl=await upscaler.upscale(srcDataUrl,{patchSize:64,padding:4}).catch(()=>{throw new Error('UPSCALE_PROCESS_FAIL');});
+    sBox.style.display='none';
+    imgEl.style.display='block';
     document.getElementById('compareImgOld').src=ST.currentUrl;
     document.getElementById('compareImgNew').src=dataUrl;
     document.getElementById('compareOverlay').classList.add('open');
@@ -1415,6 +1451,8 @@ async function runUpscale(){
     flashStatus('✓ Immagine ingrandita 2x — confronta il risultato','ok',3000);
   }catch(e){
     const help=UPSCALE_ERROR_MSG[e.message]||('Upscale non riuscito ('+e.message+').');
+    sBox.style.display='none';
+    imgEl.style.display='block';
     setStatus(help,'fail');
     rowBtns.forEach(b=>b.disabled=false);
     document.getElementById('imgActions').classList.add('visible');
