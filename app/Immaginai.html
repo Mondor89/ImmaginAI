@@ -233,6 +233,7 @@ body.light .dv-tab.active{background:#00E5C8;border-color:#00E5C8;color:#080810;
    flusso flex, non influenza più clientWidth in nessun caso: risolve entrambi senza conflitto */
 #dvArrowLeft{position:absolute;left:0;top:50%;transform:translateY(-50%);z-index:2;}
 #dvArrowLeft.hidden{display:none;}
+.dv-tab-row.fade-left{-webkit-mask-image:linear-gradient(to right,transparent 0,#000 40px);mask-image:linear-gradient(to right,transparent 0,#000 40px);}
 
 /* Chip FIGLIO — rettangolare, testo tema, hover azzurro */
 .dv-chips{display:flex;flex-wrap:wrap;gap:4px;margin-top:7px;min-height:28px;}
@@ -837,7 +838,14 @@ function buildDvTabs(){
   });
 
   function updateArrows(){
-    if(arrowL) arrowL.classList.toggle('hidden',tabRow.scrollLeft<=4);
+    const atStart=tabRow.scrollLeft<=4;
+    if(arrowL) arrowL.classList.toggle('hidden',atStart);
+    // Dissolvenza sul bordo sinistro solo quando la freccia (position:absolute, sovrapposta al
+    // bordo di .dv-tab-row) è davvero visibile — altrimenti il tab sotto resta leggibile ma "si
+    // fonde" con la freccia invece di apparire chiaramente dietro/sotto di essa (segnalato da
+    // Fabio). mask-image è solo un effetto di rendering: non cambia clientWidth/scrollWidth,
+    // quindi non tocca il calcolo "fine scroll" della freccia destra sotto
+    tabRow.classList.toggle('fade-left',!atStart);
     if(arrowR) arrowR.classList.toggle('hidden',tabRow.scrollLeft+tabRow.clientWidth>=tabRow.scrollWidth-4);
   }
   setTimeout(updateArrows,50);
