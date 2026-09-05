@@ -1236,7 +1236,7 @@ function showGeneratedImage(dataUrl,prompt,style,ratio,msg){
   // audit indipendente: senza questo flag, ogni generazione con "Senza sfondo" attivo finiva per
   // consumare 2 dei 12 slot di galleria (l'originale con sfondo + la versione rimossa), lasciando
   // in giro anche la copia con sfondo che l'utente non ha mai scelto di tenere
-  if(ST.transpOn){ST._autoBgPending=true;Promise.resolve().then(()=>runRimuoviSfondo());}
+  if(ST.transpOn){ST._autoBgPending=true;Promise.resolve().then(()=>runRimuoviSfondo(true));}
 }
 async function generateImage(){
   const prompt=document.getElementById('promptInput').value.trim();
@@ -1329,7 +1329,12 @@ const BG_ERROR_MSG={
   BG_PROCESS_FAIL:'Rimozione sfondo non riuscita (elaborazione o download del modello) — riprova, o usa "✂️ Senza sfondo" nel prompt prima di generare.',
   BG_BLOB_READ_FAIL:'Errore nella lettura del risultato — riprova.',
 };
-async function runRimuoviSfondo(){
+// silent=true: usato dal trigger automatico di "✂️ Senza sfondo" (showGeneratedImage) — l'utente
+// ha già scelto PRIMA di generare, quindi il risultato si applica direttamente, senza mostrare
+// l'overlay Precedente/Nuova con la scelta Tieni/Torna (quella resta solo per il click manuale
+// sul bottone "🪄 Sfondo" dopo aver visto il risultato, dove la scelta ha senso). Segnalato da
+// Fabio: la conferma dopo un'operazione già decisa in anticipo sembrava un bivio senza motivo
+async function runRimuoviSfondo(silent){
   if(ST.busy||!ST.currentUrl) return;
   closeCompare();
   ST.busy=true;
@@ -1367,11 +1372,16 @@ async function runRimuoviSfondo(){
     const dataUrl=await blobToDataUrl(blob);
     sBox.style.display='none';
     imgEl.style.display='block';
-    document.getElementById('compareImgOld').src=ST.currentUrl;
-    document.getElementById('compareImgNew').src=dataUrl;
-    document.getElementById('compareOverlay').classList.add('open');
     ST._pendingModifica={url:dataUrl,prompt:ST.currentPrompt,extra:'',style:ST.currentStyle};
-    flashStatus('✓ Sfondo rimosso — confronta il risultato','ok',3000);
+    if(silent){
+      keepModifica();
+      flashStatus('✓ Immagine pronta (sfondo rimosso)','ok',3000);
+    }else{
+      document.getElementById('compareImgOld').src=ST.currentUrl;
+      document.getElementById('compareImgNew').src=dataUrl;
+      document.getElementById('compareOverlay').classList.add('open');
+      flashStatus('✓ Sfondo rimosso — confronta il risultato','ok',3000);
+    }
   }catch(e){
     const help=BG_ERROR_MSG[e.message]||('Rimozione sfondo non riuscita ('+e.message+').');
     sBox.style.display='none';

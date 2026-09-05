@@ -29,8 +29,8 @@ Admin: long press 3s sul logo (desktop o mobile) → apre `immaginai_admin.html`
    **Risposta attesa:** l'immagine generata rispetta approssimativamente lo stile scelto e ha proporzioni coerenti col formato (panoramica per 16:9).
 8. **Come:** apri "✕ Cosa non vuoi", scrivi qualcosa (es. "sfondo confuso"), genera.
    **Risposta attesa:** il pannello si apre con un placeholder di esempio; la generazione parte normalmente (l'effetto sul risultato non è verificabile a occhio in modo affidabile, ma non deve dare errori).
-9. **Come (S29 — comportamento cambiato):** attiva "✂️ Senza sfondo" (il bottone diventa pieno/evidenziato con la spunta), poi genera.
-   **Risposta attesa:** dopo che l'immagine è pronta, parte **in automatico** anche la vera rimozione sfondo (stesso messaggio "Rimozione sfondo in corso…" del bottone "🪄 Sfondo") e si apre l'overlay di confronto Precedente/Nuova — devi comunque premere "✓ Tieni questa" o "↩ Torna alla precedente" per decidere. Non è più solo un suggerimento testuale al prompt: il file finale ha davvero lo sfondo trasparente se tieni il risultato.
+9. **Come (S30 — comportamento cambiato di nuovo):** attiva "✂️ Senza sfondo" (il bottone diventa pieno/evidenziato con la spunta), poi genera.
+   **Risposta attesa:** dopo che l'immagine è pronta, parte **in automatico** anche la vera rimozione sfondo (messaggio "Rimozione sfondo in corso…" nella zona immagine) e il risultato finale (sfondo trasparente) viene mostrato **direttamente**, senza overlay di scelta — l'utente ha già deciso attivando il toggle prima di generare. **Non deve comparire** "Precedente/Nuova" con "Tieni questa"/"Torna alla precedente": quella scelta resta solo per il click manuale sul bottone "🪄 Sfondo" dopo aver visto il risultato (prova 37 più sotto).
 
 ## 3. Modifica (S30: un solo bottone, tetto di 3 modifiche per immagine — verifica anche il retry)
 
