@@ -34,7 +34,7 @@ Admin: long press 3s sul logo (desktop o mobile) → apre `immaginai_admin.html`
 
 ## 3. Modifica (S30: un solo bottone, tetto di 3 modifiche per immagine — verifica anche il retry)
 
-10. **Come:** dopo aver generato un'immagine, premi "✏️ Modifica", scrivi un'aggiunta (es. "aggiungi un cappello"), premi il bottone "✨ Modifica (3 rimaste)".
+10. **Come (S30 — pannello rinominato "Strumenti"):** dopo aver generato un'immagine, premi "⚙️ Strumenti" (prima "✏️ Modifica"), scrivi un'aggiunta (es. "aggiungi un cappello"), premi il bottone "✨ Modifica (3 rimaste)".
     **Risposta attesa:** appare un overlay a confronto: "Precedente" a sinistra, "Nuova" a destra. In basso 2 bottoni: "↩ Torna alla precedente" e "✓ Tieni questa". Dopo aver riaperto il pannello, il bottone mostra "✨ Modifica (2 rimaste)".
 10bis. **Come:** ripeti la modifica altre 2 volte sulla stessa immagine (senza generarne una nuova).
     **Risposta attesa:** dopo la terza modifica il bottone mostra "Limite modifiche raggiunto" ed è disattivato — un quarto tentativo non parte, appare un avviso "Hai raggiunto il limite di 3 modifiche per questa immagine". Generando una nuova immagine (Genera o Rigenera) il contatore torna a "3 rimaste".
@@ -117,7 +117,7 @@ Admin: long press 3s sul logo (desktop o mobile) → apre `immaginai_admin.html`
 
 ## 12. Rimozione sfondo vera (S28, modello aggiornato in S29)
 
-37. **Come:** dopo una generazione, premi "🪄 Sfondo" nella riga di bottoni sotto l'anteprima.
+37. **Come (S30 — bottone spostato):** dopo una generazione, apri "⚙️ Strumenti" e premi "🪄 Sfondo" (non più nella riga principale, ora dentro il pannello Strumenti insieme a Modifica/Upscale).
     **Risposta attesa:** appare un messaggio "Rimozione sfondo in corso… (al primo utilizzo scarica ~80MB, poi resta in cache)" (S29 — prima ~40MB, ora un modello più preciso), il bottone mostra "⏳ Elaboro…" e gli altri bottoni della riga si disattivano. Al primo utilizzo l'attesa può essere di qualche decina di secondi in più rispetto a prima (download del modello più pesante); le volte successive è molto più veloce (modello in cache del browser).
 38. **Come:** dopo l'elaborazione, guarda l'overlay di confronto che appare (stesso stile di "Modifica precisa").
     **Risposta attesa:** a sinistra "Precedente" (l'immagine originale), a destra "Nuova" (con lo sfondo rimosso — visibile come area vuota/trasparente, che nell'anteprima del browser appare bianca o a scacchiera a seconda del tema). Premi "✓ Tieni questa": l'immagine con sfondo rimosso sostituisce quella corrente e viene aggiunta in Galleria con didascalia "...sfondo rimosso (elaborazione locale)".

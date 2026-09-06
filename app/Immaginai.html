@@ -335,6 +335,9 @@ body.light .ratio-btn.active{background:var(--c-violet);border-color:var(--c-vio
 #modificaPreciseBtn{width:100%;padding:10px;background:linear-gradient(135deg,var(--c-violet),var(--c-accent2));color:#FFFFFF;border:none;border-radius:10px;font-size:12px;font-weight:800;font-family:var(--font-body);cursor:pointer;letter-spacing:.5px;transition:opacity .2s;}
 #modificaPreciseBtn:hover{opacity:.88;}
 #modificaPreciseBtn:disabled{opacity:.5;cursor:not-allowed;}
+.tools-divider{text-align:center;font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.1em;margin:12px 0 8px;}
+.tools-row{display:flex;gap:8px;}
+.tools-row .img-btn{flex:1;}
 /* ── COMPARE OVERLAY ── */
 #compareOverlay{display:none;position:absolute;inset:0;z-index:50;background:var(--surface);border-radius:20px;flex-direction:column;overflow:hidden;}
 #compareOverlay.open{display:flex;}
@@ -554,6 +557,11 @@ body.light .ratio-btn.active{background:var(--c-violet);border-color:var(--c-vio
           <span class="modifica-label">Aggiungi al prompt</span>
           <textarea id="modificaInput" rows="2" placeholder="Es: aggiungi una palla rossa, togli lo sfondo…"></textarea>
           <button id="modificaPreciseBtn" onclick="runModificaPrecisa()">✨ Modifica</button>
+          <div class="tools-divider">oppure</div>
+          <div class="tools-row">
+            <button class="img-btn" id="bgRemovalBtn" onclick="runRimuoviSfondo()" title="Rimozione sfondo reale (beta) — elaborazione locale nel browser, nessun dato inviato a server esterni">🪄 Sfondo</button>
+            <button class="img-btn" id="upscaleBtn" onclick="runUpscale()" title="Ingrandisce l'immagine 2x (beta) — elaborazione locale nel browser, nessun dato inviato a server esterni">🔍 Upscale</button>
+          </div>
         </div>
         <div id="compareOverlay">
           <div class="compare-imgs">
@@ -577,9 +585,7 @@ body.light .ratio-btn.active{background:var(--c-violet);border-color:var(--c-vio
       <div class="img-actions" id="imgActions">
         <button class="img-btn primary" onclick="downloadImg()">⬇ Scarica</button>
         <button class="img-btn" onclick="regenImage()">🔁 Rigenera</button>
-        <button class="img-btn" onclick="toggleModifica()">✏️ Modifica</button>
-        <button class="img-btn" id="bgRemovalBtn" onclick="runRimuoviSfondo()" title="Rimozione sfondo reale (beta) — elaborazione locale nel browser, nessun dato inviato a server esterni">🪄 Sfondo</button>
-        <button class="img-btn" id="upscaleBtn" onclick="runUpscale()" title="Ingrandisce l'immagine 2x (beta) — elaborazione locale nel browser, nessun dato inviato a server esterni">🔍 Upscale</button>
+        <button class="img-btn" onclick="toggleModifica()">⚙️ Strumenti</button>
       </div>
       <div id="ctaWrap">
         <div class="ctaB-inner">
@@ -1337,9 +1343,13 @@ const BG_ERROR_MSG={
 async function runRimuoviSfondo(silent){
   if(ST.busy||!ST.currentUrl) return;
   closeCompare();
+  // Chiude il pannello Strumenti (S30: Sfondo/Upscale ora vivono lì insieme a Modifica) — stesso
+  // pattern già in uso da runModificaPrecisa(), per coerenza fra i tre strumenti che condividono
+  // lo stesso pannello
+  document.getElementById('modificaPanel').classList.remove('open');
   ST.busy=true;
   const btn=document.getElementById('bgRemovalBtn');
-  const rowBtns=document.querySelectorAll('.img-actions .img-btn');
+  const rowBtns=document.querySelectorAll('.img-btn'); // non ".img-actions .img-btn": Sfondo/Upscale ora vivono nel pannello Strumenti, non più in #imgActions (S30)
   const genBtns=[document.getElementById('genBtn'),document.getElementById('genBtnMobile')?.querySelector('button'),document.getElementById('modificaPreciseBtn')];
   rowBtns.forEach(b=>b.disabled=true);
   genBtns.forEach(b=>{if(b) b.disabled=true;});
@@ -1432,9 +1442,10 @@ async function runUpscale(){
     return;
   }
   closeCompare();
+  document.getElementById('modificaPanel').classList.remove('open');
   ST.busy=true;
   const btn=document.getElementById('upscaleBtn');
-  const rowBtns=document.querySelectorAll('.img-actions .img-btn');
+  const rowBtns=document.querySelectorAll('.img-btn'); // non ".img-actions .img-btn": Sfondo/Upscale ora vivono nel pannello Strumenti, non più in #imgActions (S30)
   const genBtns=[document.getElementById('genBtn'),document.getElementById('genBtnMobile')?.querySelector('button'),document.getElementById('modificaPreciseBtn')];
   rowBtns.forEach(b=>b.disabled=true);
   genBtns.forEach(b=>{if(b) b.disabled=true;});
@@ -1578,7 +1589,7 @@ async function runModificaPrecisa(){
 // riesce, l'unico punto per cui si passa sempre è uno di questi due, quindi è qui che vanno
 // riabilitati in modo universale. Bug reale (S29): dopo "🪄 Sfondo" andato a buon fine, i 4
 // bottoni (Scarica/Rigenera/Modifica/Sfondo) restavano grigi per sempre — mai riabilitati
-function reenableImgActions(){document.querySelectorAll('.img-actions .img-btn').forEach(b=>b.disabled=false);}
+function reenableImgActions(){document.querySelectorAll('.img-btn').forEach(b=>b.disabled=false);}
 function keepModifica(){
   const m=ST._pendingModifica;if(!m) return;
   const imgEl=document.getElementById('generatedImg');
