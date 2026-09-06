@@ -281,8 +281,8 @@ body.light {
 #modificaInput            { background: #ffffff !important; border: 1.5px solid var(--border) !important; color: var(--text) !important; font-family: var(--font-body) !important; border-radius: 8px !important; }
 #modificaInput:focus      { border-color: #5B35C8 !important; outline: none !important; }
 #modificaInput::placeholder { color: #b0b8c8 !important; }
-#modificaGoBtn            { background: #5B35C8 !important; color: #ffffff !important; border-radius: 8px !important; }
-#modificaGoBtn:hover      { background: #3D2F8F !important; }
+/* #modificaGoBtn (bottone "Genera modifica" classica) rimosso in S30 insieme al bottone stesso
+   — regole morte già presenti qui, tolte dall'audit di chiusura S30 */
 
 #compareOverlay           { background: #ffffff !important; border-radius: 10px !important; }
 .compare-tag              { color: #9098a9 !important; }
