@@ -611,6 +611,14 @@ let STYLES=[], CATS=[], FAQS=[], NAV_BTNS=[];
 function escapeHtml(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
 let adminLoggedIn=false, currentAdminUser=null;
 
+// Non è crittografia vera (nessun sale, hash debole a 32 bit facilmente forzabile a tentativi,
+// non "reversibile" in senso stretto ma comunque rotto in pratica) — serve solo a evitare che la
+// password finisca IN CHIARO in localStorage (ig_admin_session), non ad aggiungere una protezione
+// reale che qui non può esistere (vedi invariante 5 in docs/immaginai_sicurezza.md: DEFAULT_USERS
+// è comunque visibile nel sorgente). Nota: saveUsers() (poco sotto) scrive ancora le password
+// degli utenti aggiunti in chiaro in ig_users — questo fix copre solo la sessione di login.
+function simpleHash(s){let h=5381;for(let i=0;i<s.length;i++){h=((h<<5)+h+s.charCodeAt(i))|0;}return h.toString(36);}
+
 /* ── INIT ── */
 document.addEventListener('DOMContentLoaded',()=>{
   const saved = localStorage.getItem('ig_admin_session');
@@ -618,7 +626,7 @@ document.addEventListener('DOMContentLoaded',()=>{
     try{
       const u = JSON.parse(saved);
       const users = loadUsers();
-      const found = users.find(x=>x.username===u.username&&x.password===u.password);
+      const found = users.find(x=>x.username===u.username&&simpleHash(x.password)===u.passHash);
       if(found){ adminLoggedIn=true; currentAdminUser=found; showPanel(found); return; }
     }catch(e){}
   }
@@ -633,7 +641,7 @@ function doLogin(){
   const found=users.find(x=>x.username===u&&x.password===p);
   if(found){
     adminLoggedIn=true; currentAdminUser=found;
-    localStorage.setItem('ig_admin_session',JSON.stringify({username:found.username,password:found.password}));
+    localStorage.setItem('ig_admin_session',JSON.stringify({username:found.username,passHash:simpleHash(found.password)}));
     document.getElementById('loginError').style.display='none';
     showPanel(found);
   } else {

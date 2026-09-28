@@ -629,8 +629,6 @@ body.light .ratio-btn.active{background:var(--c-violet);border-color:var(--c-vio
 </div>
 
 <script>
-const DEFAULT_USERS=[{username:'WONDERSPIT',password:'369852147',role:'admin'}];
-
 const DEFAULT_STYLES_DATA=[
   {id:'',emoji:'✨',label:'Auto',active:true},
   {id:'photorealistic, ultra detailed, real photo, sharp focus',emoji:'📷',label:'Foto',active:true},
@@ -1093,7 +1091,12 @@ function buildPrompt(){
 }
 const _imgCache=new Set();
 async function generateViaProxy(fullPrompt,width,height){
-  const res=await fetch('/.netlify/functions/generate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({prompt:fullPrompt,width,height})});
+  // Timeout lato client (stesso bug/fix di modifyViaKontext, S29/WS-04): se Netlify interrompe
+  // la Function senza risposta, un fetch senza AbortSignal resta appeso — generateAuto() non
+  // passerebbe mai al fallback Horde. 12s è sopra gli 8s di PROVIDER_TIMEOUT_MS in generate.js.
+  // Guard di compatibilità identica a modifyViaKontext (Safari <16, Chrome <103).
+  const signal=(typeof AbortSignal!=='undefined'&&typeof AbortSignal.timeout==='function')?AbortSignal.timeout(12000):undefined;
+  const res=await fetch('/.netlify/functions/generate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({prompt:fullPrompt,width,height}),signal});
   if(!res.ok) throw new Error('PROXY_'+res.status);
   const d=await res.json();
   if(!d.image) throw new Error('PROXY_EMPTY');
@@ -1209,7 +1212,7 @@ async function runGeneration(fullPrompt,ratioId,statusMsg,onSuccess,onRetry){
   }catch(e){
     const m=e.message||'';
     const help=m==='CORS_ERR'?'Errore connessione — controlla la tua connessione internet e riprova':m==='TIMEOUT'?'Timeout — server occupato, riprova tra qualche minuto':m.includes('429')?'Troppe richieste — attendi qualche minuto':m==='HORDE_FAULT'||m==='HORDE_EMPTY'?'Errore durante la generazione — riprova':'Servizio non disponibile ('+m+') — riprova tra qualche minuto';
-    sBox.innerHTML=`<div style="padding:28px;text-align:center"><div style="font-size:40px;margin-bottom:12px">⚠️</div><p style="color:var(--danger);font-size:15px;font-weight:700;margin-bottom:8px;font-family:var(--font-title)">GENERAZIONE FALLITA</p><p style="color:var(--muted);font-size:12px;line-height:1.6;margin-bottom:18px">${help}</p><button onclick="retryGeneration()" style="padding:11px 28px;background:linear-gradient(135deg,var(--c-accent),var(--c-violet));color:#FFFFFF;border:none;border-radius:11px;font-size:13px;font-weight:800;cursor:pointer;">🔄 RIPROVA</button></div>`;
+    sBox.innerHTML=`<div style="padding:28px;text-align:center"><div style="font-size:40px;margin-bottom:12px">⚠️</div><p style="color:var(--danger);font-size:15px;font-weight:700;margin-bottom:8px;font-family:var(--font-title)">GENERAZIONE FALLITA</p><p style="color:var(--muted);font-size:12px;line-height:1.6;margin-bottom:18px">${escapeHtml(help)}</p><button onclick="retryGeneration()" style="padding:11px 28px;background:linear-gradient(135deg,var(--c-accent),var(--c-violet));color:#FFFFFF;border:none;border-radius:11px;font-size:13px;font-weight:800;cursor:pointer;">🔄 RIPROVA</button></div>`;
     _lastRetry=onRetry||generateImage;
     setStatus('Errore — riprova','fail');
   }
@@ -1679,7 +1682,7 @@ function saveGallery(){
   return false;
 }
 function escapeHtml(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
-function renderGallery(){const cnt=document.getElementById('galleryCount'),con=document.getElementById('galleryContent');if(!cnt||!con) return;cnt.textContent=ST.gallery.length+' / 12 immagini — le più vecchie vengono rimosse automaticamente';if(!ST.gallery.length){con.innerHTML=`<div class="empty-state"><div class="empty-icon">🖼️</div><p>Nessuna immagine ancora</p><span>Vai su Crea e genera!</span></div>`;return;}con.innerHTML=`<div class="gallery-grid">${ST.gallery.map((it,i)=>`<div class="gallery-item"><img src="${it.url}" loading="lazy" onclick="openModal(ST.gallery[${i}].url)"><div class="gallery-caption">${escapeHtml(it.prompt)}</div><div class="gallery-actions"><button class="gal-btn" onclick="downloadFrom(ST.gallery[${i}].url)">⬇</button><button class="gal-btn ac" onclick="reusePrompt(${i})">↺ Riusa</button><button class="gal-btn" onclick="delItem(${i})">🗑</button></div></div>`).join('')}</div>`;}
+function renderGallery(){const cnt=document.getElementById('galleryCount'),con=document.getElementById('galleryContent');if(!cnt||!con) return;cnt.textContent=ST.gallery.length+' / 12 immagini — le più vecchie vengono rimosse automaticamente';if(!ST.gallery.length){con.innerHTML=`<div class="empty-state"><div class="empty-icon">🖼️</div><p>Nessuna immagine ancora</p><span>Vai su Crea e genera!</span></div>`;return;}con.innerHTML=`<div class="gallery-grid">${ST.gallery.map((it,i)=>`<div class="gallery-item"><img src="${escapeHtml(it.url)}" loading="lazy" onclick="openModal(ST.gallery[${i}].url)"><div class="gallery-caption">${escapeHtml(it.prompt)}</div><div class="gallery-actions"><button class="gal-btn" onclick="downloadFrom(ST.gallery[${i}].url)">⬇</button><button class="gal-btn ac" onclick="reusePrompt(${i})">↺ Riusa</button><button class="gal-btn" onclick="delItem(${i})">🗑</button></div></div>`).join('')}</div>`;}
 function reusePrompt(i){const it=ST.gallery[i];document.getElementById('promptInput').value=it.prompt;ST.style=it.style;buildStyles();switchTab('create');}
 function delItem(i){ST.gallery.splice(i,1);try{localStorage.setItem('ig_gallery',JSON.stringify(ST.gallery));}catch(e){flashStatus('Impossibile salvare la rimozione — riproverà al prossimo salvataggio','fail',4000);}renderGallery();}
 

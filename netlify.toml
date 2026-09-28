@@ -21,3 +21,11 @@
     X-Content-Type-Options = "nosniff"
     Referrer-Policy = "strict-origin-when-cross-origin"
     X-Frame-Options = "DENY"
+    # Report-Only (WS-03, audit sicurezza 18/09/2026): solo logging in console, nessun blocco —
+    # l'app usa onclick inline ovunque, l'enforce vero richiederebbe un refactor più ampio (fuori
+    # scope qui). Origini elencate: cdn.jsdelivr.net (moduli background-removal/upscaler, S28/S30),
+    # staticimgly.com (modello background-removal), image.pollinations.ai (generazione+galleria),
+    # stablehorde.net (fallback), fonts.google* (Google Fonts), /.netlify/functions (proxy propri).
+    # connect-src include data: perché downloadFrom()/toDataUrl() fanno fetch() anche su data: URL
+    # (risultati di CF/Horde, upscale locale) — senza, un domani l'enforce romperebbe il download.
+    Content-Security-Policy-Report-Only = "default-src 'self'; script-src 'self' https://cdn.jsdelivr.net; connect-src 'self' data: https://image.pollinations.ai https://stablehorde.net https://cdn.jsdelivr.net https://staticimgly.com; img-src 'self' data: blob: https://image.pollinations.ai; style-src 'self' https://fonts.googleapis.com 'unsafe-inline'; font-src https://fonts.gstatic.com; frame-ancestors 'none'"
