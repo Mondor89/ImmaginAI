@@ -1,4 +1,5 @@
 # ImmaginAI — Stato del Progetto
+
 > Aggiorna ogni sessione con REGISTRA. Se supera 150 righe, snellire prima.
 
 ---
@@ -7,7 +8,7 @@
 
 | Campo | Valore |
 |-------|--------|
-| Ultimo aggiornamento | 28 Settembre 2026 — S36 |
+| Ultimo aggiornamento | 5 Ottobre 2026 — S37 (sessione dedicata: potatura CLAUDE.md + U-199, vedi esito in fondo) |
 | Versione app | v4.8 |
 | Stato | ✅ Pollinations primario (gratis, illimitato) — CF come backup qualità (steps:4), Together.ai disattivato via gate esplicito. **S30**: un solo bottone "Modifica" (Kontext, ex "Modifica precisa") — la versione classica gratuita (rigenerazione da prompt) è stata rimossa su richiesta di Fabio (troppi bottoni confondevano), con tetto di 3 modifiche riuscite per immagine generata (azzerato ad ogni nuova generazione) come freno al costo. Bottone "🪄 Sfondo" (S28) — rimozione sfondo vera client-side, modello `isnet_fp16`. Bottone "🔍 Upscale" (S30, in prova) — ingrandimento 2x client-side. **S30**: Sfondo e Upscale spostati dentro il pannello "⚙️ Strumenti" (ex "✏️ Modifica") insieme al campo Modifica — riga azioni principale ridotta a 3 bottoni (Scarica/Rigenera/Strumenti), su richiesta di Fabio (troppi bottoni). **Nuovo in S29**: "✂️ Senza sfondo" ora avvia in automatico la rimozione sfondo vera dopo la generazione. Dettagli visivi tornati viola (come Stile/Formato) e su una riga sola con scorrimento a frecce. Sessioni A-F del backlog S21 tutte chiuse (S22-S26) |
 | Prossima task | **Candidati per la prossima sessione (S37), messi in lista su richiesta di Fabio dopo S36** — non un impegno a farli tutti in una sessione sola (vedi `CLAUDE.md` → Limite di complessità), da scegliere all'apertura: **(1)** Testare "🔍 Upscale" sul sito live con un browser reale (in prova da S30 — nel test in sandbox la pagina è rimasta non responsiva 20-30s+, un secondo upscale su un'immagine già ingrandita ha bloccato il tab in modo permanente, mitigato con `UPSCALE_MAX_PIXELS` ma mai confermato fuori sandbox); **(2)** CSP da Report-Only a enforce (`netlify.toml`, S36) — richiede refactor degli `onclick` inline sparsi in tutta l'app, non banale; **(3)** `saveUsers()` in `immaginai_admin.html` scrive ancora le password degli utenti admin aggiunti in chiaro in `ig_users` (S36 ha coperto solo la sessione di login) — stessa famiglia di WS-01, mai risolto per gli utenti extra; **(4)** rate limit persistente (Netlify Blobs) su `generate.js`/`modify.js`, **ancora condizionato a un segnale concreto** (picco richieste, salto di costo Kontext) — non aprire senza quel segnale, resta un candidato solo se il segnale arriva. Monitorare saldo/uso di Modifica precisa via dashboard Pollinations resta comunque attivo (monitoraggio automatico repo GitHub Pollinations ogni 10 giorni, S28) |
@@ -552,3 +553,25 @@ Non fa parte della cascata di generazione: è un'opzione aggiuntiva sul bottone 
 ```html
 <a id="ws-immaginai-btn2" href="https://wonderspit-ai.netlify.app/" target="_blank" style="position:fixed;top:70px;right:150px;z-index:999999;background:#ff00c8;color:#ffffff;text-decoration:none;font-family:Space Grotesk,Arial,sans-serif;font-size:13px;font-weight:700;padding:8px 14px;border-radius:20px;box-shadow:0 2px 12px rgba(255,0,200,0.4);letter-spacing:.5px;">🎨 Immagini AI ✨</a>
 ```
+
+---
+
+## Esito potatura del CLAUDE.md e recepimento di U-199 — 05/10/2026
+
+Sessione dedicata, eseguita secondo `PROCEDURA_potatura_claude_md_2026-10-03.md` (Template Claude). Sonnet 5.5 base, nessuna escalation; un solo sotto-agente (audit, vedi sotto).
+
+| Misura | Prima | Dopo |
+|---|---|---|
+| `CLAUDE.md` | 127.888 byte, 627 righe | 121.200 byte, 630 righe |
+| Riga `Travasi recepiti` | 14.521 byte | circa 5,9 KB |
+| Blocco `Stato attuale` nel `CLAUDE.md` | assente (0 byte): lo stato vive in questo file | invariato |
+| ID dichiarati | 147 | 148 (`U-199`) |
+| ID mancanti (`verifica_numeri.py`) | 41 | 40 |
+
+- **Spostato:** le 89 note per ID che stavano *dentro* la riga `Travasi recepiti` (riga 624) sono in `docs/archivio_claude_md_2026-10-05.md`, parte A, con le parole identiche. Nella riga restano gli stessi 147 ID nello stesso ordine, ciascuno con una nota di poche parole. Parte B dell'archivio: nessun blocco `Stato attuale` da spostare.
+- **Adattamento dichiarato (da riferire a Template Claude):** la procedura presuppone note *sotto* la riga e chiede di lasciarla "identica parola per parola"; qui le note erano nella riga stessa, quindi la riga è cambiata (stessi ID, stesso ordine, note accorciate). Il controllo "riga identica" del §8 va letto come "stessi ID, stesso ordine". Fabio ha approvato questa scelta. `verifica_dimensioni.py` non vedeva il problema (cerca le note sotto la riga e dava 0/0).
+- **`U-199` recepito:** esclusione di `docs/archivio_*` nel `RIEPILOGO` e nel passo "Leggi tutti i file `.md`" di `REGISTRA`; riga di checklist `CLAUDE.md` adattata (misura del file e della riga `Travasi recepiti`, soglia circa 10 KB, rimando alla procedura); blockquote "Le note restano di una riga"; voce dell'archivio in `File di riferimento` senza `@`. `U-199` aggiunto alla riga `Travasi recepiti` dopo la potatura, come da procedura.
+- **Prove (script):** sequenza degli ID identica; ogni nota ritrovata nell'archivio e riga originale ricostruita byte per byte; le uniche righe diverse dall'originale sono 93, 95 e 103 (solo inserzioni) e la 624; fine riga LF puri come prima; 147 dichiarati prima e dopo la potatura, 148 con `U-199`.
+- **Audit indipendente:** 1 istanza, Opus 5.5, `claude-code-guide` (senza shell, sola lettura), su bozza intera + archivio + riga originale. Nessun bloccante. Trovati e corretti prima della copia: nota breve di `U-090` che nascondeva un recepimento parziale, `U-027` senza "per ora", `U-016` senza "non la REGOLA DI AVVIO completa", `U-043` senza il rimando a `U-045`, `U-025` senza "in S18", citazione di `REGISTRA` non letterale (nel testo e nell'archivio). Non applicati, minori: lieve tensione fra Meta-regola F (la storia va in questo file) e la nuova riga di checklist (la cronologia vecchia va in `docs/archivio_*`); il grep su `_inbox` troverebbe anche l'archivio (innocuo). Il consumo è stato di circa 368k token, molto sopra la stima di 40-60k: l'auditor ha letto molto più degli estratti indicati.
+- **Resta fuori, sessione separata:** gli import `@` di `CLAUDE.md` (questo file di stato da 170 KB, `immaginai_sicurezza.md`, `immaginai_test_manuale.md`, `immaginai_resoconto_s16_s26.md`, `Immaginai.html`, `immaginai_light.css`, `immaginai_admin.html`, `wonderspit_spreadshop.css`) finiscono nel contesto a ogni sessione: è il vero peso, molto più del `CLAUDE.md`. Da affrontare dopo questa sessione, misurando con `/context` prima e dopo. Non toccati qui, per decisione di Fabio.
+- **Non fatto, per decisione di Fabio:** la `RECEPISCI` degli altri 40 ID in arretrato (da `U-161` a `U-203`, esclusi `U-199`) resta una sessione separata e successiva. Nessuna patch nuova depositata (Template Claude è in congelamento delle nuove regole); nulla in `patch\_inbox\`.
