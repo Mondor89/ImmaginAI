@@ -49,16 +49,22 @@ const CTA_VARIANT = 'B'; // A=semplice · B=card elaborata · C=banner fisso
 File CSS Spreadshop pronto: `wonderspit_spreadshop.css` (manca URL Netlify reale)
 
 ## File di riferimento
+
+Caricati all'avvio (import `@`):
 - @docs/immaginai_stato.md → stato, task, log, note tecniche (fonte di verità per lo stato — non duplicare qui)
 - @docs/immaginai_sicurezza.md → invarianti di sicurezza, superficie di attacco, gap noti
 - @docs/immaginai_test_manuale.md → checklist di test manuali persistente per Fabio (per area funzionale, non per sessione) — aggiornarla quando cambia un comportamento visibile, non lasciarla decadere
-- @docs/immaginai_resoconto_s16_s26.md → resoconto narrativo (S16→S26) di tutte le modifiche fatte da quando è nato il processo strutturato — documento una tantum, non va aggiornato ad ogni sessione come gli altri file di riferimento
-- @app/Immaginai.html → ultima versione funzionante
-- @app/immaginai_light.css → override CSS light theme
-- @app/immaginai_admin.html → pannello admin separato
-- @spreadshop/wonderspit_spreadshop.css → CSS pronto per pannello Spreadshop
-- @../_Condivisi/WonderSpit_Ecosistema_Visione.html → visione 3 moduli
-- @../_Condivisi/wonderspit_brand_kit.html → colori e font
+
+Letti quando il compito li richiede, non all'avvio (riferimento in testo, senza `@`):
+- `docs/immaginai_resoconto_s16_s26.md` → resoconto narrativo (S16→S26) di tutte le modifiche fatte da quando è nato il processo strutturato — documento una tantum, storico, non va aggiornato ad ogni sessione
+- `app/Immaginai.html` → ultima versione funzionante
+- `app/immaginai_light.css` → override CSS light theme
+- `app/immaginai_admin.html` → pannello admin separato
+- `spreadshop/wonderspit_spreadshop.css` → CSS pronto per pannello Spreadshop
+- `../_Condivisi/WonderSpit_Ecosistema_Visione.html` → visione 3 moduli
+- `../_Condivisi/wonderspit_brand_kit.html` → colori e font
+
+Gli elementi della seconda lista vanno letti quando il compito li richiede, non all'avvio.
 - `docs/immaginai_configurazione.md` → *(nuovo riferimento proposto, file non ancora creato — da confermare con Fabio prima di crearlo)* impostazioni presenti solo in un pannello esterno (env var Netlify: `CF_ACCOUNT_ID`/`CF_API_TOKEN`/`POLLINATIONS_KEY`/`KONTEXT_ENABLED`/`TOGETHER_KEY`/`TOGETHER_ENABLED`) — cosa è impostato e dove, non il perché (che resta in `immaginai_sicurezza.md`/`immaginai_stato.md`). In caso di divergenza vale il pannello reale; ogni affermazione supportata da un log/verifica diretta, il dedotto marcato come tale.
 - `docs/immaginai_memoria_progetto.md` → ⚠ **obsoleto** (v2.6, S10). Non è più fonte di verità, sostituito da `immaginai_stato.md`. Tenuto solo per storia architetturale, da valutare se archiviare.
 - `docs/archivio_claude_md_2026-10-05.md` → archivio dello storico spostato fuori da questo file (parte A: note per ID di `Travasi recepiti`; parte B: nessun blocco «Stato attuale» da spostare, in questo progetto è sempre stato in `immaginai_stato.md`). **Non importare con `@` e non leggere all'avvio**: si apre solo per ritrovare il perché di un ID.
@@ -285,7 +291,7 @@ Il file può crescere quanto serve, **purché cresca solo di regole attive**: un
 
 > **Soglia d'allarme, non limite:** quando il file supera in modo significativo la lunghezza che aveva alla prima riconciliazione col template (27/08/2026, vedi *Allineamento al template* — questo progetto è nato prima del sistema dei template, quindi non ha una lunghezza "di nascita dal template" in senso stretto), non è "troppo lungo" — è il momento di rileggerlo una volta e chiedersi quanto di ciò che c'è dentro è ancora regola attiva. Quasi sempre la risposta è che va spostata della cronologia, non tagliata una regola.
 
-> **Un file letto a ogni avvio conta come caricato.** Spostare cronologia o regole in un altro file non alleggerisce la sessione se qualcosa lo apre a ogni avvio: un `RIEPILOGO` che legge «tutti i `.md`» (qui il `RIEPILOGO` legge solo `docs/immaginai_stato.md` e i `.md` non tracciati, archivi esclusi), oppure un import `@` in questo file. Un archivio alleggerisce solo se nessun comando d'avvio e nessun import `@` lo apre (per questo gli `archivio_*` sono esclusi dal `RIEPILOGO`); lo stato vivo resta in `docs/immaginai_stato.md`, la cronologia vecchia va in `docs/archivio_*`. Il limite di lettura vale per i file aperti con lo strumento di lettura, non per `CLAUDE.md`, che si carica da solo: uno strumento di lettura può non aprire intero un file molto lungo (a ottobre 2026 il limite osservato era circa 25.000 token), e un file così non va previsto come lettura d'avvio. **Debito noto, non ancora risolto:** gli import `@` in *File di riferimento* (fra cui `docs/immaginai_stato.md`, circa 170 KB, e i file dell'app) si caricano a ogni sessione; il loro ridimensionamento è rimandato a una sessione dedicata (vedi esito S37 in `docs/immaginai_stato.md`). *Caso reale, Template Claude, Sessione 67: `docs/template_stato.md` (474 KB) e `docs/registro_travasi.md` (248 KB), letti da REGOLA DI AVVIO e `RIEPILOGO`, non si aprono interi.*
+> **Un file letto a ogni avvio conta come caricato.** Spostare cronologia o regole in un altro file non alleggerisce la sessione se qualcosa lo apre a ogni avvio: un `RIEPILOGO` che legge «tutti i `.md`» (qui il `RIEPILOGO` legge solo `docs/immaginai_stato.md` e i `.md` non tracciati, archivi esclusi), oppure un import `@` in questo file. Un archivio alleggerisce solo se nessun comando d'avvio e nessun import `@` lo apre (per questo gli `archivio_*` sono esclusi dal `RIEPILOGO`); lo stato vivo resta in `docs/immaginai_stato.md`, la cronologia vecchia va in `docs/archivio_*`. Il limite di lettura vale per i file aperti con lo strumento di lettura, non per `CLAUDE.md`, che si carica da solo: uno strumento di lettura può non aprire intero un file molto lungo (a ottobre 2026 il limite osservato era circa 25.000 token), e un file così non va previsto come lettura d'avvio. **Import `@` attivi all'avvio:** solo `docs/immaginai_stato.md`, `docs/immaginai_sicurezza.md`, `docs/immaginai_test_manuale.md`. Codice dell'app, CSS, admin, resoconto e file `_Condivisi` non sono più import: si leggono solo quando il compito li richiede (vedi *File di riferimento*). Misura con `/context` in sessione vuota (S39, 08/10/2026): totale 216,6k (prima 314,4k), file di memoria 167,3k su 6 file (prima 265,1k su 11). *Caso reale, Template Claude, Sessione 67: `docs/template_stato.md` (474 KB) e `docs/registro_travasi.md` (248 KB), letti da REGOLA DI AVVIO e `RIEPILOGO`, non si aprono interi.*
 
 ---
 
